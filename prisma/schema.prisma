@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  icon      String   @default("circle")
+  color     String   @default("#84a98c")
+  type      String   @default("EXPENSE")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  transactions Transaction[]
+  budgets      Budget[]
+}
+
+model PaymentMethod {
+  id        Int      @id @default(autoincrement())
+  name      String
+  icon      String   @default("credit-card")
+  color     String   @default("#2f3e46")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id                 Int      @id @default(autoincrement())
+  title              String
+  description        String?
+  amount             Float
+  type               String
+  categoryId         Int
+  paymentMethodId    Int
+  date               String
+  time               String
+  merchant           String?
+  installments       Boolean  @default(false)
+  currentInstallment Int?
+  totalInstallments  Int?
+  tags               String   @default("[]")
+  notes              String?
+  receiptImage       String?
+  isFavorite         Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  category      Category      @relation(fields: [categoryId], references: [id])
+  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+}
+
+model Budget {
+  id         Int      @id @default(autoincrement())
+  categoryId Int      @unique
+  amount     Float
+  period     String   @default("MONTHLY")
+  month      Int      @default(1)
+  year       Int      @default(2024)
+  createdAt  DateTime @default(now())
+
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model Goal {
+  id            Int      @id @default(autoincrement())
+  name          String
+  targetAmount  Float
+  currentAmount Float    @default(0)
+  targetDate    String?
+  color         String   @default("#84a98c")
+  icon          String   @default("target")
+  createdAt     DateTime @default(now())
+}
+
+model Investment {
+  id             Int      @id @default(autoincrement())
+  name           String
+  category       String
+  broker         String?
+  amountInvested Float
+  currentValue   Float
+  purchaseDate   String?
+  notes          String?
+  createdAt      DateTime @default(now())
+}
+
+model Settings {
+  id             Int      @id @default(autoincrement())
+  currency       String   @default("USD")
+  language       String   @default("en")
+  theme          String   @default("system")
+  defaultView    String   @default("dashboard")
+  autoBackup     Boolean  @default(false)
+  backupInterval String   @default("weekly")
+  backupPath     String   @default("./backups")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Backup {
+  id        Int      @id @default(autoincrement())
+  filename  String
+  path      String
+  size      Int
+  createdAt DateTime @default(now())
+}
