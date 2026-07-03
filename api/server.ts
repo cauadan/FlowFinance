@@ -733,7 +733,7 @@ app.get('/api/export/csv', async (req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.resolve(process.cwd(), 'dist')))
-  app.get('*', (_req, res) => {
+  app.get('*any', (_req, res) => {
     res.sendFile(path.resolve(process.cwd(), 'dist', 'index.html'))
   })
 }
