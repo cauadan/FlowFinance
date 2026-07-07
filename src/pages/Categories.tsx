@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import { getCategories, createCategory, updateCategory, deleteCategory } from '@/lib/api'
 import type { Category } from '@/lib/api'
+import { useSettings } from '@/contexts/SettingsContext'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -83,7 +84,14 @@ const colorPalette = [
 
 export default function Categories() {
   const queryClient = useQueryClient()
+  const { t } = useSettings()
   const [activeTab, setActiveTab] = useState<'EXPENSE' | 'INCOME'>('EXPENSE')
+
+  const translateDbItem = (name: string, type: 'category' | 'payment') => {
+    const key = `${type}.${name.toLowerCase()}`
+    const translated = t(key)
+    return translated !== key ? translated : name
+  }
 
   // Form State
   const [showModal, setShowModal] = useState(false)
@@ -103,29 +111,29 @@ export default function Categories() {
     mutationFn: createCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      toast.success('Category created successfully')
+      toast.success(t('categories.create_success'))
       closeModal()
     },
-    onError: () => toast.error('Failed to create category'),
+    onError: () => toast.error(t('categories.create_error')),
   })
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Category> }) => updateCategory(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      toast.success('Category updated successfully')
+      toast.success(t('categories.update_success'))
       closeModal()
     },
-    onError: () => toast.error('Failed to update category'),
+    onError: () => toast.error(t('categories.update_error')),
   })
 
   const deleteMutation = useMutation({
     mutationFn: deleteCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      toast.success('Category deleted successfully')
+      toast.success(t('categories.delete_success'))
     },
-    onError: () => toast.error('Failed to delete category'),
+    onError: () => toast.error(t('categories.delete_error')),
   })
 
   const openAddModal = () => {
@@ -169,7 +177,7 @@ export default function Categories() {
   }
 
   const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this category? Any transactions in this category will become uncategorized.')) {
+    if (confirm(t('categories.delete_confirm'))) {
       deleteMutation.mutate(id)
     }
   }
@@ -187,10 +195,10 @@ export default function Categories() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Categories
+            {t('categories.title')}
           </h1>
           <p className="text-sm text-[#78716c]">
-            Organize your transactions with custom categories, icons, and colors.
+            {t('categories.subtitle')}
           </p>
         </div>
         <div>
@@ -199,7 +207,7 @@ export default function Categories() {
             className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
-            New Category
+            {t('categories.new')}
           </Button>
         </div>
       </div>
@@ -207,10 +215,10 @@ export default function Categories() {
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'EXPENSE' | 'INCOME')} className="w-full">
         <TabsList className="bg-[#f5f5f0] border border-[rgba(0,0,0,0.05)] rounded-lg p-1">
           <TabsTrigger value="EXPENSE" className="text-xs px-4 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
-            Expenses
+            {t('categories.tab_expense')}
           </TabsTrigger>
           <TabsTrigger value="INCOME" className="text-xs px-4 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
-            Income
+            {t('categories.tab_income')}
           </TabsTrigger>
         </TabsList>
 
@@ -226,6 +234,8 @@ export default function Categories() {
               categories={filteredCategories}
               onEdit={openEditModal}
               onDelete={handleDelete}
+              t={t}
+              translateDbItem={translateDbItem}
             />
           )}
         </TabsContent>
@@ -242,6 +252,8 @@ export default function Categories() {
               categories={filteredCategories}
               onEdit={openEditModal}
               onDelete={handleDelete}
+              t={t}
+              translateDbItem={translateDbItem}
             />
           )}
         </TabsContent>
@@ -258,7 +270,7 @@ export default function Categories() {
           >
             <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
               <h3 className="text-lg font-medium text-[#0c0a09]">
-                {editingCategory ? 'Edit Category' : 'New Category'}
+                {editingCategory ? t('categories.modal_edit') : t('categories.modal_new')}
               </h3>
               <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8 rounded-full">
                 <X className="h-4 w-4" />
@@ -268,12 +280,12 @@ export default function Categories() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Category Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="catName" className="text-xs uppercase tracking-wider text-[#78716c]">Name</Label>
+                <Label htmlFor="catName" className="text-xs uppercase tracking-wider text-[#78716c]">{t('categories.name')}</Label>
                 <Input
                   id="catName"
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
-                  placeholder="e.g., Groceries, Freelance"
+                  placeholder={t('categories.name_placeholder')}
                   required
                   className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
                 />
@@ -281,7 +293,7 @@ export default function Categories() {
 
               {/* Color Picker */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">Color</Label>
+                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('categories.color')}</Label>
                 <div className="flex flex-wrap gap-2">
                   {colorPalette.map((color) => (
                     <button
@@ -301,7 +313,7 @@ export default function Categories() {
 
               {/* Icon Picker */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">Icon</Label>
+                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('categories.icon')}</Label>
                 <div className="grid grid-cols-7 gap-2 max-h-[150px] overflow-y-auto p-1 border rounded-lg bg-[#fafaf5]/40 border-[rgba(0,0,0,0.08)]">
                   {Object.entries(iconMap).map(([iconName, IconComponent]) => (
                     <button
@@ -328,14 +340,14 @@ export default function Categories() {
                   onClick={closeModal}
                   className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
                 >
-                  Cancel
+                  {t('categories.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
                   className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
                 >
-                  {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save'}
+                  {createMutation.isPending || updateMutation.isPending ? t('categories.saving') : t('categories.save')}
                 </Button>
               </div>
             </form>
@@ -350,14 +362,16 @@ interface CategoryGridProps {
   categories: Category[]
   onEdit: (cat: Category) => void
   onDelete: (id: number) => void
+  t: (key: string) => string
+  translateDbItem: (name: string, type: 'category' | 'payment') => string
 }
 
-function CategoryGrid({ categories, onEdit, onDelete }: CategoryGridProps) {
+function CategoryGrid({ categories, onEdit, onDelete, t, translateDbItem }: CategoryGridProps) {
   if (categories.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-[rgba(0,0,0,0.08)] rounded-xl bg-white">
         <Tags className="h-8 w-8 text-[#a8a29e] mb-2" />
-        <p className="text-sm font-medium text-[#78716c]">No categories found. Create a new one to begin!</p>
+        <p className="text-sm font-medium text-[#78716c]">{t('categories.no_data')}</p>
       </div>
     )
   }
@@ -377,9 +391,11 @@ function CategoryGrid({ categories, onEdit, onDelete }: CategoryGridProps) {
                   <IconComponent className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-sm text-[#0c0a09]">{cat.name}</h4>
+                  <h4 className="font-medium text-sm text-[#0c0a09]">
+                    {cat.isDefault ? translateDbItem(cat.name, 'category') : cat.name}
+                  </h4>
                   <span className="text-[10px] text-stone-400">
-                    {cat.isDefault ? 'Default Category' : 'Custom'}
+                    {cat.isDefault ? t('categories.default') : t('categories.custom')}
                   </span>
                 </div>
               </div>
