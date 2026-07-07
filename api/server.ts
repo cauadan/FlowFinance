@@ -69,9 +69,11 @@ app.get('/api/dashboard/summary', async (_req, res) => {
     }
 
     // Pending payments (installments not yet paid)
-    const pendingPayments = await prisma.transaction.count({
-      where: { installments: true, currentInstallment: { lt: prisma.transaction.fields.totalInstallments } },
-    })
+    const pendingResult = await prisma.$queryRaw`
+      SELECT COUNT(*)::int as count FROM "Transaction"
+      WHERE installments = true AND "currentInstallment" < "totalInstallments"
+    ` as Array<{ count: number }>
+    const pendingPayments = pendingResult[0]?.count || 0
 
     // Budget used %
     let budgetUsedPercent = 0
@@ -142,15 +144,16 @@ app.get('/api/dashboard/charts', async (_req, res) => {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
 
-    const categoryBreakdown = await prisma.$queryRaw`
-      SELECT c.name, c.color, SUM(t.amount) as total
-      FROM Transaction t
-      JOIN Category c ON t.categoryId = c.id
+    const categoryBreakdownRaw = await prisma.$queryRaw`
+      SELECT c.name, c.color, CAST(SUM(t.amount) AS DOUBLE PRECISION) as total
+      FROM "Transaction" t
+      JOIN "Category" c ON t."categoryId" = c.id
       WHERE t.type = 'EXPENSE' AND t.date >= ${monthStart} AND t.date <= ${monthEnd}
-      GROUP BY c.id
+      GROUP BY c.id, c.name, c.color
       ORDER BY total DESC
       LIMIT 6
     ` as Array<{ name: string; color: string; total: number }>
+    const categoryBreakdown = categoryBreakdownRaw.map(r => ({ ...r, total: Number(r.total) }))
 
     // Weekly trend (last 7 days)
     const days: { date: string; income: number; expense: number }[] = []
@@ -558,16 +561,30 @@ app.get('/api/reports/categories', async (req, res) => {
       if (to) where.date.lte = to as string
     }
 
-    const result = await prisma.$queryRaw`
-      SELECT c.name, c.color, c.icon, SUM(t.amount) as total, COUNT(t.id) as count
-      FROM Transaction t
-      JOIN Category c ON t.categoryId = c.id
-      WHERE t.type = ${type as string}
-      ${from ? prisma.$queryRaw`AND t.date >= ${from as string}` : prisma.$queryRaw``}
-      ${to ? prisma.$queryRaw`AND t.date <= ${to as string}` : prisma.$queryRaw``}
-      GROUP BY c.id
-      ORDER BY total DESC
-    ` as Array<{ name: string; color: string; icon: string; total: number; count: number }>
+    // Use Prisma groupBy + manual category lookup to avoid broken raw query composition
+    const grouped = await prisma.transaction.groupBy({
+      by: ['categoryId'],
+      where,
+      _sum: { amount: true },
+      _count: { id: true },
+      orderBy: { _sum: { amount: 'desc' } },
+    })
+
+    // Fetch category details for the grouped results
+    const categoryIds = grouped.map(g => g.categoryId)
+    const categories = await prisma.category.findMany({ where: { id: { in: categoryIds } } })
+    const catMap = new Map(categories.map(c => [c.id, c]))
+
+    const result = grouped.map(g => {
+      const cat = catMap.get(g.categoryId)
+      return {
+        name: cat?.name || 'Unknown',
+        color: cat?.color || '#a8a29e',
+        icon: cat?.icon || 'circle',
+        total: g._sum.amount || 0,
+        count: g._count.id || 0,
+      }
+    })
 
     res.json(result)
   } catch (err) {
