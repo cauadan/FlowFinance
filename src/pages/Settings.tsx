@@ -50,16 +50,34 @@ export default function Settings() {
   // Mutations
   const updateMutation = useMutation({
     mutationFn: updateSettings,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['settings'] })
+    onSuccess: (data) => {
+      queryClient.setQueryData(['settings'], data)
       toast.success('Settings updated successfully')
     },
     onError: () => toast.error('Failed to update settings'),
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSettingChange = (field: keyof SettingsType, value: any) => {
+    // Update local state for immediate feedback
+    if (field === 'currency') setCurrency(value)
+    if (field === 'language') setLanguage(value)
+    if (field === 'theme') {
+      setTheme(value)
+      // Apply theme immediately
+      const root = window.document.documentElement
+      root.classList.remove('light', 'dark')
+      if (value === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        root.classList.add(systemTheme)
+      } else {
+        root.classList.add(value)
+      }
+    }
+    if (field === 'defaultView') setDefaultView(value)
+    if (field === 'autoBackup') setAutoBackup(value)
+    if (field === 'backupInterval') setBackupInterval(value)
 
+    // Auto-save to API
     const data: Partial<SettingsType> = {
       currency,
       language,
@@ -67,6 +85,7 @@ export default function Settings() {
       defaultView,
       autoBackup,
       backupInterval,
+      [field]: value
     }
 
     updateMutation.mutate(data)
@@ -98,7 +117,7 @@ export default function Settings() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <div>
         <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
           <CardContent className="p-6 space-y-6">
             {/* Preferences Group */}
@@ -111,7 +130,7 @@ export default function Settings() {
                 {/* Currency */}
                 <div className="space-y-1.5">
                   <Label className="text-xs text-stone-600 font-medium">Currency Symbol</Label>
-                  <Select value={currency} onValueChange={setCurrency}>
+                  <Select value={currency} onValueChange={(val) => handleSettingChange('currency', val)}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
@@ -128,7 +147,7 @@ export default function Settings() {
                 {/* Language */}
                 <div className="space-y-1.5">
                   <Label className="text-xs text-stone-600 font-medium">Language</Label>
-                  <Select value={language} onValueChange={setLanguage}>
+                  <Select value={language} onValueChange={(val) => handleSettingChange('language', val)}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -145,7 +164,7 @@ export default function Settings() {
                 {/* Theme */}
                 <div className="space-y-1.5">
                   <Label className="text-xs text-stone-600 font-medium">Theme Mode</Label>
-                  <Select value={theme} onValueChange={setTheme}>
+                  <Select value={theme} onValueChange={(val) => handleSettingChange('theme', val)}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
                       <SelectValue placeholder="Select theme" />
                     </SelectTrigger>
@@ -160,7 +179,7 @@ export default function Settings() {
                 {/* Default View */}
                 <div className="space-y-1.5">
                   <Label className="text-xs text-stone-600 font-medium">Default View on Startup</Label>
-                  <Select value={defaultView} onValueChange={setDefaultView}>
+                  <Select value={defaultView} onValueChange={(val) => handleSettingChange('defaultView', val)}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
                       <SelectValue placeholder="Select startup page" />
                     </SelectTrigger>
@@ -186,7 +205,7 @@ export default function Settings() {
                     <Label className="text-sm font-medium text-[#0c0a09]">Enable Automatic Backups</Label>
                     <p className="text-xs text-[#a8a29e]">Create database copies automatically in the background</p>
                   </div>
-                  <Switch checked={autoBackup} onCheckedChange={setAutoBackup} />
+                  <Switch checked={autoBackup} onCheckedChange={(val) => handleSettingChange('autoBackup', val)} />
                 </div>
 
                 {autoBackup && (
@@ -196,7 +215,7 @@ export default function Settings() {
                     className="space-y-1.5 pt-3 border-t border-[rgba(0,0,0,0.05)]"
                   >
                     <Label className="text-xs text-stone-600 font-medium">Backup Interval</Label>
-                    <Select value={backupInterval} onValueChange={setBackupInterval}>
+                    <Select value={backupInterval} onValueChange={(val) => handleSettingChange('backupInterval', val)}>
                       <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c] bg-white">
                         <SelectValue />
                       </SelectTrigger>
@@ -210,21 +229,9 @@ export default function Settings() {
                 )}
               </div>
             </div>
-
-            {/* Actions */}
-            <div className="flex justify-end pt-4 border-t border-[rgba(0,0,0,0.05)]">
-              <Button
-                type="submit"
-                disabled={updateMutation.isPending}
-                className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
-              >
-                <Save className="h-3.5 w-3.5" />
-                {updateMutation.isPending ? 'Saving...' : 'Save Settings'}
-              </Button>
-            </div>
           </CardContent>
         </Card>
-      </form>
+      </div>
     </motion.div>
   )
 }
