@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { Save, Globe, Database } from 'lucide-react'
+import { Globe, Database } from 'lucide-react'
 import { getSettings, updateSettings } from '@/lib/api'
 import type { Settings as SettingsType } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import {
