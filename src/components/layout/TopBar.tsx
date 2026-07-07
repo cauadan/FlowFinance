@@ -4,11 +4,15 @@ import { Search, Plus, CircleDollarSign } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import TransactionForm from '../transactions/TransactionForm'
+import { useSettings } from '@/contexts/SettingsContext'
 
 export default function TopBar() {
   const [showForm, setShowForm] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
+  const { t, language } = useSettings()
+
+  const dateLocale = language === 'pt' ? 'pt-BR' : language === 'es' ? 'es-ES' : 'en-US'
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -33,7 +37,7 @@ export default function TopBar() {
           <div className="relative hidden max-w-md flex-1 md:block">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
             <Input
-              placeholder="Search transactions, budgets..."
+              placeholder={t('topbar.search')}
               className="border-[rgba(0,0,0,0.08)] bg-white pl-9 text-sm placeholder:text-[#a8a29e] focus-visible:ring-[#84a98c]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -44,7 +48,7 @@ export default function TopBar() {
           {/* Actions */}
           <div className="flex items-center gap-3">
             <span className="hidden text-xs text-[#78716c] lg:block">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+              {new Date().toLocaleDateString(dateLocale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </span>
             <Button
               onClick={() => setShowForm(true)}
@@ -52,7 +56,7 @@ export default function TopBar() {
               size="sm"
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Quick Add</span>
+              <span className="hidden sm:inline">{t('topbar.quick_add')}</span>
             </Button>
           </div>
         </div>

@@ -16,6 +16,7 @@ import {
 import { toast } from 'sonner'
 import { getCategories, getPaymentMethods, createTransaction, updateTransaction } from '@/lib/api'
 import type { Transaction } from '@/lib/api'
+import { useSettings } from '@/contexts/SettingsContext'
 
 interface TransactionFormProps {
   open: boolean
@@ -26,6 +27,7 @@ interface TransactionFormProps {
 export default function TransactionForm({ open, onClose, transaction }: TransactionFormProps) {
   const queryClient = useQueryClient()
   const isEditing = !!transaction
+  const { t } = useSettings()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -84,10 +86,10 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Transaction created successfully')
+      toast.success(t('tx.created'))
       onClose()
     },
-    onError: () => toast.error('Failed to create transaction'),
+    onError: () => toast.error(t('tx.create_error')),
   })
 
   const updateMutation = useMutation({
@@ -95,10 +97,10 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Transaction updated successfully')
+      toast.success(t('tx.updated'))
       onClose()
     },
-    onError: () => toast.error('Failed to update transaction'),
+    onError: () => toast.error(t('tx.update_error')),
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -142,7 +144,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
       <div className="relative h-full w-full max-w-lg overflow-y-auto bg-white shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[rgba(0,0,0,0.05)] bg-white px-6 py-4">
           <h2 className="text-lg font-medium text-[#0c0a09]">
-            {isEditing ? 'Edit Transaction' : 'New Transaction'}
+            {isEditing ? t('tx.edit') : t('tx.new')}
           </h2>
           <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 rounded-full">
             <X className="h-4 w-4" />
@@ -161,7 +163,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
                   : 'bg-[#f5f5f0] text-[#78716c] hover:bg-[#fafaf5]'
               }`}
             >
-              Expense
+              {t('tx.expense')}
             </button>
             <button
               type="button"
@@ -172,18 +174,18 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
                   : 'bg-[#f5f5f0] text-[#78716c] hover:bg-[#fafaf5]'
               }`}
             >
-              Income
+              {t('tx.income')}
             </button>
           </div>
 
           {/* Title */}
           <div className="space-y-1.5">
-            <Label htmlFor="title" className="text-xs uppercase tracking-wider text-[#78716c]">Title</Label>
+            <Label htmlFor="title" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.title')}</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
-              placeholder="e.g., Grocery Shopping"
+              placeholder={t('tx.title_placeholder')}
               required
               className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
             />
@@ -191,7 +193,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
           {/* Amount */}
           <div className="space-y-1.5">
-            <Label htmlFor="amount" className="text-xs uppercase tracking-wider text-[#78716c]">Amount</Label>
+            <Label htmlFor="amount" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.amount')}</Label>
             <Input
               id="amount"
               type="number"
@@ -206,10 +208,10 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
           {/* Category */}
           <div className="space-y-1.5">
-            <Label className="text-xs uppercase tracking-wider text-[#78716c]">Category</Label>
+            <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.category')}</Label>
             <Select value={formData.categoryId} onValueChange={v => setFormData({ ...formData, categoryId: v })}>
               <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={t('tx.category_placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {filteredCategories.map(cat => (
@@ -223,10 +225,10 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
           {/* Payment Method */}
           <div className="space-y-1.5">
-            <Label className="text-xs uppercase tracking-wider text-[#78716c]">Payment Method</Label>
+            <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.payment_method')}</Label>
             <Select value={formData.paymentMethodId} onValueChange={v => setFormData({ ...formData, paymentMethodId: v })}>
               <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
-                <SelectValue placeholder="Select payment method" />
+                <SelectValue placeholder={t('tx.payment_placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {paymentMethods?.map(pm => (
@@ -241,7 +243,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
           {/* Date & Time */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="date" className="text-xs uppercase tracking-wider text-[#78716c]">Date</Label>
+              <Label htmlFor="date" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.date')}</Label>
               <Input
                 id="date"
                 type="date"
@@ -252,7 +254,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="time" className="text-xs uppercase tracking-wider text-[#78716c]">Time</Label>
+              <Label htmlFor="time" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.time')}</Label>
               <Input
                 id="time"
                 type="time"
@@ -266,12 +268,12 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
           {/* Merchant */}
           <div className="space-y-1.5">
-            <Label htmlFor="merchant" className="text-xs uppercase tracking-wider text-[#78716c]">Merchant / Store</Label>
+            <Label htmlFor="merchant" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.merchant')}</Label>
             <Input
               id="merchant"
               value={formData.merchant}
               onChange={e => setFormData({ ...formData, merchant: e.target.value })}
-              placeholder="e.g., Whole Foods"
+              placeholder={t('tx.merchant_placeholder')}
               className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
             />
           </div>
@@ -279,7 +281,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
           {/* Installments */}
           <div className="space-y-3 rounded-lg bg-[#fafaf5] p-4">
             <div className="flex items-center justify-between">
-              <Label className="text-xs uppercase tracking-wider text-[#78716c]">Installments</Label>
+              <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.installments')}</Label>
               <Switch
                 checked={formData.installments}
                 onCheckedChange={v => setFormData({ ...formData, installments: v })}
@@ -288,7 +290,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
             {formData.installments && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs text-[#a8a29e]">Current</Label>
+                  <Label className="text-xs text-[#a8a29e]">{t('tx.current')}</Label>
                   <Input
                     type="number"
                     value={formData.currentInstallment}
@@ -298,7 +300,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-[#a8a29e]">Total</Label>
+                  <Label className="text-xs text-[#a8a29e]">{t('tx.total')}</Label>
                   <Input
                     type="number"
                     value={formData.totalInstallments}
@@ -313,24 +315,24 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
           {/* Tags */}
           <div className="space-y-1.5">
-            <Label htmlFor="tags" className="text-xs uppercase tracking-wider text-[#78716c]">Tags (comma separated)</Label>
+            <Label htmlFor="tags" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.tags')}</Label>
             <Input
               id="tags"
               value={formData.tags}
               onChange={e => setFormData({ ...formData, tags: e.target.value })}
-              placeholder="food, weekly, important"
+              placeholder={t('tx.tags_placeholder')}
               className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
             />
           </div>
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-[#78716c]">Notes</Label>
+            <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.notes')}</Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={e => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Additional notes..."
+              placeholder={t('tx.notes_placeholder')}
               rows={3}
               className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
             />
@@ -342,7 +344,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               checked={formData.isFavorite}
               onCheckedChange={v => setFormData({ ...formData, isFavorite: v })}
             />
-            <Label className="text-sm text-[#78716c]">Mark as favorite</Label>
+            <Label className="text-sm text-[#78716c]">{t('tx.favorite')}</Label>
           </div>
 
           {/* Actions */}
@@ -353,7 +355,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               onClick={onClose}
               className="flex-1 border-[rgba(0,0,0,0.1)]"
             >
-              Cancel
+              {t('tx.cancel')}
             </Button>
             <Button
               type="submit"
@@ -361,8 +363,8 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46]"
             >
               {createMutation.isPending || updateMutation.isPending
-                ? 'Saving...'
-                : isEditing ? 'Update' : 'Save'}
+                ? t('tx.saving')
+                : isEditing ? t('tx.update') : t('tx.save')}
             </Button>
           </div>
         </form>

@@ -10,8 +10,8 @@ import {
   getCashflowReport,
   getCategoriesReport,
   getNetworthReport,
-  getSettings,
 } from '@/lib/api'
+import { useSettings } from '@/contexts/SettingsContext'
 import { formatCurrency, formatPercentage } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -64,12 +64,7 @@ export default function Analytics() {
   const toParam = dateRange === 'all' ? customTo : activeDates.to
 
   // Queries
-  const { data: settings } = useQuery({
-    queryKey: ['settings'],
-    queryFn: getSettings,
-  })
-
-  const currency = settings?.currency || 'USD'
+  const { t, currency } = useSettings()
 
   const { data: cashflow, isLoading: cfLoading } = useQuery({
     queryKey: ['report', 'cashflow', fromParam, toParam],
@@ -107,10 +102,10 @@ export default function Analytics() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Analytics
+            {t('analytics.title')}
           </h1>
           <p className="text-sm text-[#78716c]">
-            Deep dive into your cashflow trends, net worth progression, and category metrics.
+            {t('analytics.subtitle')}
           </p>
         </div>
 
@@ -123,7 +118,7 @@ export default function Analytics() {
                 dateRange === '30days' ? 'bg-white shadow-sm text-stone-850' : 'text-stone-500'
               }`}
             >
-              30 Days
+              {t('analytics.30days')}
             </button>
             <button
               onClick={() => setDateRange('6months')}
@@ -131,7 +126,7 @@ export default function Analytics() {
                 dateRange === '6months' ? 'bg-white shadow-sm text-stone-850' : 'text-stone-500'
               }`}
             >
-              6 Months
+              {t('analytics.6months')}
             </button>
             <button
               onClick={() => setDateRange('thisyear')}
@@ -139,7 +134,7 @@ export default function Analytics() {
                 dateRange === 'thisyear' ? 'bg-white shadow-sm text-stone-850' : 'text-stone-500'
               }`}
             >
-              This Year
+              {t('analytics.thisyear')}
             </button>
             <button
               onClick={() => setDateRange('all')}
@@ -147,7 +142,7 @@ export default function Analytics() {
                 dateRange === 'all' ? 'bg-white shadow-sm text-stone-850' : 'text-stone-500'
               }`}
             >
-              Custom
+              {t('analytics.custom')}
             </button>
           </div>
 
@@ -159,7 +154,7 @@ export default function Analytics() {
                 onChange={(e) => setCustomFrom(e.target.value)}
                 className="h-8 w-[120px] py-1 border-[rgba(0,0,0,0.08)] bg-white text-[11px]"
               />
-              <span>to</span>
+              <span>{t('analytics.to')}</span>
               <Input
                 type="date"
                 value={customTo}
@@ -191,7 +186,7 @@ export default function Analytics() {
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader className="pb-1 space-y-0.5">
                 <CardDescription className="text-[10px] font-semibold uppercase tracking-wider text-[#78716c]">
-                  Total Income
+                  {t('analytics.total_income')}
                 </CardDescription>
                 <div className="flex items-center gap-1 text-[#84a98c]">
                   <ArrowUpRight className="h-3 w-3" />
@@ -203,7 +198,7 @@ export default function Analytics() {
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader className="pb-1 space-y-0.5">
                 <CardDescription className="text-[10px] font-semibold uppercase tracking-wider text-[#78716c]">
-                  Total Expenses
+                  {t('analytics.total_expenses')}
                 </CardDescription>
                 <div className="flex items-center gap-1 text-[#e76f51]">
                   <ArrowDownRight className="h-3 w-3" />
@@ -215,7 +210,7 @@ export default function Analytics() {
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader className="pb-1 space-y-0.5">
                 <CardDescription className="text-[10px] font-semibold uppercase tracking-wider text-[#78716c]">
-                  Net Savings
+                  {t('analytics.net_savings')}
                 </CardDescription>
                 <div className={`flex items-center gap-1 ${netSavings >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]'}`}>
                   {netSavings >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
@@ -227,7 +222,7 @@ export default function Analytics() {
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader className="pb-1 space-y-0.5">
                 <CardDescription className="text-[10px] font-semibold uppercase tracking-wider text-[#78716c]">
-                  Savings Rate
+                  {t('analytics.savings_rate')}
                 </CardDescription>
                 <div className="text-2xl font-bold text-[#0c0a09]">
                   {formatPercentage(savingsRate)}
@@ -239,8 +234,8 @@ export default function Analytics() {
           {/* Cash Flow History */}
           <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base font-semibold text-[#0c0a09]">Cash Flow Analysis</CardTitle>
-              <CardDescription className="text-xs text-[#a8a29e]">Income vs Expenses comparison per month</CardDescription>
+              <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('analytics.cash_flow_analysis')}</CardTitle>
+              <CardDescription className="text-xs text-[#a8a29e]">{t('analytics.income_vs_expense')}</CardDescription>
             </CardHeader>
             <CardContent className="h-[300px] pl-2">
               <ResponsiveContainer width="100%" height="100%">
@@ -252,8 +247,8 @@ export default function Analytics() {
                     formatter={(val: number) => [formatCurrency(val, currency), '']}
                     contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
                   />
-                  <Bar dataKey="income" name="Income" fill="#84a98c" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="expense" name="Expense" fill="#e76f51" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="income" name={t('dashboard.income')} fill="#84a98c" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="expense" name={t('dashboard.expense')} fill="#e76f51" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -263,8 +258,8 @@ export default function Analytics() {
             {/* Net Worth Growth */}
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader>
-                <CardTitle className="text-base font-semibold text-[#0c0a09]">Net Worth Progression</CardTitle>
-                <CardDescription className="text-xs text-[#a8a29e]">Accumulated assets development over time</CardDescription>
+                <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('analytics.networth_progression')}</CardTitle>
+                <CardDescription className="text-xs text-[#a8a29e]">{t('analytics.networth_desc')}</CardDescription>
               </CardHeader>
               <CardContent className="h-[300px] pl-2">
                 {networth && networth.length > 0 ? (
@@ -283,13 +278,13 @@ export default function Analytics() {
                         formatter={(val: number) => [formatCurrency(val, currency), '']}
                         contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
                       />
-                      <Area type="monotone" dataKey="networth" name="Net Worth" stroke="#84a98c" strokeWidth={2.5} fillOpacity={1} fill="url(#nwGrad)" />
+                      <Area type="monotone" dataKey="networth" name={t('analytics.networth_label')} stroke="#84a98c" strokeWidth={2.5} fillOpacity={1} fill="url(#nwGrad)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <Receipt className="h-8 w-8 text-[#a8a29e] mb-2" />
-                    <p className="text-sm text-[#a8a29e]">No net worth history available yet.</p>
+                    <p className="text-sm text-[#a8a29e]">{t('analytics.no_networth')}</p>
                   </div>
                 )}
               </CardContent>
@@ -298,8 +293,8 @@ export default function Analytics() {
             {/* Category Expenses Breakdown */}
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader>
-                <CardTitle className="text-base font-semibold text-[#0c0a09]">Expenses by Category</CardTitle>
-                <CardDescription className="text-xs text-[#a8a29e]">Allocation of category expenses for this period</CardDescription>
+                <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('analytics.expenses_by_category')}</CardTitle>
+                <CardDescription className="text-xs text-[#a8a29e]">{t('analytics.category_desc')}</CardDescription>
               </CardHeader>
               <CardContent className="h-[300px] flex flex-col justify-center">
                 {categoriesReport && categoriesReport.length > 0 ? (
@@ -339,7 +334,7 @@ export default function Analytics() {
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <Receipt className="h-8 w-8 text-[#a8a29e] mb-2" />
-                    <p className="text-sm text-[#a8a29e]">No expenses recorded in this period.</p>
+                    <p className="text-sm text-[#a8a29e]">{t('analytics.no_expenses')}</p>
                   </div>
                 )}
               </CardContent>
