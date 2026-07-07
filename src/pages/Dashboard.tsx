@@ -31,6 +31,7 @@ import {
   Pie,
   Cell,
 } from 'recharts'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useSettings } from '@/contexts/SettingsContext'
 
 export default function Dashboard() {
@@ -113,8 +114,7 @@ export default function Dashboard() {
     )
   }
 
-  // Colors for donut chart
-  const PIE_COLORS = ['#84a98c', '#52796f', '#354f52', '#2f3e46', '#cad2c5', '#a8a29e']
+
 
   return (
     <motion.div
@@ -296,7 +296,7 @@ export default function Dashboard() {
                 </ResponsiveContainer>
                 {/* Custom Legend */}
                 <div className="grid grid-cols-2 gap-2 text-[10px] px-2">
-                  {charts.categoryBreakdown.slice(0, 4).map((entry, index) => (
+                  {charts.categoryBreakdown.slice(0, 4).map((entry) => (
                     <div key={entry.name} className="flex items-center gap-1.5 truncate">
                       <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color || '#a8a29e' }} />
                       <span className="truncate text-stone-600">{entry.name}</span>
