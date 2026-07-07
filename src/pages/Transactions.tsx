@@ -21,12 +21,12 @@ import {
   getPaymentMethods,
   deleteTransaction,
   duplicateTransaction,
-  getSettings,
+  updateTransaction,
   exportTransactionsCsvUrl,
 } from '@/lib/api'
 import { useSettings } from '@/contexts/SettingsContext'
 import type { Transaction } from '@/lib/api'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -173,7 +173,6 @@ export default function Transactions() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('transactions.title')}
           </h1>
