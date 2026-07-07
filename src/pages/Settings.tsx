@@ -17,8 +17,11 @@ import {
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import { useSettings } from '@/contexts/SettingsContext'
+
 export default function Settings() {
   const queryClient = useQueryClient()
+  const { t } = useSettings()
 
   // Form State
   const [currency, setCurrency] = useState('USD')
@@ -51,9 +54,9 @@ export default function Settings() {
     mutationFn: updateSettings,
     onSuccess: (data) => {
       queryClient.setQueryData(['settings'], data)
-      toast.success('Settings updated successfully')
+      toast.success(t('settings.success'))
     },
-    onError: () => toast.error('Failed to update settings'),
+    onError: () => toast.error(t('settings.error')),
   })
 
   const handleSettingChange = (field: keyof SettingsType, value: any) => {
@@ -109,10 +112,10 @@ export default function Settings() {
       {/* Header */}
       <div>
         <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-          Settings
+          {t('settings.title')}
         </h1>
         <p className="text-sm text-[#78716c]">
-          Manage your currency, default startup page, theme preferences, and data backups.
+          {t('settings.subtitle')}
         </p>
       </div>
 
@@ -122,16 +125,16 @@ export default function Settings() {
             {/* Preferences Group */}
             <div className="space-y-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-[#78716c] flex items-center gap-1.5 border-b border-[rgba(0,0,0,0.04)] pb-2 mb-2">
-                <Globe className="h-4 w-4" /> Preferences
+                <Globe className="h-4 w-4" /> {t('settings.preferences')}
               </h3>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Currency */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-stone-600 font-medium">Currency Symbol</Label>
+                  <Label className="text-xs text-stone-600 font-medium">{t('settings.currency')}</Label>
                   <Select value={currency} onValueChange={(val) => handleSettingChange('currency', val)}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
-                      <SelectValue placeholder="Select currency" />
+                      <SelectValue placeholder={t('settings.currency.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="USD">USD ($) - US Dollar</SelectItem>
@@ -145,10 +148,10 @@ export default function Settings() {
 
                 {/* Language */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-stone-600 font-medium">Language</Label>
+                  <Label className="text-xs text-stone-600 font-medium">{t('settings.language')}</Label>
                   <Select value={language} onValueChange={(val) => handleSettingChange('language', val)}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
-                      <SelectValue placeholder="Select language" />
+                      <SelectValue placeholder={t('settings.language.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="en">English</SelectItem>
@@ -162,30 +165,30 @@ export default function Settings() {
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Theme */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-stone-600 font-medium">Theme Mode</Label>
+                  <Label className="text-xs text-stone-600 font-medium">{t('settings.theme')}</Label>
                   <Select value={theme} onValueChange={(val) => handleSettingChange('theme', val)}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
-                      <SelectValue placeholder="Select theme" />
+                      <SelectValue placeholder={t('settings.theme.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="light">Light Mode</SelectItem>
-                      <SelectItem value="dark">Dark Mode (Beta)</SelectItem>
-                      <SelectItem value="system">System Default</SelectItem>
+                      <SelectItem value="light">{t('settings.theme.light')}</SelectItem>
+                      <SelectItem value="dark">{t('settings.theme.dark')}</SelectItem>
+                      <SelectItem value="system">{t('settings.theme.system')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Default View */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-stone-600 font-medium">Default View on Startup</Label>
+                  <Label className="text-xs text-stone-600 font-medium">{t('settings.startup')}</Label>
                   <Select value={defaultView} onValueChange={(val) => handleSettingChange('defaultView', val)}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
-                      <SelectValue placeholder="Select startup page" />
+                      <SelectValue placeholder={t('settings.startup.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="dashboard">Dashboard</SelectItem>
-                      <SelectItem value="transactions">Transactions</SelectItem>
-                      <SelectItem value="budgets">Budgets</SelectItem>
+                      <SelectItem value="dashboard">{t('nav.dashboard')}</SelectItem>
+                      <SelectItem value="transactions">{t('nav.transactions')}</SelectItem>
+                      <SelectItem value="budgets">{t('nav.budgets')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -195,14 +198,14 @@ export default function Settings() {
             {/* Backups Settings Group */}
             <div className="space-y-4 pt-4 border-t border-[rgba(0,0,0,0.05)]">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-[#78716c] flex items-center gap-1.5 border-b border-[rgba(0,0,0,0.04)] pb-2 mb-2">
-                <Database className="h-4 w-4" /> Automatic Backups
+                <Database className="h-4 w-4" /> {t('settings.backups')}
               </h3>
 
               <div className="space-y-4 rounded-lg bg-[#fafaf5] p-4 border border-[rgba(0,0,0,0.04)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-sm font-medium text-[#0c0a09]">Enable Automatic Backups</Label>
-                    <p className="text-xs text-[#a8a29e]">Create database copies automatically in the background</p>
+                    <Label className="text-sm font-medium text-[#0c0a09]">{t('settings.backups.enable')}</Label>
+                    <p className="text-xs text-[#a8a29e]">{t('settings.backups.desc')}</p>
                   </div>
                   <Switch checked={autoBackup} onCheckedChange={(val) => handleSettingChange('autoBackup', val)} />
                 </div>
@@ -213,15 +216,15 @@ export default function Settings() {
                     animate={{ height: 'auto', opacity: 1 }}
                     className="space-y-1.5 pt-3 border-t border-[rgba(0,0,0,0.05)]"
                   >
-                    <Label className="text-xs text-stone-600 font-medium">Backup Interval</Label>
+                    <Label className="text-xs text-stone-600 font-medium">{t('settings.backups.interval')}</Label>
                     <Select value={backupInterval} onValueChange={(val) => handleSettingChange('backupInterval', val)}>
                       <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c] bg-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="daily">Daily</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="daily">{t('settings.backups.daily')}</SelectItem>
+                        <SelectItem value="weekly">{t('settings.backups.weekly')}</SelectItem>
+                        <SelectItem value="monthly">{t('settings.backups.monthly')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </motion.div>

@@ -14,7 +14,6 @@ import {
   getDashboardSummary,
   getDashboardCharts,
   getRecentTransactions,
-  getSettings,
 } from '@/lib/api'
 import { formatCurrency, formatPercentage, formatDate } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -32,15 +31,10 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useSettings } from '@/contexts/SettingsContext'
 
 export default function Dashboard() {
-  const { data: settings } = useQuery({
-    queryKey: ['settings'],
-    queryFn: getSettings,
-  })
-
-  const currency = settings?.currency || 'USD'
+  const { t, currency } = useSettings()
 
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['dashboard', 'summary'],
@@ -62,33 +56,33 @@ export default function Dashboard() {
   // KPI cards definition
   const cards = [
     {
-      title: 'Net Worth',
+      title: t('dashboard.net_worth'),
       value: summary ? formatCurrency(summary.netWorth, currency) : '$0.00',
-      description: 'Total assets - liabilities',
+      description: t('dashboard.net_worth_desc'),
       icon: DollarSign,
       color: 'text-[#84a98c]',
       bgColor: 'bg-[#84a98c]/10',
     },
     {
-      title: 'Savings Rate',
+      title: t('dashboard.savings_rate'),
       value: summary ? formatPercentage(summary.savingsRate) : '0%',
-      description: `Savings: ${summary ? formatCurrency(summary.monthlySavings, currency) : '$0.00'}`,
+      description: t('dashboard.savings_rate_desc').replace('{value}', summary ? formatCurrency(summary.monthlySavings, currency) : '$0.00'),
       icon: summary && summary.monthlySavings >= 0 ? TrendingUp : TrendingDown,
       color: summary && summary.monthlySavings >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]',
       bgColor: summary && summary.monthlySavings >= 0 ? 'bg-[#84a98c]/10' : 'bg-[#e76f51]/10',
     },
     {
-      title: 'Investments',
+      title: t('dashboard.investments'),
       value: summary ? formatCurrency(summary.investmentValue, currency) : '$0.00',
-      description: `${summary && summary.investmentGrowth >= 0 ? '+' : ''}${summary ? formatPercentage(summary.investmentGrowth) : '0%'} growth`,
+      description: t('dashboard.investments_desc').replace('{value}', `${summary && summary.investmentGrowth >= 0 ? '+' : ''}${summary ? formatPercentage(summary.investmentGrowth) : '0%'}`),
       icon: Briefcase,
       color: 'text-[#2f3e46]',
       bgColor: 'bg-[#2f3e46]/10',
     },
     {
-      title: 'Budget Used',
+      title: t('dashboard.budget_used'),
       value: summary ? formatPercentage(summary.budgetUsedPercent) : '0%',
-      description: 'Spent vs monthly limit',
+      description: t('dashboard.budget_desc'),
       icon: AlertTriangle,
       color: summary && summary.budgetUsedPercent > 90 ? 'text-[#e76f51]' : 'text-[#a8a29e]',
       bgColor: summary && summary.budgetUsedPercent > 90 ? 'bg-[#e76f51]/10' : 'bg-stone-100',
@@ -132,10 +126,10 @@ export default function Dashboard() {
       {/* Header */}
       <div>
         <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-          Welcome back
+          {t('dashboard.title')}
         </h1>
         <p className="text-sm text-[#78716c]">
-          Here is a summary of your local financial status for this month.
+          {t('dashboard.subtitle')}
         </p>
       </div>
 
@@ -167,8 +161,8 @@ export default function Dashboard() {
         {/* Cash Flow Chart */}
         <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-[#0c0a09]">Cash Flow</CardTitle>
-            <CardDescription className="text-xs text-[#a8a29e]">Monthly comparison of income vs expenses</CardDescription>
+            <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('dashboard.cash_flow')}</CardTitle>
+            <CardDescription className="text-xs text-[#a8a29e]">{t('dashboard.compare_income_expense')}</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] pl-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -180,8 +174,8 @@ export default function Dashboard() {
                   formatter={(val: number) => [formatCurrency(val, currency), '']}
                   contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
                 />
-                <Bar dataKey="income" name="Income" fill="#84a98c" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expense" name="Expense" fill="#e76f51" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="income" name={t('dashboard.income')} fill="#84a98c" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expense" name={t('dashboard.expense')} fill="#e76f51" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -190,8 +184,8 @@ export default function Dashboard() {
         {/* Weekly Trend */}
         <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-[#0c0a09]">Weekly Trend</CardTitle>
-            <CardDescription className="text-xs text-[#a8a29e]">Income vs Expense in the last 7 days</CardDescription>
+            <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('dashboard.weekly_trend')}</CardTitle>
+            <CardDescription className="text-xs text-[#a8a29e]">{t('dashboard.trend_desc')}</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] pl-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -213,8 +207,8 @@ export default function Dashboard() {
                   formatter={(val: number) => [formatCurrency(val, currency), '']}
                   contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
                 />
-                <Area type="monotone" dataKey="income" name="Income" stroke="#84a98c" strokeWidth={2} fillOpacity={1} fill="url(#incomeGrad)" />
-                <Area type="monotone" dataKey="expense" name="Expense" stroke="#e76f51" strokeWidth={2} fillOpacity={1} fill="url(#expenseGrad)" />
+                <Area type="monotone" dataKey="income" name={t('dashboard.income')} stroke="#84a98c" strokeWidth={2} fillOpacity={1} fill="url(#incomeGrad)" />
+                <Area type="monotone" dataKey="expense" name={t('dashboard.expense')} stroke="#e76f51" strokeWidth={2} fillOpacity={1} fill="url(#expenseGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -226,11 +220,11 @@ export default function Dashboard() {
         <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm md:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-[#0c0a09]">Recent Transactions</CardTitle>
-              <CardDescription className="text-xs text-[#a8a29e]">Your latest financial activities</CardDescription>
+              <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('dashboard.recent_transactions')}</CardTitle>
+              <CardDescription className="text-xs text-[#a8a29e]">{t('dashboard.recent_desc')}</CardDescription>
             </div>
             <Link to="/transactions" className="flex items-center gap-1 text-xs font-semibold text-[#84a98c] hover:underline">
-              View all
+              {t('dashboard.view_all')}
               <ArrowRight className="h-3 w-3" />
             </Link>
           </CardHeader>
@@ -264,7 +258,7 @@ export default function Dashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Receipt className="h-8 w-8 text-[#a8a29e] mb-2" />
-                <p className="text-sm text-[#a8a29e]">No transactions found.</p>
+                <p className="text-sm text-[#a8a29e]">{t('dashboard.no_transactions')}</p>
               </div>
             )}
           </CardContent>
@@ -273,8 +267,8 @@ export default function Dashboard() {
         {/* Category Breakdown Donut */}
         <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-[#0c0a09]">Top Expense Categories</CardTitle>
-            <CardDescription className="text-xs text-[#a8a29e]">Where your money went this month</CardDescription>
+            <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('dashboard.top_categories')}</CardTitle>
+            <CardDescription className="text-xs text-[#a8a29e]">{t('dashboard.categories_desc')}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col justify-center h-[300px]">
             {charts && charts.categoryBreakdown && charts.categoryBreakdown.length > 0 ? (
@@ -291,7 +285,7 @@ export default function Dashboard() {
                       dataKey="total"
                     >
                       {charts.categoryBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color || PIE_COLORS[index % PIE_COLORS.length]} />
+                        <Cell key={`cell-${index}`} fill={entry.color || '#a8a29e'} />
                       ))}
                     </Pie>
                     <Tooltip
@@ -304,7 +298,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-2 gap-2 text-[10px] px-2">
                   {charts.categoryBreakdown.slice(0, 4).map((entry, index) => (
                     <div key={entry.name} className="flex items-center gap-1.5 truncate">
-                      <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color || PIE_COLORS[index % PIE_COLORS.length] }} />
+                      <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color || '#a8a29e' }} />
                       <span className="truncate text-stone-600">{entry.name}</span>
                       <span className="font-semibold text-stone-800 ml-auto">{formatCurrency(entry.total, currency)}</span>
                     </div>
@@ -314,7 +308,7 @@ export default function Dashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Receipt className="h-8 w-8 text-[#a8a29e] mb-2" />
-                <p className="text-sm text-[#a8a29e]">No data available.</p>
+                <p className="text-sm text-[#a8a29e]">{t('dashboard.no_data')}</p>
               </div>
             )}
           </CardContent>

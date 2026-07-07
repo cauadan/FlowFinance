@@ -14,20 +14,23 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+import { useSettings } from '@/contexts/SettingsContext'
+
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/transactions', label: 'Transactions', icon: Receipt },
-  { path: '/categories', label: 'Categories', icon: Tags },
-  { path: '/budgets', label: 'Budgets', icon: Wallet },
-  { path: '/goals', label: 'Goals', icon: Target },
-  { path: '/investments', label: 'Investments', icon: TrendingUp },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/settings', label: 'Settings', icon: Settings },
-  { path: '/backups', label: 'Backups', icon: Database },
+  { path: '/', translationKey: 'nav.dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/transactions', translationKey: 'nav.transactions', label: 'Transactions', icon: Receipt },
+  { path: '/categories', translationKey: 'nav.categories', label: 'Categories', icon: Tags },
+  { path: '/budgets', translationKey: 'nav.budgets', label: 'Budgets', icon: Wallet },
+  { path: '/goals', translationKey: 'nav.goals', label: 'Goals', icon: Target },
+  { path: '/investments', translationKey: 'nav.investments', label: 'Investments', icon: TrendingUp },
+  { path: '/analytics', translationKey: 'nav.analytics', label: 'Analytics', icon: BarChart3 },
+  { path: '/settings', translationKey: 'nav.settings', label: 'Settings', icon: Settings },
+  { path: '/backups', translationKey: 'nav.backups', label: 'Backups', icon: Database },
 ]
 
 export default function Sidebar() {
   const location = useLocation()
+  const { t } = useSettings()
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[280px] flex-col border-r border-[rgba(0,0,0,0.05)] bg-[#f5f5f0] lg:flex">
@@ -66,7 +69,7 @@ export default function Sidebar() {
                 />
               )}
               <Icon className={cn('h-[18px] w-[18px]', isActive ? 'text-[#84a98c]' : 'text-[#a8a29e] group-hover:text-[#0c0a09]')} />
-              <span>{item.label}</span>
+              <span>{t(item.translationKey)}</span>
             </Link>
           )
         })}
@@ -79,8 +82,8 @@ export default function Sidebar() {
             U
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[#0c0a09] truncate">Local User</p>
-            <p className="text-xs text-[#a8a29e]">Offline Mode</p>
+            <p className="text-sm font-medium text-[#0c0a09] truncate">{t('nav.local_user')}</p>
+            <p className="text-xs text-[#a8a29e]">{t('nav.offline_mode')}</p>
           </div>
         </div>
       </div>
