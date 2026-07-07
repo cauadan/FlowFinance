@@ -29,6 +29,12 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
   const isEditing = !!transaction
   const { t } = useSettings()
 
+  const translateDbItem = (name: string, type: 'category' | 'payment') => {
+    const key = `${type}.${name.toLowerCase()}`
+    const translated = t(key)
+    return translated !== key ? translated : name
+  }
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -216,7 +222,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               <SelectContent>
                 {filteredCategories.map(cat => (
                   <SelectItem key={cat.id} value={String(cat.id)}>
-                    {cat.name}
+                    {translateDbItem(cat.name, 'category')}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -233,7 +239,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               <SelectContent>
                 {paymentMethods?.map(pm => (
                   <SelectItem key={pm.id} value={String(pm.id)}>
-                    {pm.name}
+                    {translateDbItem(pm.name, 'payment')}
                   </SelectItem>
                 ))}
               </SelectContent>

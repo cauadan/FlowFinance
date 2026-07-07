@@ -21,10 +21,10 @@ import {
   getPaymentMethods,
   deleteTransaction,
   duplicateTransaction,
-  updateTransaction,
   getSettings,
   exportTransactionsCsvUrl,
 } from '@/lib/api'
+import { useSettings } from '@/contexts/SettingsContext'
 import type { Transaction } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
@@ -44,6 +44,15 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default function Transactions() {
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { t, language } = useSettings()
+
+  const translateDbItem = (name: string, type: 'category' | 'payment') => {
+    const key = `${type}.${name.toLowerCase()}`
+    const translated = t(key)
+    return translated !== key ? translated : name
+  }
+
+  const dateLocale = language === 'pt' ? 'pt-BR' : language === 'es' ? 'es-ES' : 'en-US'
 
   // State for form modal
   const [showForm, setShowForm] = useState(false)
@@ -78,12 +87,7 @@ export default function Transactions() {
   }
 
   // Queries
-  const { data: settings } = useQuery({
-    queryKey: ['settings'],
-    queryFn: getSettings,
-  })
-
-  const currency = settings?.currency || 'USD'
+  const { currency } = useSettings()
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -119,9 +123,9 @@ export default function Transactions() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Transaction deleted successfully')
+      toast.success(t('transactions.delete_success'))
     },
-    onError: () => toast.error('Failed to delete transaction'),
+    onError: () => toast.error(t('transactions.delete_error')),
   })
 
   const duplicateMutation = useMutation({
@@ -129,9 +133,9 @@ export default function Transactions() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Transaction duplicated successfully')
+      toast.success(t('transactions.dup_success'))
     },
-    onError: () => toast.error('Failed to duplicate transaction'),
+    onError: () => toast.error(t('transactions.dup_error')),
   })
 
   const toggleFavoriteMutation = useMutation({
@@ -139,13 +143,13 @@ export default function Transactions() {
       updateTransaction(id, { isFavorite }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      toast.success('Favorites updated')
+      toast.success(t('transactions.fav_success'))
     },
-    onError: () => toast.error('Failed to update favorite status'),
+    onError: () => toast.error(t('transactions.fav_error')),
   })
 
   const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this transaction?')) {
+    if (confirm(t('transactions.delete_confirm'))) {
       deleteMutation.mutate(id)
     }
   }
@@ -170,10 +174,11 @@ export default function Transactions() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Transactions
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+            {t('transactions.title')}
           </h1>
           <p className="text-sm text-[#78716c]">
-            Search, filter, and export all your local financial entries.
+            {t('transactions.subtitle')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -183,7 +188,7 @@ export default function Transactions() {
             className="border-[rgba(0,0,0,0.1)] gap-1.5 text-xs rounded-lg"
           >
             <Download className="h-3.5 w-3.5" />
-            Export CSV
+            {t('transactions.export')}
           </Button>
           <Button
             onClick={() => {
@@ -193,7 +198,7 @@ export default function Transactions() {
             className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
-            Add Transaction
+            {t('transactions.add')}
           </Button>
         </div>
       </div>
@@ -205,7 +210,7 @@ export default function Transactions() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
               <Input
-                placeholder="Search description, store, tag, notes..."
+                placeholder={t('transactions.search')}
                 value={searchQuery}
                 onChange={(e) => updateFilters({ query: e.target.value })}
                 className="border-[rgba(0,0,0,0.08)] bg-white pl-9 text-sm focus-visible:ring-[#84a98c]"
@@ -218,9 +223,9 @@ export default function Transactions() {
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Types</SelectItem>
-                  <SelectItem value="INCOME">Income</SelectItem>
-                  <SelectItem value="EXPENSE">Expense</SelectItem>
+                  <SelectItem value="ALL">{t('transactions.type_all')}</SelectItem>
+                  <SelectItem value="INCOME">{t('transactions.type_income')}</SelectItem>
+                  <SelectItem value="EXPENSE">{t('transactions.type_expense')}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -230,10 +235,10 @@ export default function Transactions() {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Categories</SelectItem>
+                  <SelectItem value="ALL">{t('transactions.cat_all')}</SelectItem>
                   {categories?.map((cat) => (
                     <SelectItem key={cat.id} value={String(cat.id)}>
-                      {cat.name}
+                      {translateDbItem(cat.name, 'category')}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -245,10 +250,10 @@ export default function Transactions() {
                   <SelectValue placeholder="Payment Method" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Methods</SelectItem>
+                  <SelectItem value="ALL">{t('transactions.method_all')}</SelectItem>
                   {paymentMethods?.map((pm) => (
                     <SelectItem key={pm.id} value={String(pm.id)}>
-                      {pm.name}
+                      {translateDbItem(pm.name, 'payment')}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -258,14 +263,14 @@ export default function Transactions() {
 
           <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-[rgba(0,0,0,0.04)] text-xs text-[#78716c]">
             <div className="flex items-center gap-2">
-              <span>Date range:</span>
+              <span>{t('transactions.date_range')}</span>
               <Input
                 type="date"
                 value={fromFilter}
                 onChange={(e) => updateFilters({ from: e.target.value })}
                 className="h-8 w-[130px] py-1 px-2 border-[rgba(0,0,0,0.08)] text-[11px]"
               />
-              <span>to</span>
+              <span>{t('transactions.to')}</span>
               <Input
                 type="date"
                 value={toFilter}
@@ -275,15 +280,15 @@ export default function Transactions() {
             </div>
 
             <div className="flex items-center gap-2 sm:ml-auto">
-              <span>Sort by:</span>
+              <span>{t('transactions.sort_by')}</span>
               <Select value={sortBy} onValueChange={(v) => updateFilters({ sort: v })}>
                 <SelectTrigger className="h-8 w-[100px] text-[11px] border-[rgba(0,0,0,0.08)]">
                   <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="amount">Amount</SelectItem>
-                  <SelectItem value="title">Title</SelectItem>
+                  <SelectItem value="date">{t('transactions.sort_date')}</SelectItem>
+                  <SelectItem value="amount">{t('transactions.sort_amount')}</SelectItem>
+                  <SelectItem value="title">{t('transactions.sort_title')}</SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -313,13 +318,13 @@ export default function Transactions() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[rgba(0,0,0,0.05)] bg-[#fafaf5]/60 text-[10px] uppercase tracking-wider text-[#78716c]">
-                    <th className="py-3 px-6 font-semibold">Fav</th>
-                    <th className="py-3 px-6 font-semibold">Date</th>
-                    <th className="py-3 px-6 font-semibold">Transaction</th>
-                    <th className="py-3 px-6 font-semibold">Category</th>
-                    <th className="py-3 px-6 font-semibold">Method</th>
-                    <th className="py-3 px-6 font-semibold text-right">Amount</th>
-                    <th className="py-3 px-6 font-semibold text-right">Actions</th>
+                    <th className="py-3 px-6 font-semibold">{t('transactions.th_fav')}</th>
+                    <th className="py-3 px-6 font-semibold">{t('transactions.th_date')}</th>
+                    <th className="py-3 px-6 font-semibold">{t('transactions.th_transaction')}</th>
+                    <th className="py-3 px-6 font-semibold">{t('transactions.th_category')}</th>
+                    <th className="py-3 px-6 font-semibold">{t('transactions.th_method')}</th>
+                    <th className="py-3 px-6 font-semibold text-right">{t('transactions.th_amount')}</th>
+                    <th className="py-3 px-6 font-semibold text-right">{t('transactions.th_actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[rgba(0,0,0,0.04)] text-sm text-[#0c0a09]">
@@ -338,7 +343,7 @@ export default function Transactions() {
                           </button>
                         </td>
                         <td className="py-4 px-6 text-xs text-[#78716c] whitespace-nowrap">
-                          {formatDate(tx.date)}
+                          {new Date(tx.date).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}
                           <span className="block text-[10px] text-stone-400">{tx.time}</span>
                         </td>
                         <td className="py-4 px-6">
@@ -361,14 +366,14 @@ export default function Transactions() {
                             className="inline-block px-2.5 py-1 rounded-full text-xs font-medium"
                             style={{ backgroundColor: `${tx.category?.color || '#cad2c5'}15`, color: tx.category?.color || '#78716c' }}
                           >
-                            {tx.category?.name || 'Uncategorized'}
+                            {tx.category ? translateDbItem(tx.category.name, 'category') : t('transactions.uncategorized')}
                           </span>
                         </td>
                         <td className="py-4 px-6 text-xs text-[#78716c] whitespace-nowrap">
-                          {tx.paymentMethod?.name || 'Cash'}
+                          {tx.paymentMethod ? translateDbItem(tx.paymentMethod.name, 'payment') : translateDbItem('Cash', 'payment')}
                           {tx.installments && (
                             <span className="block text-[10px] text-[#84a98c]">
-                              Parc. {tx.currentInstallment}/{tx.totalInstallments}
+                              {t('transactions.parc')} {tx.currentInstallment}/{tx.totalInstallments}
                             </span>
                           )}
                         </td>
@@ -415,7 +420,7 @@ export default function Transactions() {
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Star className="h-8 w-8 text-[#a8a29e] mb-2" />
-              <p className="text-sm font-medium text-[#78716c]">No transactions matching the filters.</p>
+              <p className="text-sm font-medium text-[#78716c]">{t('transactions.no_data')}</p>
             </div>
           )}
 
@@ -423,7 +428,7 @@ export default function Transactions() {
           {data && data.totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-4 border-t border-[rgba(0,0,0,0.05)] bg-[#fafaf5]/40 text-xs">
               <span className="text-[#a8a29e]">
-                Page {data.page} of {data.totalPages} ({data.total} total)
+                {t('transactions.page_of').replace('{page}', String(data.page)).replace('{totalPages}', String(data.totalPages)).replace('{total}', String(data.total))}
               </span>
               <div className="flex gap-2">
                 <Button
