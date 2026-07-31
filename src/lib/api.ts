@@ -5,6 +5,32 @@ const api = axios.create({
   baseURL: '/api',
 })
 
+// Request interceptor: attach JWT token to all requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('ff_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+// Response interceptor: redirect to login on 401
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Don't redirect if we're already on auth pages
+      const path = window.location.pathname
+      if (path !== '/login' && path !== '/register') {
+        localStorage.removeItem('ff_token')
+        localStorage.removeItem('ff_user')
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 // ============ TYPES ============
 
 export interface Category {
@@ -136,6 +162,29 @@ export interface TransactionsResponse {
   total: number
   page: number
   totalPages: number
+}
+
+// ============ AUTH API ============
+
+interface AuthResponse {
+  token: string
+  user: { id: number; name: string; email: string }
+}
+
+export const loginApi = async (email: string, password: string): Promise<AuthResponse> => {
+  const { data } = await api.post<AuthResponse>('/auth/login', { email, password })
+  return data
+}
+
+export const registerApi = async (name: string, email: string, password: string): Promise<AuthResponse> => {
+  const { data } = await api.post<AuthResponse>('/auth/register', { name, email, password })
+  return data
+}
+
+export const getCurrentUser = async (token?: string): Promise<{ id: number; name: string; email: string }> => {
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+  const { data } = await api.get<{ id: number; name: string; email: string }>('/auth/me', config)
+  return data
 }
 
 // ============ API CALLS ============
@@ -344,3 +393,9 @@ export const restoreBackup = async (id: number): Promise<{ success: boolean; mes
 }
 
 export const exportTransactionsCsvUrl = '/api/export/csv'
+
+// --- AI Assistant ---
+export const chatWithAssistant = async (message: string, history?: { role: string; content: string }[]): Promise<{ response: string }> => {
+  const { data } = await api.post<{ response: string }>('/assistant/chat', { message, history })
+  return data
+}

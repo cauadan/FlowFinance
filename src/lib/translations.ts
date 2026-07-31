@@ -10,8 +10,19 @@ export const translations: Record<string, Record<string, string>> = {
     'nav.analytics': 'Analytics',
     'nav.settings': 'Settings',
     'nav.backups': 'Backups',
+    'nav.assistant': 'Assistant',
+    'nav.logout': 'Logout',
     'nav.local_user': 'Local User',
     'nav.offline_mode': 'Offline Mode',
+
+    // Assistant
+    'assistant.title': 'Financial Assistant',
+    'assistant.subtitle': 'Powered by AI with your real financial data',
+    'assistant.welcome': 'How can I help you today?',
+    'assistant.welcome_desc': 'I have access to your financial data and can help with analysis, tips, and insights.',
+    'assistant.placeholder': 'Ask me about your finances...',
+    'assistant.thinking': 'Thinking...',
+    'assistant.disclaimer': 'AI-generated responses based on your financial data. Always verify important decisions.',
 
     // Settings Page
     'settings.title': 'Settings',
@@ -240,8 +251,19 @@ export const translations: Record<string, Record<string, string>> = {
     'nav.analytics': 'Análises',
     'nav.settings': 'Configurações',
     'nav.backups': 'Backups',
+    'nav.assistant': 'Assistente',
+    'nav.logout': 'Sair',
     'nav.local_user': 'Usuário Local',
     'nav.offline_mode': 'Modo Offline',
+
+    // Assistente
+    'assistant.title': 'Assistente Financeiro',
+    'assistant.subtitle': 'Alimentado por IA com seus dados financeiros reais',
+    'assistant.welcome': 'Como posso te ajudar hoje?',
+    'assistant.welcome_desc': 'Tenho acesso aos seus dados financeiros e posso ajudar com análises, dicas e insights.',
+    'assistant.placeholder': 'Pergunte sobre suas finanças...',
+    'assistant.thinking': 'Pensando...',
+    'assistant.disclaimer': 'Respostas geradas por IA com base em seus dados financeiros. Sempre verifique decisões importantes.',
 
     // Settings Page
     'settings.title': 'Configurações',
@@ -470,8 +492,19 @@ export const translations: Record<string, Record<string, string>> = {
     'nav.analytics': 'Análisis',
     'nav.settings': 'Configuración',
     'nav.backups': 'Copias de seguridad',
+    'nav.assistant': 'Asistente',
+    'nav.logout': 'Cerrar sesión',
     'nav.local_user': 'Usuario Local',
     'nav.offline_mode': 'Modo sin conexión',
+
+    // Asistente
+    'assistant.title': 'Asistente Financiero',
+    'assistant.subtitle': 'Impulsado por IA con tus datos financieros reales',
+    'assistant.welcome': '¿Cómo puedo ayudarte hoy?',
+    'assistant.welcome_desc': 'Tengo acceso a tus datos financieros y puedo ayudarte con análisis, consejos e información.',
+    'assistant.placeholder': 'Pregunta sobre tus finanzas...',
+    'assistant.thinking': 'Pensando...',
+    'assistant.disclaimer': 'Respuestas generadas por IA basadas en tus datos financieros. Siempre verifica decisiones importantes.',
 
     // Settings Page
     'settings.title': 'Configuración',

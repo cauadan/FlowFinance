@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router'
 import {
   LayoutDashboard,
   Receipt,
-  Wallet,
   Target,
+  Bot,
   Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils'
 const mobileItems = [
   { path: '/', label: 'Home', icon: LayoutDashboard },
   { path: '/transactions', label: 'Txns', icon: Receipt },
-  { path: '/budgets', label: 'Budgets', icon: Wallet },
   { path: '/goals', label: 'Goals', icon: Target },
+  { path: '/assistant', label: 'AI', icon: Bot },
   { path: '/settings', label: 'More', icon: Settings },
 ]
 

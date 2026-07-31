@@ -3,9 +3,26 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  categories     Category[]
+  paymentMethods PaymentMethod[]
+  transactions   Transaction[]
+  budgets        Budget[]
+  goals          Goal[]
+  investments    Investment[]
+  settings       Settings[]
 }
 
 model Category {
@@ -16,7 +33,9 @@ model Category {
   type      String   @default("EXPENSE")
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
+  userId    Int
 
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
   budgets      Budget[]
 }
@@ -28,7 +47,9 @@ model PaymentMethod {
   color     String   @default("#2f3e46")
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
+  userId    Int
 
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 }
 
@@ -52,21 +73,27 @@ model Transaction {
   isFavorite         Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  userId             Int
 
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   category      Category      @relation(fields: [categoryId], references: [id])
   paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
 }
 
 model Budget {
   id         Int      @id @default(autoincrement())
-  categoryId Int      @unique
+  categoryId Int
   amount     Float
   period     String   @default("MONTHLY")
   month      Int      @default(1)
   year       Int      @default(2024)
   createdAt  DateTime @default(now())
+  userId     Int
 
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([categoryId, userId])
 }
 
 model Goal {
@@ -78,6 +105,9 @@ model Goal {
   color         String   @default("#84a98c")
   icon          String   @default("target")
   createdAt     DateTime @default(now())
+  userId        Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Investment {
@@ -90,6 +120,9 @@ model Investment {
   purchaseDate   String?
   notes          String?
   createdAt      DateTime @default(now())
+  userId         Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Settings {
@@ -103,6 +136,9 @@ model Settings {
   backupPath     String   @default("./backups")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  userId         Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Backup {

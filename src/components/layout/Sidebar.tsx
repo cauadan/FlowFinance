@@ -1,36 +1,43 @@
-import { Link, useLocation } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { motion } from 'framer-motion'
 import {
   LayoutDashboard,
   Receipt,
-  Tags,
-  Wallet,
   Target,
   TrendingUp,
   BarChart3,
   Settings,
   Database,
   CircleDollarSign,
+  Bot,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 import { useSettings } from '@/contexts/SettingsContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 const navItems = [
   { path: '/', translationKey: 'nav.dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/transactions', translationKey: 'nav.transactions', label: 'Transactions', icon: Receipt },
-  { path: '/categories', translationKey: 'nav.categories', label: 'Categories', icon: Tags },
-  { path: '/budgets', translationKey: 'nav.budgets', label: 'Budgets', icon: Wallet },
   { path: '/goals', translationKey: 'nav.goals', label: 'Goals', icon: Target },
   { path: '/investments', translationKey: 'nav.investments', label: 'Investments', icon: TrendingUp },
   { path: '/analytics', translationKey: 'nav.analytics', label: 'Analytics', icon: BarChart3 },
+  { path: '/assistant', translationKey: 'nav.assistant', label: 'Assistant', icon: Bot },
   { path: '/settings', translationKey: 'nav.settings', label: 'Settings', icon: Settings },
   { path: '/backups', translationKey: 'nav.backups', label: 'Backups', icon: Database },
 ]
 
 export default function Sidebar() {
   const location = useLocation()
+  const navigate = useNavigate()
   const { t } = useSettings()
+  const { user, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
+  }
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[280px] flex-col border-r border-[rgba(0,0,0,0.05)] bg-[#f5f5f0] lg:flex">
@@ -75,16 +82,23 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Profile */}
+      {/* Profile + Logout */}
       <div className="border-t border-[rgba(0,0,0,0.05)] p-4">
         <div className="flex items-center gap-3 rounded-lg bg-white/50 px-3 py-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#84a98c] text-xs font-medium text-white">
-            U
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[#0c0a09] truncate">{t('nav.local_user')}</p>
-            <p className="text-xs text-[#a8a29e]">{t('nav.offline_mode')}</p>
+            <p className="text-sm font-medium text-[#0c0a09] truncate">{user?.name || 'User'}</p>
+            <p className="text-xs text-[#a8a29e] truncate">{user?.email || ''}</p>
           </div>
+          <button
+            onClick={handleLogout}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[#a8a29e] transition-colors hover:bg-red-50 hover:text-red-500"
+            title={t('nav.logout')}
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </aside>

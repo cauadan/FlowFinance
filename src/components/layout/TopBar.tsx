@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Search, Plus, CircleDollarSign } from 'lucide-react'
+import { Search, Plus, CircleDollarSign, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import TransactionForm from '../transactions/TransactionForm'
 import { useSettings } from '@/contexts/SettingsContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function TopBar() {
   const [showForm, setShowForm] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
   const { t, language } = useSettings()
+  const { logout } = useAuth()
 
   const dateLocale = language === 'pt' ? 'pt-BR' : language === 'es' ? 'es-ES' : 'en-US'
 
@@ -19,6 +21,11 @@ export default function TopBar() {
       navigate(`/transactions?query=${encodeURIComponent(searchQuery.trim())}`)
       setSearchQuery('')
     }
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -58,6 +65,13 @@ export default function TopBar() {
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t('topbar.quick_add')}</span>
             </Button>
+            <button
+              onClick={handleLogout}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-[#a8a29e] transition-colors hover:bg-red-50 hover:text-red-500 lg:hidden"
+              title={t('nav.logout')}
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </header>

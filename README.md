@@ -1,6 +1,6 @@
 # FlowFinance
 
-A beautiful, modern, local-first personal finance dashboard that runs entirely on your computer. No cloud, no subscriptions, no data sharing.
+A beautiful, modern personal finance dashboard powered by PostgreSQL via `DATABASE_URL` and `DIRECT_URL` (compatible with Neon, Supabase, or local Postgres).
 
 ![FlowFinance Dashboard](screenshot.png)
 
@@ -31,13 +31,14 @@ A beautiful, modern, local-first personal finance dashboard that runs entirely o
 **Backend:**
 - Express.js
 - Prisma ORM
-- SQLite (local database)
+- PostgreSQL (compatible with Neon, Supabase, or local Postgres)
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js 20+
 - npm
+- PostgreSQL database (e.g., Neon, Supabase, or local Postgres)
 
 ### Installation
 
@@ -48,7 +49,10 @@ cd flowfinance
 # Install dependencies
 npm install
 
-# Initialize the database (creates SQLite file and seeds default data)
+# Configure environment variables (copy .env.example to .env and set your connection strings)
+cp .env.example .env
+
+# Initialize the database (pushes schema and seeds default data)
 npm run db:push
 npm run db:seed
 
@@ -97,9 +101,8 @@ flowfinance/
 │   │   └── prisma.ts         # Prisma client setup
 │   └── server.ts             # Express server with all routes
 ├── prisma/
-│   ├── schema.prisma         # Database schema
-│   ├── seed.ts               # Seed data (categories, payment methods, sample data)
-│   └── finance.db            # SQLite database (auto-created)
+│   ├── schema.prisma         # Database schema (PostgreSQL)
+│   └── seed.ts               # Seed data (categories, payment methods, sample data)
 ├── backups/                  # Backup files (auto-created)
 ├── src/
 │   ├── components/
@@ -121,6 +124,7 @@ flowfinance/
 │   ├── App.tsx               # Main app with routing
 │   └── main.tsx              # Entry point
 ├── .env                      # Environment variables
+├── .env.example              # Environment variables template
 ├── package.json
 ├── vite.config.ts
 └── tailwind.config.js
@@ -198,8 +202,8 @@ FlowFinance can be installed as a Progressive Web App:
 - All form inputs are validated
 - SQL injection prevention via Prisma ORM
 - Input sanitization on all API endpoints
-- No external API calls - completely offline-capable
-- No authentication needed - single user local app
+- PostgreSQL connection via secure connection string (DATABASE_URL / DIRECT_URL)
+- No authentication needed - single user app
 
 ## License
 
