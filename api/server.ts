@@ -228,8 +228,8 @@ app.get('/api/dashboard/summary', async (req, res) => {
       prisma.budget.findMany({ where: { userId }, include: { category: true } }),
     ])
 
-    const monthlyIncome = incomeAgg._sum.amount || 0
-    const monthlyExpense = expenseAgg._sum.amount || 0
+    const monthlyIncome = incomeAgg._sum?.amount || 0
+    const monthlyExpense = expenseAgg._sum?.amount || 0
     const monthlySavings = monthlyIncome - monthlyExpense
     const savingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0
 
@@ -245,7 +245,7 @@ app.get('/api/dashboard/summary', async (req, res) => {
         where: { userId, type: 'EXPENSE', paymentMethodId: creditCardPM.id, date: { gte: monthStart, lte: monthEnd } },
         _sum: { amount: true },
       })
-      creditCardSpending = ccAgg._sum.amount || 0
+      creditCardSpending = ccAgg._sum?.amount || 0
     }
 
     // Pending payments (installments not yet paid)
@@ -272,7 +272,7 @@ app.get('/api/dashboard/summary', async (req, res) => {
         _sum: { amount: true },
       })
 
-      const spendingMap = new Map(categorySpending.map((s) => [s.categoryId, s._sum.amount || 0]))
+      const spendingMap = new Map(categorySpending.map((s) => [s.categoryId, s._sum?.amount || 0]))
       const totalSpentOnBudgets = allBudgets.reduce((sum, b) => sum + (spendingMap.get(b.categoryId) || 0), 0)
 
       budgetUsedPercent = totalBudget > 0 ? (totalSpentOnBudgets / totalBudget) * 100 : 0
@@ -283,7 +283,7 @@ app.get('/api/dashboard/summary', async (req, res) => {
       prisma.transaction.aggregate({ where: { userId, type: 'INCOME' }, _sum: { amount: true } }),
       prisma.transaction.aggregate({ where: { userId, type: 'EXPENSE' }, _sum: { amount: true } }),
     ])
-    const netWorth = (allIncome._sum.amount || 0) - (allExpense._sum.amount || 0) + totalInvestValue
+    const netWorth = (allIncome._sum?.amount || 0) - (allExpense._sum?.amount || 0) + totalInvestValue
 
     res.json({
       netWorth,
@@ -321,7 +321,7 @@ app.get('/api/dashboard/charts', async (req, res) => {
           prisma.transaction.aggregate({ where: { userId, type: 'INCOME', date: { gte: start, lte: end } }, _sum: { amount: true } }),
           prisma.transaction.aggregate({ where: { userId, type: 'EXPENSE', date: { gte: start, lte: end } }, _sum: { amount: true } }),
         ])
-        return { month: m, income: inc._sum.amount || 0, expense: exp._sum.amount || 0 }
+        return { month: m, income: inc._sum?.amount || 0, expense: exp._sum?.amount || 0 }
       })
     )
 
@@ -350,7 +350,7 @@ app.get('/api/dashboard/charts', async (req, res) => {
         prisma.transaction.aggregate({ where: { userId, type: 'INCOME', date: dateStr }, _sum: { amount: true } }),
         prisma.transaction.aggregate({ where: { userId, type: 'EXPENSE', date: dateStr }, _sum: { amount: true } }),
       ])
-      days.push({ date: dateStr, income: inc._sum.amount || 0, expense: exp._sum.amount || 0 })
+      days.push({ date: dateStr, income: inc._sum?.amount || 0, expense: exp._sum?.amount || 0 })
     }
 
     res.json({ cashFlow, categoryBreakdown, weeklyTrend: days })
@@ -583,7 +583,7 @@ app.get('/api/budgets', async (req, res) => {
           },
           _sum: { amount: true },
         })
-        const spentAmount = spent._sum.amount || 0
+        const spentAmount = spent._sum?.amount || 0
         return {
           ...budget,
           spent: spentAmount,
@@ -1020,8 +1020,8 @@ app.post('/api/assistant/chat', async (req, res) => {
       prisma.investment.findMany({ where: { userId } }),
     ])
 
-    const monthlyIncome = incomeAgg._sum.amount || 0
-    const monthlyExpense = expenseAgg._sum.amount || 0
+    const monthlyIncome = incomeAgg._sum?.amount || 0
+    const monthlyExpense = expenseAgg._sum?.amount || 0
     const totalInvested = investments.reduce((s, i) => s + i.amountInvested, 0)
     const totalInvestValue = investments.reduce((s, i) => s + i.currentValue, 0)
 
