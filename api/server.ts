@@ -1074,9 +1074,14 @@ Guidelines:
     const responseText = result.response.text()
 
     res.json({ response: responseText })
-  } catch (err) {
+  } catch (err: any) {
     console.error('Assistant error:', err)
-    res.status(500).json({ error: 'Failed to get AI response. Check your GEMINI_API_KEY.' })
+    const errorMsg = err?.message || 'Failed to get AI response. Check your GEMINI_API_KEY.'
+    if (errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('Quota')) {
+      res.status(500).json({ error: 'Sua chave do Gemini atingiu o limite de cota grátis (Quota Exceeded 429). Crie uma nova chave em https://aistudio.google.com/app/apikey' })
+    } else {
+      res.status(500).json({ error: `Erro na IA: ${errorMsg}` })
+    }
   }
 })
 
