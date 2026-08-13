@@ -394,6 +394,13 @@ export const translations: Record<string, Record<string, string>> = {
     'investments.delete_success': 'Investment deleted successfully',
     'investments.delete_error': 'Failed to delete investment',
     'investments.delete_confirm': 'Are you sure you want to delete this investment?',
+    'investments.cat_stock': 'Stocks / Equities',
+    'investments.cat_crypto': 'Crypto',
+    'investments.cat_real_estate': 'Real Estate / REITs',
+    'investments.cat_fixed_income': 'Fixed Income / Bonds',
+    'investments.cat_mutual_fund': 'Mutual Funds',
+    'investments.cat_etf': 'ETFs',
+    'investments.cat_other': 'Other',
 
     // Backups
     'backups.title': 'Backups',
@@ -876,6 +883,13 @@ export const translations: Record<string, Record<string, string>> = {
     'investments.delete_success': 'Investimento excluído com sucesso',
     'investments.delete_error': 'Falha ao excluir investimento',
     'investments.delete_confirm': 'Tem certeza que deseja excluir este investimento?',
+    'investments.cat_stock': 'Ações',
+    'investments.cat_crypto': 'Criptomoedas',
+    'investments.cat_real_estate': 'Imóveis / FIIs',
+    'investments.cat_fixed_income': 'Renda Fixa',
+    'investments.cat_mutual_fund': 'Fundos de Investimento',
+    'investments.cat_etf': 'ETFs',
+    'investments.cat_other': 'Outros',
 
     // Backups
     'backups.title': 'Backups',
@@ -1358,6 +1372,13 @@ export const translations: Record<string, Record<string, string>> = {
     'investments.delete_success': 'Inversión eliminada con éxito',
     'investments.delete_error': 'Error al eliminar inversión',
     'investments.delete_confirm': '¿Estás seguro de que deseas eliminar esta inversión?',
+    'investments.cat_stock': 'Acciones',
+    'investments.cat_crypto': 'Criptomonedas',
+    'investments.cat_real_estate': 'Bienes Raíces / FIIs',
+    'investments.cat_fixed_income': 'Renta Fija',
+    'investments.cat_mutual_fund': 'Fondos de Inversión',
+    'investments.cat_etf': 'ETFs',
+    'investments.cat_other': 'Otros',
 
     // Backups
     'backups.title': 'Copias de Seguridad',

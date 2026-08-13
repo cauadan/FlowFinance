@@ -19,9 +19,10 @@ import {
   PiggyBank,
   Check,
 } from 'lucide-react'
-import { getGoals, createGoal, updateGoal, deleteGoal, getSettings } from '@/lib/api'
+import { getGoals, createGoal, updateGoal, deleteGoal } from '@/lib/api'
 import type { Goal } from '@/lib/api'
 import { formatCurrency, formatPercentage, formatDate } from '@/lib/utils'
+import { useSettings } from '@/contexts/SettingsContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -61,6 +62,7 @@ const colorPalette = [
 
 export default function Goals() {
   const queryClient = useQueryClient()
+  const { t, currency } = useSettings()
 
   // Modals state
   const [showGoalModal, setShowGoalModal] = useState(false)
@@ -79,14 +81,6 @@ export default function Goals() {
   const [contribAmount, setContribAmount] = useState('')
   const [contribType, setContribType] = useState<'ADD' | 'WITHDRAW'>('ADD')
 
-  // Queries
-  const { data: settings } = useQuery({
-    queryKey: ['settings'],
-    queryFn: getSettings,
-  })
-
-  const currency = settings?.currency || 'USD'
-
   const { data: goals, isLoading } = useQuery({
     queryKey: ['goals'],
     queryFn: getGoals,
@@ -97,30 +91,30 @@ export default function Goals() {
     mutationFn: createGoal,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] })
-      toast.success('Savings goal created')
+      toast.success(t('goals.create_success'))
       closeGoalModal()
     },
-    onError: () => toast.error('Failed to create goal'),
+    onError: () => toast.error(t('goals.create_error')),
   })
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Goal> }) => updateGoal(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] })
-      toast.success('Goal updated successfully')
+      toast.success(t('goals.update_success'))
       closeGoalModal()
       closeContribModal()
     },
-    onError: () => toast.error('Failed to update goal'),
+    onError: () => toast.error(t('goals.update_error')),
   })
 
   const deleteMutation = useMutation({
     mutationFn: deleteGoal,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] })
-      toast.success('Goal deleted successfully')
+      toast.success(t('goals.delete_success'))
     },
-    onError: () => toast.error('Failed to delete goal'),
+    onError: () => toast.error(t('goals.delete_error')),
   })
 
   const openAddModal = () => {
@@ -201,7 +195,7 @@ export default function Goals() {
   }
 
   const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this savings goal?')) {
+    if (confirm(t('goals.delete_confirm'))) {
       deleteMutation.mutate(id)
     }
   }
@@ -223,10 +217,10 @@ export default function Goals() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Goals
+            {t('goals.title')}
           </h1>
           <p className="text-sm text-[#78716c]">
-            Track your progress on long term savings goals and future expenses.
+            {t('goals.subtitle')}
           </p>
         </div>
         <div>
@@ -235,7 +229,7 @@ export default function Goals() {
             className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
-            New Goal
+            {t('goals.new')}
           </Button>
         </div>
       </div>
@@ -258,17 +252,17 @@ export default function Goals() {
                 <div className="grid gap-6 md:grid-cols-4 items-center">
                   <div className="md:col-span-3 space-y-3">
                     <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-[#78716c]">
-                      <span>Total Savings Progress</span>
-                      <span>{formatPercentage(overallPercentage)} Completed</span>
+                      <span>{t('goals.progress')}</span>
+                      <span>{formatPercentage(overallPercentage)} {t('goals.completed')}</span>
                     </div>
-                    <Progress value={Math.min(overallPercentage, 100)} className="h-3 indicatorClassName: bg-[#84a98c]" />
+                    <Progress value={Math.min(overallPercentage, 100)} className="h-3" indicatorClassName="bg-[#84a98c]" />
                     <div className="flex justify-between text-xs text-[#a8a29e]">
-                      <span>Saved: {formatCurrency(totalSaved, currency)}</span>
-                      <span>Target: {formatCurrency(totalTarget, currency)}</span>
+                      <span>{t('goals.saved')}: {formatCurrency(totalSaved, currency)}</span>
+                      <span>{t('goals.target')}: {formatCurrency(totalTarget, currency)}</span>
                     </div>
                   </div>
                   <div className="border-t md:border-t-0 md:border-l border-[rgba(0,0,0,0.05)] pt-4 md:pt-0 md:pl-6 text-center md:text-left">
-                    <span className="text-xs uppercase text-[#78716c] block">To Save</span>
+                    <span className="text-xs uppercase text-[#78716c] block">{t('goals.to_save')}</span>
                     <span className="text-2xl font-semibold text-[#84a98c]">
                       {formatCurrency(totalRemaining, currency)}
                     </span>
@@ -301,7 +295,7 @@ export default function Goals() {
                           </CardTitle>
                           {goal.targetDate && (
                             <span className="text-[10px] text-stone-400">
-                              By {formatDate(goal.targetDate)}
+                              {t('goals.by')} {formatDate(goal.targetDate)}
                             </span>
                           )}
                         </div>
@@ -331,18 +325,18 @@ export default function Goals() {
                           {formatCurrency(goal.currentAmount, currency)}
                         </span>
                         <span className="text-xs text-[#a8a29e]">
-                          of {formatCurrency(goal.targetAmount, currency)}
+                          {t('goals.of')} {formatCurrency(goal.targetAmount, currency)}
                         </span>
                       </div>
 
                       <div className="space-y-1.5">
                         <Progress value={Math.min(goal.percentage, 100)} className="h-2" indicatorClassName="bg-[#84a98c]" />
                         <div className="flex justify-between items-center text-[10px] text-stone-400">
-                          <span>{formatPercentage(goal.percentage)} complete</span>
+                          <span>{formatPercentage(goal.percentage)} {t('goals.complete')}</span>
                           {isCompleted ? (
-                            <span className="font-semibold text-[#84a98c]">Goal achieved! 🎉</span>
+                            <span className="font-semibold text-[#84a98c]">{t('goals.achieved')}</span>
                           ) : (
-                            <span>{formatCurrency(goal.remaining, currency)} left</span>
+                            <span>{formatCurrency(goal.remaining, currency)} {t('goals.left')}</span>
                           )}
                         </div>
                       </div>
@@ -352,7 +346,7 @@ export default function Goals() {
                         variant="outline"
                         className="w-full text-xs h-8 border-[rgba(0,0,0,0.08)] bg-[#fafaf5]/60 hover:bg-[#84a98c] hover:text-white"
                       >
-                        Contribute / Withdraw
+                        {t('goals.contribute')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -362,9 +356,9 @@ export default function Goals() {
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-[rgba(0,0,0,0.08)] rounded-xl bg-white">
               <Target className="h-10 w-10 text-[#a8a29e] mb-2" />
-              <p className="text-sm font-medium text-[#78716c]">No active savings goals found.</p>
+              <p className="text-sm font-medium text-[#78716c]">{t('goals.no_data')}</p>
               <Button onClick={openAddModal} variant="link" className="text-[#84a98c] text-xs font-semibold mt-1">
-                Create your first goal
+                {t('goals.first')}
               </Button>
             </div>
           )}
@@ -382,7 +376,7 @@ export default function Goals() {
           >
             <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
               <h3 className="text-lg font-medium text-[#0c0a09]">
-                {activeGoal ? 'Edit Goal' : 'New Goal'}
+                {activeGoal ? t('goals.modal_edit') : t('goals.modal_new')}
               </h3>
               <Button variant="ghost" size="icon" onClick={closeGoalModal} className="h-8 w-8 rounded-full">
                 <X className="h-4 w-4" />
@@ -391,12 +385,12 @@ export default function Goals() {
 
             <form onSubmit={handleGoalSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="goalName" className="text-xs uppercase tracking-wider text-[#78716c]">Goal Name</Label>
+                <Label htmlFor="goalName" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.name')}</Label>
                 <Input
                   id="goalName"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., Emergency Fund, Laptop"
+                  placeholder={t('goals.name_placeholder')}
                   required
                   className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
                 />
@@ -404,7 +398,7 @@ export default function Goals() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="targetAmt" className="text-xs uppercase tracking-wider text-[#78716c]">Target Amount</Label>
+                  <Label htmlFor="targetAmt" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.target_amount')}</Label>
                   <Input
                     id="targetAmt"
                     type="number"
@@ -417,7 +411,7 @@ export default function Goals() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="currentAmt" className="text-xs uppercase tracking-wider text-[#78716c]">Current Savings</Label>
+                  <Label htmlFor="currentAmt" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.current_savings')}</Label>
                   <Input
                     id="currentAmt"
                     type="number"
@@ -431,7 +425,7 @@ export default function Goals() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="goalDate" className="text-xs uppercase tracking-wider text-[#78716c]">Target Date (Optional)</Label>
+                <Label htmlFor="goalDate" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.target_date')}</Label>
                 <Input
                   id="goalDate"
                   type="date"
@@ -443,7 +437,7 @@ export default function Goals() {
 
               {/* Color Picker */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">Theme Color</Label>
+                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.theme_color')}</Label>
                 <div className="flex flex-wrap gap-2">
                   {colorPalette.map((color) => (
                     <button
@@ -463,7 +457,7 @@ export default function Goals() {
 
               {/* Icon Picker */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">Icon</Label>
+                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.icon')}</Label>
                 <div className="flex flex-wrap gap-2 p-1 border rounded-lg bg-[#fafaf5]/40 border-[rgba(0,0,0,0.08)]">
                   {Object.entries(iconMap).map(([iconName, IconComponent]) => (
                     <button
@@ -490,14 +484,14 @@ export default function Goals() {
                   onClick={closeGoalModal}
                   className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
                 >
-                  Cancel
+                  {t('goals.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
                   className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
                 >
-                  {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save'}
+                  {createMutation.isPending || updateMutation.isPending ? t('goals.saving') : t('goals.save')}
                 </Button>
               </div>
             </form>
@@ -516,7 +510,7 @@ export default function Goals() {
           >
             <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
               <div>
-                <h3 className="text-base font-semibold text-[#0c0a09]">Manage Funds</h3>
+                <h3 className="text-base font-semibold text-[#0c0a09]">{t('goals.manage_funds')}</h3>
                 <span className="text-xs text-stone-400">{activeGoal.name}</span>
               </div>
               <Button variant="ghost" size="icon" onClick={closeContribModal} className="h-8 w-8 rounded-full">
@@ -536,7 +530,7 @@ export default function Goals() {
                       : 'text-stone-500 hover:text-stone-800'
                   }`}
                 >
-                  Add Savings
+                  {t('goals.add_savings')}
                 </button>
                 <button
                   type="button"
@@ -547,13 +541,13 @@ export default function Goals() {
                       : 'text-stone-500 hover:text-stone-800'
                   }`}
                 >
-                  Withdraw
+                  {t('goals.withdraw')}
                 </button>
               </div>
 
               {/* Amount */}
               <div className="space-y-1.5">
-                <Label htmlFor="contribAmt" className="text-xs uppercase tracking-wider text-[#78716c]">Amount</Label>
+                <Label htmlFor="contribAmt" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.amount')}</Label>
                 <Input
                   id="contribAmt"
                   type="number"
@@ -567,7 +561,7 @@ export default function Goals() {
               </div>
 
               <div className="text-[10px] text-stone-400">
-                Current State: **{formatCurrency(activeGoal.currentAmount, currency)}** of **{formatCurrency(activeGoal.targetAmount, currency)}**.
+                {t('goals.current_state')}: <strong>{formatCurrency(activeGoal.currentAmount, currency)}</strong> {t('goals.of')} <strong>{formatCurrency(activeGoal.targetAmount, currency)}</strong>.
               </div>
 
               {/* Actions */}
@@ -578,14 +572,14 @@ export default function Goals() {
                   onClick={closeContribModal}
                   className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
                 >
-                  Cancel
+                  {t('goals.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={updateMutation.isPending}
                   className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
                 >
-                  {updateMutation.isPending ? 'Saving...' : 'Confirm'}
+                  {updateMutation.isPending ? t('goals.saving') : t('goals.confirm')}
                 </Button>
               </div>
             </form>

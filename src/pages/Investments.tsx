@@ -33,9 +33,27 @@ import {
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 
+const INVESTMENT_CATEGORIES = [
+  { value: 'Stock', key: 'investments.cat_stock' },
+  { value: 'Crypto', key: 'investments.cat_crypto' },
+  { value: 'Real Estate', key: 'investments.cat_real_estate' },
+  { value: 'Fixed Income', key: 'investments.cat_fixed_income' },
+  { value: 'Mutual Fund', key: 'investments.cat_mutual_fund' },
+  { value: 'ETF', key: 'investments.cat_etf' },
+  { value: 'Other', key: 'investments.cat_other' },
+]
+
 export default function Investments() {
   const queryClient = useQueryClient()
   const { t, currency } = useSettings()
+
+  const translateInvestmentCategory = (cat: string) => {
+    const found = INVESTMENT_CATEGORIES.find(c => c.value.toLowerCase() === (cat || '').toLowerCase())
+    if (found) {
+      return t(found.key)
+    }
+    return cat
+  }
 
   // Modal State
   const [showModal, setShowModal] = useState(false)
@@ -149,8 +167,6 @@ export default function Investments() {
   const currentTotal = investments?.reduce((sum, i) => sum + i.currentValue, 0) || 0
   const profitLoss = currentTotal - totalInvested
   const profitLossPercent = totalInvested > 0 ? (profitLoss / totalInvested) * 100 : 0
-
-  const categoriesList = ['Stock', 'Crypto', 'Fixed Income', 'ETF', 'Mutual Fund', 'Real Estate', 'Other']
 
   return (
     <motion.div
@@ -269,7 +285,7 @@ export default function Investments() {
                             </td>
                             <td className="py-4 px-6 whitespace-nowrap">
                               <span className="inline-block px-2.5 py-0.5 rounded text-xs font-medium bg-[#2f3e46]/10 text-[#2f3e46]">
-                                {inv.category}
+                                {translateInvestmentCategory(inv.category)}
                               </span>
                             </td>
                             <td className="py-4 px-6 text-stone-600 whitespace-nowrap">{inv.broker || '—'}</td>
@@ -362,9 +378,9 @@ export default function Investments() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {categoriesList.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
+                    {INVESTMENT_CATEGORIES.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {t(item.key)}
                       </SelectItem>
                     ))}
                   </SelectContent>
