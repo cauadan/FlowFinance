@@ -14,7 +14,6 @@ import {
   TrendingUp,
   BarChart3,
   Settings,
-  Database,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -44,7 +43,6 @@ export default function MobileNav() {
     { path: '/investments', label: t('nav.investments'), icon: TrendingUp, color: 'bg-indigo-50 text-indigo-600' },
     { path: '/analytics', label: t('nav.analytics'), icon: BarChart3, color: 'bg-cyan-50 text-cyan-600' },
     { path: '/assistant', label: t('nav.assistant'), icon: Bot, color: 'bg-emerald-50 text-emerald-600' },
-    { path: '/backups', label: t('nav.backups'), icon: Database, color: 'bg-stone-100 text-stone-700' },
     { path: '/settings', label: t('nav.settings'), icon: Settings, color: 'bg-stone-100 text-stone-700' },
   ]
 

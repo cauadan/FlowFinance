@@ -427,6 +427,14 @@ export const restoreBackup = async (id: number): Promise<{ success: boolean; mes
 
 export const exportTransactionsCsvUrl = '/api/export/csv'
 
+export const exportTransactionsCsv = async (params?: Record<string, any>): Promise<Blob> => {
+  const { data } = await api.get('/export/csv', {
+    params,
+    responseType: 'blob',
+  })
+  return data
+}
+
 // --- AI Assistant ---
 export const chatWithAssistant = async (
   message: string,

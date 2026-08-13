@@ -1198,7 +1198,28 @@ app.post('/api/assistant/insights', async (req, res) => {
     const expense = expenseAgg._sum?.amount || 0
     const savings = income - expense
     const savingsRate = income > 0 ? ((savings / income) * 100).toFixed(1) : '0'
-    const topCats = topCategoriesRaw.map(c => `${c.name}: $${Number(c.total).toFixed(2)}`).join(', ')
+
+    const categoryPtMap: Record<string, string> = {
+      'Food': 'Alimentação',
+      'Restaurants': 'Restaurantes',
+      'Groceries': 'Supermercado',
+      'Transport': 'Transporte',
+      'Fuel': 'Combustível',
+      'Rent': 'Aluguel',
+      'Utilities': 'Contas de Consumo (Luz, Água, Net)',
+      'Healthcare': 'Saúde',
+      'Education': 'Educação',
+      'Entertainment': 'Entretenimento',
+      'Shopping': 'Compras',
+      'Travel': 'Viagens',
+      'Other': 'Outros',
+      'Salary': 'Salário',
+      'Freelance': 'Freelance',
+      'Investments': 'Investimentos',
+      'Other Income': 'Outras Receitas',
+    }
+
+    const topCats = topCategoriesRaw.map(c => `${categoryPtMap[c.name] || c.name}: $${Number(c.total).toFixed(2)}`).join(', ')
 
     // Fallback algorithmic insights in case Gemini is offline or rate limited
     const defaultInsights = [

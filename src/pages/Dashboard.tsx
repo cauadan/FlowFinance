@@ -35,6 +35,13 @@ import { useSettings } from '@/contexts/SettingsContext'
 export default function Dashboard() {
   const { t, currency } = useSettings()
 
+  const translateDbItem = (name: string, type: 'category' | 'payment') => {
+    if (!name) return ''
+    const key = `${type}.${name.toLowerCase().trim()}`
+    const translated = t(key)
+    return translated !== key ? translated : name
+  }
+
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['dashboard', 'summary'],
     queryFn: getDashboardSummary,
@@ -232,7 +239,7 @@ export default function Dashboard() {
                       <div>
                         <h4 className="text-sm font-medium text-[#0c0a09]">{tx.title}</h4>
                         <div className="flex items-center gap-2 text-xs text-[#a8a29e]">
-                          <span>{tx.category?.name}</span>
+                          <span>{tx.category?.name ? translateDbItem(tx.category.name, 'category') : t('transactions.uncategorized')}</span>
                           <span>•</span>
                           <span>{formatDate(tx.date)}</span>
                         </div>
@@ -278,7 +285,10 @@ export default function Dashboard() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(val: number) => [formatCurrency(val, currency), '']}
+                      formatter={(val: number, _name: any, item: any) => [
+                        formatCurrency(val, currency),
+                        item?.payload?.name ? translateDbItem(item.payload.name, 'category') : ''
+                      ]}
                       contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
                     />
                   </PieChart>
@@ -288,7 +298,7 @@ export default function Dashboard() {
                   {charts.categoryBreakdown.slice(0, 4).map((entry) => (
                     <div key={entry.name} className="flex items-center gap-1.5 truncate">
                       <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color || '#a8a29e' }} />
-                      <span className="truncate text-stone-600">{entry.name}</span>
+                      <span className="truncate text-stone-600">{translateDbItem(entry.name, 'category')}</span>
                       <span className="font-semibold text-stone-800 ml-auto">{formatCurrency(entry.total, currency)}</span>
                     </div>
                   ))}

@@ -69,6 +69,13 @@ export default function Analytics() {
   // Queries
   const { t, currency } = useSettings()
 
+  const translateDbItem = (name: string, type: 'category' | 'payment') => {
+    if (!name) return ''
+    const key = `${type}.${name.toLowerCase().trim()}`
+    const translated = t(key)
+    return translated !== key ? translated : name
+  }
+
   const { data: cashflow, isLoading: cfLoading } = useQuery({
     queryKey: ['report', 'cashflow', fromParam, toParam],
     queryFn: () => getCashflowReport({ from: fromParam || undefined, to: toParam || undefined }),
@@ -374,7 +381,10 @@ export default function Analytics() {
                           ))}
                         </Pie>
                         <Tooltip
-                          formatter={(val: number) => [formatCurrency(val, currency), '']}
+                          formatter={(val: number, _name: any, item: any) => [
+                            formatCurrency(val, currency),
+                            item?.payload?.name ? translateDbItem(item.payload.name, 'category') : ''
+                          ]}
                           contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
                         />
                       </PieChart>
@@ -384,7 +394,7 @@ export default function Analytics() {
                       {categoriesReport.slice(0, 8).map((entry, index) => (
                         <div key={entry.name} className="flex items-center gap-1.5 truncate">
                           <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color || PIE_COLORS[index % PIE_COLORS.length] }} />
-                          <span className="truncate text-stone-600">{entry.name}</span>
+                          <span className="truncate text-stone-600">{translateDbItem(entry.name, 'category')}</span>
                           <span className="font-semibold text-stone-800 ml-auto">{formatCurrency(entry.total, currency)}</span>
                         </div>
                       ))}

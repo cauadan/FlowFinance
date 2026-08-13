@@ -10,7 +10,6 @@ import {
   TrendingUp,
   BarChart3,
   Settings,
-  Database,
   CircleDollarSign,
   Bot,
   LogOut,
@@ -30,7 +29,6 @@ const navItems = [
   { path: '/investments', translationKey: 'nav.investments', label: 'Investments', icon: TrendingUp },
   { path: '/analytics', translationKey: 'nav.analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/assistant', translationKey: 'nav.assistant', label: 'Assistant', icon: Bot },
-  { path: '/backups', translationKey: 'nav.backups', label: 'Backups', icon: Database },
   { path: '/settings', translationKey: 'nav.settings', label: 'Settings', icon: Settings },
 ]
 

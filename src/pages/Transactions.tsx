@@ -25,7 +25,7 @@ import {
   deleteTransaction,
   duplicateTransaction,
   updateTransaction,
-  exportTransactionsCsvUrl,
+  exportTransactionsCsv,
   getRecurringSuggestions,
   markTransactionRecurring,
 } from '@/lib/api'
@@ -175,13 +175,35 @@ export default function Transactions() {
     }
   }
 
-  const handleExportCsv = () => {
-    const params = new URLSearchParams()
-    if (searchQuery) params.append('query', searchQuery)
-    if (typeFilter !== 'ALL') params.append('type', typeFilter)
-    if (fromFilter) params.append('from', fromFilter)
-    if (toFilter) params.append('to', toFilter)
-    window.open(`${exportTransactionsCsvUrl}?${params.toString()}`, '_blank')
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExportCsv = async () => {
+    try {
+      setIsExporting(true)
+      const blob = await exportTransactionsCsv({
+        query: searchQuery || undefined,
+        type: typeFilter !== 'ALL' ? typeFilter : undefined,
+        categoryId: categoryFilter !== 'ALL' ? parseInt(categoryFilter) : undefined,
+        paymentMethodId: methodFilter !== 'ALL' ? parseInt(methodFilter) : undefined,
+        from: fromFilter || undefined,
+        to: toFilter || undefined,
+      })
+
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      toast.success('CSV baixado com sucesso!')
+    } catch (err) {
+      console.error('Export CSV error:', err)
+      toast.error('Falha ao exportar CSV')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
@@ -204,11 +226,12 @@ export default function Transactions() {
         <div className="flex items-center gap-2">
           <Button
             onClick={handleExportCsv}
+            disabled={isExporting}
             variant="outline"
             className="border-[rgba(0,0,0,0.1)] gap-1.5 text-xs rounded-lg"
           >
             <Download className="h-3.5 w-3.5" />
-            {t('transactions.export_csv')}
+            {isExporting ? 'Exportando...' : t('transactions.export_csv')}
           </Button>
           <Button
             onClick={() => {
