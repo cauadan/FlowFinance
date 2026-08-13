@@ -490,6 +490,195 @@ app.post('/api/transactions/:id/duplicate', async (req, res) => {
   }
 })
 
+// Pattern Recognition / AI algorithm for recurring transaction suggestions
+app.get('/api/transactions/recurring-suggestions', async (req, res) => {
+  try {
+    const userId = req.userId!
+    const nonRecurring = await prisma.transaction.findMany({
+      where: { userId, isRecurring: false },
+      orderBy: { date: 'desc' },
+      include: { category: true },
+    })
+
+    const RECURRING_KEYWORDS = [
+      'netflix', 'spotify', 'prime', 'amazon', 'disney', 'hbo', 'max', 'youtube',
+      'aluguel', 'rent', 'condominio', 'condomínio', 'internet', 'vivo', 'claro', 'tim', 'oi',
+      'energia', 'luz', 'água', 'agua', 'water', 'gym', 'academia', 'smartfit', 'smart fit',
+      'salario', 'salário', 'salary', 'plano', 'saúde', 'saude', 'unimed', 'seguro',
+      'insurance', 'mensalidade', 'faculdade', 'escola', 'iptu', 'ipva', 'assinatura', 'subscription'
+    ]
+
+    // Group transactions by normalized title
+    const grouped = new Map<string, typeof nonRecurring>()
+    for (const t of nonRecurring) {
+      const key = t.title.trim().toLowerCase()
+      if (!grouped.has(key)) grouped.set(key, [])
+      grouped.get(key)!.push(t)
+    }
+
+    const suggestions: Array<{
+      transactionId: number
+      title: string
+      amount: number
+      categoryName: string
+      occurrences: number
+      suggestedInterval: string
+      reason: string
+    }> = []
+
+    for (const [normTitle, txns] of grouped.entries()) {
+      const isKeywordMatch = RECURRING_KEYWORDS.some(kw => normTitle.includes(kw))
+      const hasMultipleMonths = new Set(txns.map(t => t.date.slice(0, 7))).size >= 2
+      const hasMultipleOccurrences = txns.length >= 2
+
+      if (isKeywordMatch || hasMultipleMonths || hasMultipleOccurrences) {
+        const latest = txns[0]
+        suggestions.push({
+          transactionId: latest.id,
+          title: latest.title,
+          amount: latest.amount,
+          categoryName: latest.category?.name || 'Geral',
+          occurrences: txns.length,
+          suggestedInterval: 'MONTHLY',
+          reason: isKeywordMatch
+            ? 'Serviço com padrão de assinatura/conta mensal detectado'
+            : `Identificamos ${txns.length} transações recorrentes com este mesmo nome`,
+        })
+      }
+    }
+
+    res.json(suggestions.slice(0, 5))
+  } catch (err) {
+    console.error('Recurring suggestions error:', err)
+    res.status(500).json({ error: 'Failed to generate recurring suggestions' })
+  }
+})
+
+app.post('/api/transactions/mark-recurring', async (req, res) => {
+  try {
+    const userId = req.userId!
+    const { transactionId, isRecurring = true, recurringInterval = 'MONTHLY' } = req.body
+
+    const updated = await prisma.transaction.update({
+      where: { id: parseInt(transactionId), userId },
+      data: { isRecurring, recurringInterval },
+    })
+
+    res.json(updated)
+  } catch (err) {
+    console.error('Mark recurring error:', err)
+    res.status(500).json({ error: 'Failed to mark transaction as recurring' })
+  }
+})
+
+// ============ EMERGENCY FUND ROUTES ============
+app.get('/api/emergency-fund', async (req, res) => {
+  try {
+    const userId = req.userId!
+    let fund = await prisma.emergencyFund.findUnique({ where: { userId } })
+
+    // Calculate suggested target based on last 3 months average expense
+    const now = new Date()
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString().split('T')[0]
+    const pastExpenses = await prisma.transaction.aggregate({
+      where: { userId, type: 'EXPENSE', date: { gte: threeMonthsAgo } },
+      _sum: { amount: true },
+    })
+    const avgMonthlyExpense = (pastExpenses._sum?.amount || 0) / 3
+
+    if (!fund) {
+      const defaultTargetMonths = 6
+      const defaultTarget = avgMonthlyExpense > 0 ? Math.round(avgMonthlyExpense * defaultTargetMonths) : 10000
+      fund = await prisma.emergencyFund.create({
+        data: {
+          userId,
+          targetMonths: defaultTargetMonths,
+          targetAmount: defaultTarget,
+          currentAmount: 0,
+        },
+      })
+    }
+
+    const targetMonths = fund.targetMonths || 6
+    const suggestedTarget = avgMonthlyExpense > 0 ? Math.round(avgMonthlyExpense * targetMonths) : 10000
+    const progressPercent = fund.targetAmount > 0 ? Math.min(100, Math.round((fund.currentAmount / fund.targetAmount) * 100)) : 0
+    const remainingAmount = Math.max(0, fund.targetAmount - fund.currentAmount)
+
+    res.json({
+      ...fund,
+      avgMonthlyExpense: Math.round(avgMonthlyExpense * 100) / 100,
+      suggestedTarget,
+      progressPercent,
+      remainingAmount,
+    })
+  } catch (err) {
+    console.error('Emergency fund fetch error:', err)
+    res.status(500).json({ error: 'Failed to fetch emergency fund' })
+  }
+})
+
+app.post('/api/emergency-fund', async (req, res) => {
+  try {
+    const userId = req.userId!
+    const { targetMonths, targetAmount, currentAmount, notes } = req.body
+
+    const fund = await prisma.emergencyFund.upsert({
+      where: { userId },
+      create: {
+        userId,
+        targetMonths: targetMonths ? parseInt(targetMonths) : 6,
+        targetAmount: parseFloat(targetAmount) || 0,
+        currentAmount: parseFloat(currentAmount) || 0,
+        notes: notes || null,
+      },
+      update: {
+        ...(targetMonths !== undefined && { targetMonths: parseInt(targetMonths) }),
+        ...(targetAmount !== undefined && { targetAmount: parseFloat(targetAmount) }),
+        ...(currentAmount !== undefined && { currentAmount: parseFloat(currentAmount) }),
+        ...(notes !== undefined && { notes }),
+      },
+    })
+
+    res.json(fund)
+  } catch (err) {
+    console.error('Emergency fund save error:', err)
+    res.status(500).json({ error: 'Failed to save emergency fund' })
+  }
+})
+
+app.post('/api/emergency-fund/transaction', async (req, res) => {
+  try {
+    const userId = req.userId!
+    const { type, amount } = req.body
+
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+      return res.status(400).json({ error: 'Valid amount is required' })
+    }
+
+    const fund = await prisma.emergencyFund.findUnique({ where: { userId } })
+    if (!fund) return res.status(404).json({ error: 'Emergency fund not found' })
+
+    const numAmount = parseFloat(amount)
+    let newAmount = fund.currentAmount
+
+    if (type === 'WITHDRAW') {
+      newAmount = Math.max(0, newAmount - numAmount)
+    } else {
+      newAmount += numAmount
+    }
+
+    const updated = await prisma.emergencyFund.update({
+      where: { userId },
+      data: { currentAmount: newAmount },
+    })
+
+    res.json(updated)
+  } catch (err) {
+    console.error('Emergency fund transaction error:', err)
+    res.status(500).json({ error: 'Failed to process fund transaction' })
+  }
+})
+
 // ============ CATEGORY ROUTES ============
 app.get('/api/categories', async (req, res) => {
   try {
@@ -980,7 +1169,94 @@ app.get('/api/export/csv', async (req, res) => {
   }
 })
 
-// ============ AI ASSISTANT ROUTE ============
+// ============ AI ASSISTANT ROUTES ============
+app.post('/api/assistant/insights', async (req, res) => {
+  try {
+    const userId = req.userId!
+    const apiKey = process.env.GEMINI_API_KEY
+
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+
+    const [incomeAgg, expenseAgg, topCategoriesRaw, budgets, emergencyFund] = await Promise.all([
+      prisma.transaction.aggregate({ where: { userId, type: 'INCOME', date: { gte: monthStart, lte: monthEnd } }, _sum: { amount: true } }),
+      prisma.transaction.aggregate({ where: { userId, type: 'EXPENSE', date: { gte: monthStart, lte: monthEnd } }, _sum: { amount: true } }),
+      prisma.$queryRaw<Array<{ name: string; total: number }>>`
+        SELECT c.name, CAST(SUM(t.amount) AS DOUBLE PRECISION) as total
+        FROM "Transaction" t
+        JOIN "Category" c ON t."categoryId" = c.id
+        WHERE t."userId" = ${userId} AND t.type = 'EXPENSE' AND t.date >= ${monthStart} AND t.date <= ${monthEnd}
+        GROUP BY c.id, c.name
+        ORDER BY total DESC LIMIT 3
+      `,
+      prisma.budget.findMany({ where: { userId }, include: { category: true } }),
+      prisma.emergencyFund.findUnique({ where: { userId } }),
+    ])
+
+    const income = incomeAgg._sum?.amount || 0
+    const expense = expenseAgg._sum?.amount || 0
+    const savings = income - expense
+    const savingsRate = income > 0 ? ((savings / income) * 100).toFixed(1) : '0'
+    const topCats = topCategoriesRaw.map(c => `${c.name}: $${Number(c.total).toFixed(2)}`).join(', ')
+
+    // Fallback algorithmic insights in case Gemini is offline or rate limited
+    const defaultInsights = [
+      {
+        title: 'Taxa de Poupança Mensal',
+        description: income > 0 
+          ? `Você está economizando ${savingsRate}% da sua renda este mês. ${parseFloat(savingsRate) >= 20 ? 'Excelente ritmo!' : 'Tente alcançar pelo menos 20%.'}`
+          : 'Registre suas entradas para acompanhar sua taxa de poupança mensal.',
+        tag: 'Economia',
+        type: parseFloat(savingsRate) >= 20 ? 'positive' : 'warning',
+      },
+      {
+        title: 'Principais Categorias de Despesa',
+        description: topCats ? `Suas maiores despesas este mês estão concentradas em: ${topCats}.` : 'Nenhuma despesa significativa registrada neste mês.',
+        tag: 'Orçamento',
+        type: 'info',
+      },
+      {
+        title: 'Reserva de Emergência',
+        description: emergencyFund && emergencyFund.targetAmount > 0
+          ? `Sua reserva está em ${Math.round((emergencyFund.currentAmount / emergencyFund.targetAmount) * 100)}% da meta de ${emergencyFund.targetMonths} meses.`
+          : 'Configure sua meta de reserva de emergência para se proteger contra imprevistos.',
+        tag: 'Segurança',
+        type: emergencyFund && emergencyFund.currentAmount >= emergencyFund.targetAmount ? 'positive' : 'warning',
+      },
+    ]
+
+    if (!apiKey) {
+      return res.json({ insights: defaultInsights })
+    }
+
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey)
+      const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
+      const prompt = `Analise estes dados financeiros do usuário:
+Renda mensal: $${income.toFixed(2)}, Despesas: $${expense.toFixed(2)}, Economia: $${savings.toFixed(2)} (${savingsRate}%).
+Principais despesas: ${topCats || 'Sem dados'}.
+Reserva de emergência: ${emergencyFund ? `$${emergencyFund.currentAmount}/$${emergencyFund.targetAmount}` : 'Não configurada'}.
+
+Gere exatamente 3 insights financeiros curtos, práticos e motivadores em Português no formato JSON:
+[
+  {"title": "Título curto", "description": "Explicação e conselho prático com números reais", "tag": "Economia|Orçamento|Investimento|Segurança", "type": "positive|warning|info"}
+]
+Retorne APENAS o JSON puro, sem blocos de markdown ou texto adicional.`
+
+      const result = await model.generateContent(prompt)
+      const text = result.response.text().trim().replace(/```json|```/g, '').trim()
+      const parsed = JSON.parse(text)
+      return res.json({ insights: Array.isArray(parsed) ? parsed : defaultInsights })
+    } catch {
+      return res.json({ insights: defaultInsights })
+    }
+  } catch (err) {
+    console.error('Insights error:', err)
+    res.status(500).json({ error: 'Failed to generate insights' })
+  }
+})
+
 app.post('/api/assistant/chat', async (req, res) => {
   try {
     const userId = req.userId!
@@ -1000,7 +1276,7 @@ app.post('/api/assistant/chat', async (req, res) => {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
 
-    const [incomeAgg, expenseAgg, recentTxns, budgets, goals, investments] = await Promise.all([
+    const [incomeAgg, expenseAgg, recentTxns, budgets, goals, investments, categories, paymentMethods] = await Promise.all([
       prisma.transaction.aggregate({
         where: { userId, type: 'INCOME', date: { gte: monthStart, lte: monthEnd } },
         _sum: { amount: true },
@@ -1018,6 +1294,8 @@ app.post('/api/assistant/chat', async (req, res) => {
       prisma.budget.findMany({ where: { userId }, include: { category: true } }),
       prisma.goal.findMany({ where: { userId } }),
       prisma.investment.findMany({ where: { userId } }),
+      prisma.category.findMany({ where: { userId } }),
+      prisma.paymentMethod.findMany({ where: { userId } }),
     ])
 
     const monthlyIncome = incomeAgg._sum?.amount || 0
@@ -1028,9 +1306,10 @@ app.post('/api/assistant/chat', async (req, res) => {
     const txnSummary = recentTxns.map(t => `${t.date} | ${t.type} | ${t.category?.name || 'N/A'} | ${t.title} | $${t.amount}`).join('\n')
     const budgetSummary = budgets.map(b => `${b.category?.name}: $${b.amount}/month`).join(', ')
     const goalSummary = goals.map(g => `${g.name}: $${g.currentAmount}/$${g.targetAmount}`).join(', ')
+    const availableCategories = categories.map(c => `${c.name} (${c.type})`).join(', ')
 
-    const systemPrompt = `You are a helpful, friendly personal financial assistant for FlowFinance.
-You have access to the user's real financial data. Use it to give specific, actionable advice.
+    const systemPrompt = `You are a helpful, intelligent personal financial assistant for FlowFinance.
+You have direct access to the user's real financial database and can also CREATE transactions when asked.
 Always respond in the same language the user writes to you (Portuguese, English, Spanish, etc.).
 
 === USER'S FINANCIAL CONTEXT (current month: ${now.toLocaleString('default', { month: 'long', year: 'numeric' })}) ===
@@ -1043,18 +1322,22 @@ Investments: $${totalInvestValue.toFixed(2)} (invested: $${totalInvested.toFixed
 
 Budgets: ${budgetSummary || 'None set'}
 Goals: ${goalSummary || 'None set'}
+Available Categories: ${availableCategories}
 
 Recent Transactions (last 20):
 ${txnSummary || 'No transactions yet'}
 === END CONTEXT ===
 
+TRANSACTION CREATION CAPABILITY:
+If the user asks to add, record, register or save a transaction (e.g., "gastei 50 no almoço", "registre um gasto de 120 em mercado", "recebi 500 de freelance", "paguei a conta de luz 80"), confirm politely and at the VERY END of your response output a structured JSON tag exactly in this format:
+<!--ACTION_CREATE_TRANSACTION:{"title":"Nome da transação","amount":50.0,"type":"EXPENSE","categoryName":"Food","isRecurring":false}-->
+(use "type": "EXPENSE" for spending/purchases or "INCOME" for earnings/salary/freelance).
+
 Guidelines:
-- Be concise but thorough
-- Use real numbers from the data above
+- Be concise, helpful, and polite
+- Use real numbers from user's data
 - Suggest concrete actions
-- If asked about trends, analyze the transaction data
-- Format currency values properly
-- Use emoji sparingly for visual appeal`
+- Format currency values properly`
 
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({ 
@@ -1073,9 +1356,45 @@ Guidelines:
     })
 
     const result = await chat.sendMessage(message)
-    const responseText = result.response.text()
+    let responseText = result.response.text()
+    let transactionCreated: any = null
 
-    res.json({ response: responseText })
+    // Check if Gemini triggered a transaction creation action
+    const actionMatch = responseText.match(/<!--ACTION_CREATE_TRANSACTION:(.*?)-->/s)
+    if (actionMatch) {
+      try {
+        const txData = JSON.parse(actionMatch[1])
+        const defaultPM = paymentMethods[0]?.id || 1
+        const matchedCategory = categories.find(
+          c => c.name.toLowerCase() === (txData.categoryName || '').toLowerCase()
+        ) || categories.find(c => c.type === (txData.type || 'EXPENSE')) || categories[0]
+
+        const created = await prisma.transaction.create({
+          data: {
+            userId,
+            title: txData.title || 'Transação rápida',
+            amount: parseFloat(txData.amount) || 0,
+            type: txData.type || 'EXPENSE',
+            categoryId: matchedCategory?.id || categories[0]?.id || 1,
+            paymentMethodId: defaultPM,
+            date: new Date().toISOString().split('T')[0],
+            time: new Date().toTimeString().slice(0, 5),
+            isRecurring: Boolean(txData.isRecurring),
+            recurringInterval: txData.isRecurring ? 'MONTHLY' : null,
+            notes: 'Criado via Assistente IA',
+          },
+          include: { category: true, paymentMethod: true },
+        })
+
+        transactionCreated = created
+        // Clean the action tag from the response text
+        responseText = responseText.replace(/<!--ACTION_CREATE_TRANSACTION:.*?-->/gs, '').trim()
+      } catch (parseErr) {
+        console.error('Failed to parse or create transaction from action tag:', parseErr)
+      }
+    }
+
+    res.json({ response: responseText, transactionCreated })
   } catch (err: any) {
     console.error('Assistant error:', err)
     const errorMsg = err?.message || 'Failed to get AI response. Check your GEMINI_API_KEY.'

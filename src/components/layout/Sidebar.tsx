@@ -3,7 +3,10 @@ import { motion } from 'framer-motion'
 import {
   LayoutDashboard,
   Receipt,
+  Tags,
+  Wallet,
   Target,
+  Shield,
   TrendingUp,
   BarChart3,
   Settings,
@@ -20,12 +23,15 @@ import { useAuth } from '@/contexts/AuthContext'
 const navItems = [
   { path: '/', translationKey: 'nav.dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/transactions', translationKey: 'nav.transactions', label: 'Transactions', icon: Receipt },
+  { path: '/categories', translationKey: 'nav.categories', label: 'Categories', icon: Tags },
+  { path: '/budgets', translationKey: 'nav.budgets', label: 'Budgets', icon: Wallet },
   { path: '/goals', translationKey: 'nav.goals', label: 'Goals', icon: Target },
+  { path: '/emergency-fund', translationKey: 'nav.emergency_fund', label: 'Emergency Fund', icon: Shield },
   { path: '/investments', translationKey: 'nav.investments', label: 'Investments', icon: TrendingUp },
   { path: '/analytics', translationKey: 'nav.analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/assistant', translationKey: 'nav.assistant', label: 'Assistant', icon: Bot },
-  { path: '/settings', translationKey: 'nav.settings', label: 'Settings', icon: Settings },
   { path: '/backups', translationKey: 'nav.backups', label: 'Backups', icon: Database },
+  { path: '/settings', translationKey: 'nav.settings', label: 'Settings', icon: Settings },
 ]
 
 export default function Sidebar() {

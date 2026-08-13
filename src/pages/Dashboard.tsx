@@ -2,20 +2,18 @@ import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router'
 import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Briefcase,
-  AlertTriangle,
   ArrowRight,
   Receipt,
+  ArrowUpRight,
+  ArrowDownRight,
+  Wallet,
 } from 'lucide-react'
 import {
   getDashboardSummary,
   getDashboardCharts,
   getRecentTransactions,
 } from '@/lib/api'
-import { formatCurrency, formatPercentage, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import {
   BarChart,
@@ -54,39 +52,32 @@ export default function Dashboard() {
 
   const isLoading = summaryLoading || chartsLoading || recentLoading
 
-  // KPI cards definition
+  // KPI cards definition (Entradas totais, Despesas totais, Saldo líquido)
+  const isPositiveNet = summary ? summary.monthlySavings >= 0 : true
   const cards = [
     {
-      title: t('dashboard.net_worth'),
-      value: summary ? formatCurrency(summary.netWorth, currency) : '$0.00',
-      description: t('dashboard.net_worth_desc'),
-      icon: DollarSign,
+      title: t('dashboard.total_income'),
+      value: summary ? formatCurrency(summary.monthlyIncome, currency) : '$0.00',
+      description: t('dashboard.total_income_desc'),
+      icon: ArrowUpRight,
       color: 'text-[#84a98c]',
       bgColor: 'bg-[#84a98c]/10',
     },
     {
-      title: t('dashboard.savings_rate'),
-      value: summary ? formatPercentage(summary.savingsRate) : '0%',
-      description: t('dashboard.savings_rate_desc').replace('{value}', summary ? formatCurrency(summary.monthlySavings, currency) : '$0.00'),
-      icon: summary && summary.monthlySavings >= 0 ? TrendingUp : TrendingDown,
-      color: summary && summary.monthlySavings >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]',
-      bgColor: summary && summary.monthlySavings >= 0 ? 'bg-[#84a98c]/10' : 'bg-[#e76f51]/10',
+      title: t('dashboard.total_expenses'),
+      value: summary ? formatCurrency(summary.monthlyExpense, currency) : '$0.00',
+      description: t('dashboard.total_expenses_desc'),
+      icon: ArrowDownRight,
+      color: 'text-[#e76f51]',
+      bgColor: 'bg-[#e76f51]/10',
     },
     {
-      title: t('dashboard.investments'),
-      value: summary ? formatCurrency(summary.investmentValue, currency) : '$0.00',
-      description: t('dashboard.investments_desc').replace('{value}', `${summary && summary.investmentGrowth >= 0 ? '+' : ''}${summary ? formatPercentage(summary.investmentGrowth) : '0%'}`),
-      icon: Briefcase,
-      color: 'text-[#2f3e46]',
-      bgColor: 'bg-[#2f3e46]/10',
-    },
-    {
-      title: t('dashboard.budget_used'),
-      value: summary ? formatPercentage(summary.budgetUsedPercent) : '0%',
-      description: t('dashboard.budget_desc'),
-      icon: AlertTriangle,
-      color: summary && summary.budgetUsedPercent > 90 ? 'text-[#e76f51]' : 'text-[#a8a29e]',
-      bgColor: summary && summary.budgetUsedPercent > 90 ? 'bg-[#e76f51]/10' : 'bg-stone-100',
+      title: t('dashboard.net_balance'),
+      value: summary ? formatCurrency(summary.monthlySavings, currency) : '$0.00',
+      description: t('dashboard.net_balance_desc'),
+      icon: Wallet,
+      color: isPositiveNet ? 'text-[#84a98c]' : 'text-[#e76f51]',
+      bgColor: isPositiveNet ? 'bg-[#84a98c]/10' : 'bg-[#e76f51]/10',
     },
   ]
 
@@ -97,8 +88,8 @@ export default function Dashboard() {
           <Skeleton className="h-10 w-48" />
           <Skeleton className="h-4 w-72" />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-28 rounded-xl" />
           ))}
         </div>
@@ -113,8 +104,6 @@ export default function Dashboard() {
       </div>
     )
   }
-
-
 
   return (
     <motion.div
@@ -134,7 +123,7 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         {cards.map((card, idx) => {
           const Icon = card.icon
           return (

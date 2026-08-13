@@ -14,6 +14,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowUpDown,
+  Repeat,
+  Sparkles,
+  Check,
 } from 'lucide-react'
 import {
   getTransactions,
@@ -23,6 +26,8 @@ import {
   duplicateTransaction,
   updateTransaction,
   exportTransactionsCsvUrl,
+  getRecurringSuggestions,
+  markTransactionRecurring,
 } from '@/lib/api'
 import { useSettings } from '@/contexts/SettingsContext'
 import type { Transaction } from '@/lib/api'
@@ -117,6 +122,22 @@ export default function Transactions() {
     queryFn: () => getTransactions(apiParams),
   })
 
+  // Recurring suggestions via pattern recognition / AI
+  const { data: recurringSuggestions } = useQuery({
+    queryKey: ['recurring-suggestions'],
+    queryFn: getRecurringSuggestions,
+  })
+
+  const markRecurringMutation = useMutation({
+    mutationFn: (txId: number) => markTransactionRecurring(txId, true, 'MONTHLY'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['recurring-suggestions'] })
+      toast.success(t('recurring.marked_success'))
+    },
+    onError: () => toast.error('Falha ao marcar como recorrente'),
+  })
+
   // Mutations
   const deleteMutation = useMutation({
     mutationFn: deleteTransaction,
@@ -180,14 +201,14 @@ export default function Transactions() {
             {t('transactions.subtitle')}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button
             onClick={handleExportCsv}
             variant="outline"
             className="border-[rgba(0,0,0,0.1)] gap-1.5 text-xs rounded-lg"
           >
             <Download className="h-3.5 w-3.5" />
-            {t('transactions.export')}
+            {t('transactions.export_csv')}
           </Button>
           <Button
             onClick={() => {
@@ -197,10 +218,59 @@ export default function Transactions() {
             className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
-            {t('transactions.add')}
+            {t('transactions.new_tx')}
           </Button>
         </div>
       </div>
+
+      {/* AI Pattern Recognition / Recurring Suggestions Card */}
+      {recurringSuggestions && recurringSuggestions.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50/70 via-purple-50/40 to-emerald-50/40 p-4 shadow-sm"
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-sm">
+              <Sparkles className="h-4.5 w-4.5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-indigo-900">
+                  {t('recurring.ai_title')}
+                </h4>
+                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
+                  {recurringSuggestions.length} {recurringSuggestions.length === 1 ? 'sugestão' : 'sugestões'}
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs text-indigo-700/90 leading-relaxed">
+                {t('recurring.ai_desc')}
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {recurringSuggestions.map((sug) => (
+                  <div
+                    key={sug.transactionId}
+                    className="flex items-center gap-2 rounded-xl bg-white/90 px-3 py-1.5 text-xs shadow-xs border border-indigo-100/80"
+                  >
+                    <span className="font-medium text-stone-900">{sug.title}</span>
+                    <span className="text-stone-500 font-mono text-[11px]">({formatCurrency(sug.amount, currency)})</span>
+                    <Button
+                      size="sm"
+                      onClick={() => markRecurringMutation.mutate(sug.transactionId)}
+                      disabled={markRecurringMutation.isPending}
+                      className="h-6 px-2 text-[10px] bg-indigo-600 hover:bg-indigo-700 text-white rounded-md gap-1"
+                    >
+                      <Check className="h-3 w-3" />
+                      {t('recurring.confirm_mark')}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Search & Filters */}
       <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
@@ -346,7 +416,15 @@ export default function Transactions() {
                           <span className="block text-[10px] text-stone-400">{tx.time}</span>
                         </td>
                         <td className="py-4 px-6">
-                          <div className="font-medium text-[#0c0a09]">{tx.title}</div>
+                          <div className="flex items-center gap-1.5 font-medium text-[#0c0a09]">
+                            <span>{tx.title}</span>
+                            {tx.isRecurring && (
+                              <span className="inline-flex items-center gap-0.5 rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 border border-indigo-100/60" title={t('recurring.toggle_label')}>
+                                <Repeat className="h-2.5 w-2.5" />
+                                {t('recurring.toggle_label')}
+                              </span>
+                            )}
+                          </div>
                           {tx.merchant && (
                             <span className="text-xs text-stone-400">{tx.merchant}</span>
                           )}

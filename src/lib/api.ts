@@ -70,10 +70,43 @@ export interface Transaction {
   notes?: string
   receiptImage?: string
   isFavorite: boolean
+  isRecurring?: boolean
+  recurringInterval?: 'MONTHLY' | 'WEEKLY' | 'YEARLY' | string | null
   createdAt: string
   updatedAt: string
   category?: Category
   paymentMethod?: PaymentMethod
+}
+
+export interface EmergencyFund {
+  id: number
+  targetMonths: number
+  targetAmount: number
+  currentAmount: number
+  notes?: string | null
+  createdAt: string
+  updatedAt: string
+  avgMonthlyExpense: number
+  suggestedTarget: number
+  progressPercent: number
+  remainingAmount: number
+}
+
+export interface RecurringSuggestion {
+  transactionId: number
+  title: string
+  amount: number
+  categoryName: string
+  occurrences: number
+  suggestedInterval: string
+  reason: string
+}
+
+export interface AiInsight {
+  title: string
+  description: string
+  tag: string
+  type: 'positive' | 'warning' | 'info'
 }
 
 export interface Budget {
@@ -395,7 +428,45 @@ export const restoreBackup = async (id: number): Promise<{ success: boolean; mes
 export const exportTransactionsCsvUrl = '/api/export/csv'
 
 // --- AI Assistant ---
-export const chatWithAssistant = async (message: string, history?: { role: string; content: string }[]): Promise<{ response: string }> => {
-  const { data } = await api.post<{ response: string }>('/assistant/chat', { message, history })
+export const chatWithAssistant = async (
+  message: string,
+  history?: { role: string; content: string }[]
+): Promise<{ response: string; transactionCreated?: Transaction }> => {
+  const { data } = await api.post<{ response: string; transactionCreated?: Transaction }>('/assistant/chat', {
+    message,
+    history,
+  })
+  return data
+}
+
+export const getAiInsights = async (): Promise<{ insights: AiInsight[] }> => {
+  const { data } = await api.post<{ insights: AiInsight[] }>('/assistant/insights')
+  return data
+}
+
+// --- Emergency Fund ---
+export const getEmergencyFund = async (): Promise<EmergencyFund> => {
+  const { data } = await api.get<EmergencyFund>('/emergency-fund')
+  return data
+}
+
+export const updateEmergencyFund = async (fund: Partial<EmergencyFund>): Promise<EmergencyFund> => {
+  const { data } = await api.post<EmergencyFund>('/emergency-fund', fund)
+  return data
+}
+
+export const emergencyFundTransaction = async (type: 'DEPOSIT' | 'WITHDRAW', amount: number): Promise<EmergencyFund> => {
+  const { data } = await api.post<EmergencyFund>('/emergency-fund/transaction', { type, amount })
+  return data
+}
+
+// --- Recurring Suggestions ---
+export const getRecurringSuggestions = async (): Promise<RecurringSuggestion[]> => {
+  const { data } = await api.get<RecurringSuggestion[]>('/transactions/recurring-suggestions')
+  return data
+}
+
+export const markTransactionRecurring = async (transactionId: number, isRecurring = true, recurringInterval = 'MONTHLY'): Promise<Transaction> => {
+  const { data } = await api.post<Transaction>('/transactions/mark-recurring', { transactionId, isRecurring, recurringInterval })
   return data
 }

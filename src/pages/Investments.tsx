@@ -10,12 +10,12 @@ import {
   Briefcase,
   X,
 } from 'lucide-react'
+import { useSettings } from '@/contexts/SettingsContext'
 import {
   getInvestments,
   createInvestment,
   updateInvestment,
   deleteInvestment,
-  getSettings,
 } from '@/lib/api'
 import type { Investment } from '@/lib/api'
 import { formatCurrency, formatPercentage, formatDate } from '@/lib/utils'
@@ -35,6 +35,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Investments() {
   const queryClient = useQueryClient()
+  const { t, currency } = useSettings()
 
   // Modal State
   const [showModal, setShowModal] = useState(false)
@@ -49,14 +50,6 @@ export default function Investments() {
   const [purchaseDate, setPurchaseDate] = useState('')
   const [notes, setNotes] = useState('')
 
-  // Queries
-  const { data: settings } = useQuery({
-    queryKey: ['settings'],
-    queryFn: getSettings,
-  })
-
-  const currency = settings?.currency || 'USD'
-
   const { data: investments, isLoading } = useQuery({
     queryKey: ['investments'],
     queryFn: getInvestments,
@@ -68,10 +61,10 @@ export default function Investments() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['investments'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Investment added successfully')
+      toast.success(t('investments.create_success'))
       closeModal()
     },
-    onError: () => toast.error('Failed to add investment'),
+    onError: () => toast.error(t('investments.create_error')),
   })
 
   const updateMutation = useMutation({
@@ -79,10 +72,10 @@ export default function Investments() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['investments'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Investment updated successfully')
+      toast.success(t('investments.update_success'))
       closeModal()
     },
-    onError: () => toast.error('Failed to update investment'),
+    onError: () => toast.error(t('investments.update_error')),
   })
 
   const deleteMutation = useMutation({
@@ -90,9 +83,9 @@ export default function Investments() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['investments'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Investment deleted successfully')
+      toast.success(t('investments.delete_success'))
     },
-    onError: () => toast.error('Failed to delete investment'),
+    onError: () => toast.error(t('investments.delete_error')),
   })
 
   const openAddModal = () => {
@@ -146,7 +139,7 @@ export default function Investments() {
   }
 
   const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this investment asset?')) {
+    if (confirm(t('investments.delete_confirm'))) {
       deleteMutation.mutate(id)
     }
   }
@@ -170,10 +163,10 @@ export default function Investments() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Investments
+            {t('investments.title')}
           </h1>
           <p className="text-sm text-[#78716c]">
-            Track your financial portfolios, assets growth, and net profit/loss.
+            {t('investments.subtitle')}
           </p>
         </div>
         <div>
@@ -182,7 +175,7 @@ export default function Investments() {
             className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
-            Add Asset
+            {t('investments.add')}
           </Button>
         </div>
       </div>
@@ -199,7 +192,7 @@ export default function Investments() {
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader className="pb-2">
                 <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
-                  Total Invested
+                  {t('investments.total_invested')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -212,7 +205,7 @@ export default function Investments() {
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader className="pb-2">
                 <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
-                  Current Value
+                  {t('investments.current_value')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -225,7 +218,7 @@ export default function Investments() {
             <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
-                  Profit / Loss
+                  {t('investments.total_return')}
                 </CardDescription>
                 <div className={`p-1.5 rounded-full ${profitLoss >= 0 ? 'bg-[#84a98c]/10 text-[#84a98c]' : 'bg-[#e76f51]/10 text-[#e76f51]'}`}>
                   {profitLoss >= 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
@@ -251,13 +244,13 @@ export default function Investments() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-[rgba(0,0,0,0.05)] bg-[#fafaf5]/60 text-[10px] uppercase tracking-wider text-[#78716c]">
-                        <th className="py-3 px-6 font-semibold">Asset</th>
-                        <th className="py-3 px-6 font-semibold">Category</th>
-                        <th className="py-3 px-6 font-semibold">Broker</th>
-                        <th className="py-3 px-6 font-semibold text-right">Invested</th>
-                        <th className="py-3 px-6 font-semibold text-right">Current Value</th>
-                        <th className="py-3 px-6 font-semibold text-right">Return</th>
-                        <th className="py-3 px-6 font-semibold text-right">Actions</th>
+                        <th className="py-3 px-6 font-semibold">{t('investments.name')}</th>
+                        <th className="py-3 px-6 font-semibold">{t('investments.category')}</th>
+                        <th className="py-3 px-6 font-semibold">{t('investments.broker')}</th>
+                        <th className="py-3 px-6 font-semibold text-right">{t('investments.total_invested')}</th>
+                        <th className="py-3 px-6 font-semibold text-right">{t('investments.current_value')}</th>
+                        <th className="py-3 px-6 font-semibold text-right">{t('investments.return_pct')}</th>
+                        <th className="py-3 px-6 font-semibold text-right"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[rgba(0,0,0,0.04)] text-sm text-[#0c0a09]">
@@ -271,7 +264,7 @@ export default function Investments() {
                             <td className="py-4 px-6">
                               <div className="font-medium text-[#0c0a09]">{inv.name}</div>
                               {inv.purchaseDate && (
-                                <span className="text-[10px] text-stone-400">Purchased: {formatDate(inv.purchaseDate)}</span>
+                                <span className="text-[10px] text-stone-400">{t('investments.purchased')}: {formatDate(inv.purchaseDate)}</span>
                               )}
                             </td>
                             <td className="py-4 px-6 whitespace-nowrap">
@@ -321,7 +314,7 @@ export default function Investments() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <Briefcase className="h-8 w-8 text-[#a8a29e] mb-2" />
-                  <p className="text-sm font-medium text-[#78716c]">No investment assets registered yet.</p>
+                  <p className="text-sm font-medium text-[#78716c]">{t('investments.no_data')}</p>
                 </div>
               )}
             </CardContent>
@@ -340,7 +333,7 @@ export default function Investments() {
           >
             <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
               <h3 className="text-lg font-medium text-[#0c0a09]">
-                {editingInvestment ? 'Edit Asset' : 'Add Investment Asset'}
+                {editingInvestment ? t('investments.modal_edit') : t('investments.modal_new')}
               </h3>
               <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8 rounded-full">
                 <X className="h-4 w-4" />
@@ -350,12 +343,12 @@ export default function Investments() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Asset Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="assetName" className="text-xs uppercase tracking-wider text-[#78716c]">Asset Name / Symbol</Label>
+                <Label htmlFor="assetName" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.name')}</Label>
                 <Input
                   id="assetName"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., Apple Inc. (AAPL), Bitcoin"
+                  placeholder={t('investments.name_placeholder')}
                   required
                   className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
                 />
@@ -363,7 +356,7 @@ export default function Investments() {
 
               {/* Category Select */}
               <div className="space-y-1.5">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">Category</Label>
+                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.category')}</Label>
                 <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
                     <SelectValue />
@@ -381,18 +374,18 @@ export default function Investments() {
               <div className="grid grid-cols-2 gap-3">
                 {/* Broker */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="broker" className="text-xs uppercase tracking-wider text-[#78716c]">Broker / Custodian</Label>
+                  <Label htmlFor="broker" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.broker_label')}</Label>
                   <Input
                     id="broker"
                     value={broker}
                     onChange={(e) => setBroker(e.target.value)}
-                    placeholder="e.g., Binance, Vanguard"
+                    placeholder={t('investments.broker_placeholder')}
                     className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
                   />
                 </div>
                 {/* Purchase Date */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="purchaseD" className="text-xs uppercase tracking-wider text-[#78716c]">Purchase Date</Label>
+                  <Label htmlFor="purchaseD" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.purchase_date')}</Label>
                   <Input
                     id="purchaseD"
                     type="date"
@@ -406,7 +399,7 @@ export default function Investments() {
               <div className="grid grid-cols-2 gap-3">
                 {/* Invested */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="amtInvested" className="text-xs uppercase tracking-wider text-[#78716c]">Amount Invested</Label>
+                  <Label htmlFor="amtInvested" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.amount_invested')}</Label>
                   <Input
                     id="amtInvested"
                     type="number"
@@ -420,7 +413,7 @@ export default function Investments() {
                 </div>
                 {/* Current Value */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="currVal" className="text-xs uppercase tracking-wider text-[#78716c]">Current Value</Label>
+                  <Label htmlFor="currVal" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.current_val')}</Label>
                   <Input
                     id="currVal"
                     type="number"
@@ -436,12 +429,12 @@ export default function Investments() {
 
               {/* Notes */}
               <div className="space-y-1.5">
-                <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-[#78716c]">Notes</Label>
+                <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.notes')}</Label>
                 <Input
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Additional portfolio info..."
+                  placeholder={t('investments.notes_placeholder')}
                   className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
                 />
               </div>
@@ -454,14 +447,14 @@ export default function Investments() {
                   onClick={closeModal}
                   className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
                 >
-                  Cancel
+                  {t('investments.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
                   className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
                 >
-                  {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save'}
+                  {createMutation.isPending || updateMutation.isPending ? t('investments.saving') : t('investments.save')}
                 </Button>
               </div>
             </form>

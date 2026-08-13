@@ -23,6 +23,7 @@ model User {
   goals          Goal[]
   investments    Investment[]
   settings       Settings[]
+  emergencyFund  EmergencyFund?
 }
 
 model Category {
@@ -71,6 +72,8 @@ model Transaction {
   notes              String?
   receiptImage       String?
   isFavorite         Boolean  @default(false)
+  isRecurring        Boolean  @default(false)
+  recurringInterval  String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   userId             Int
@@ -78,6 +81,19 @@ model Transaction {
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   category      Category      @relation(fields: [categoryId], references: [id])
   paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+}
+
+model EmergencyFund {
+  id            Int      @id @default(autoincrement())
+  targetMonths  Int      @default(6)
+  targetAmount  Float    @default(0)
+  currentAmount Float    @default(0)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  userId        Int      @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Budget {

@@ -9,6 +9,7 @@ import Transactions from './pages/Transactions'
 import Categories from './pages/Categories'
 import Budgets from './pages/Budgets'
 import Goals from './pages/Goals'
+import EmergencyFund from './pages/EmergencyFund'
 import Investments from './pages/Investments'
 import Analytics from './pages/Analytics'
 import Settings from './pages/Settings'
@@ -30,6 +31,7 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/budgets" element={<Budgets />} />
           <Route path="/goals" element={<Goals />} />
+          <Route path="/emergency-fund" element={<EmergencyFund />} />
           <Route path="/investments" element={<Investments />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/assistant" element={<Assistant />} />

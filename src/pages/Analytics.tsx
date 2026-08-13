@@ -5,11 +5,14 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Receipt,
+  Sparkles,
+  Lightbulb,
 } from 'lucide-react'
 import {
   getCashflowReport,
   getCategoriesReport,
   getNetworthReport,
+  getAiInsights,
 } from '@/lib/api'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatCurrency, formatPercentage } from '@/lib/utils'
@@ -79,6 +82,11 @@ export default function Analytics() {
   const { data: networth, isLoading: nwLoading } = useQuery({
     queryKey: ['report', 'networth'],
     queryFn: getNetworthReport,
+  })
+
+  const { data: aiInsightsData, isLoading: aiLoading } = useQuery({
+    queryKey: ['ai-insights'],
+    queryFn: getAiInsights,
   })
 
   const isLoading = cfLoading || catLoading || nwLoading
@@ -229,6 +237,57 @@ export default function Analytics() {
                 </div>
               </CardHeader>
             </Card>
+          </div>
+
+          {/* AI Insights & Financial Tips Section */}
+          <div className="rounded-3xl border border-emerald-100/80 bg-gradient-to-r from-emerald-50/50 via-[#fafaf5] to-teal-50/40 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#84a98c] text-white shadow-xs">
+                  <Sparkles className="h-4.5 w-4.5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-[#0c0a09]">{t('analytics.ai_insights_title')}</h3>
+                  <p className="text-xs text-[#78716c]">{t('analytics.ai_insights_desc')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {aiLoading ? (
+                [1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-24 rounded-2xl bg-white/70" />
+                ))
+              ) : aiInsightsData?.insights && aiInsightsData.insights.length > 0 ? (
+                aiInsightsData.insights.map((insight, idx) => (
+                  <div
+                    key={idx}
+                    className="flex flex-col justify-between rounded-2xl bg-white p-4 shadow-xs border border-[rgba(0,0,0,0.04)]"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          insight.type === 'positive'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : insight.type === 'warning'
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          <Lightbulb className="h-2.5 w-2.5" />
+                          {insight.tag || 'Dica'}
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-semibold text-[#0c0a09]">{insight.title}</h4>
+                      <p className="text-xs text-[#78716c] leading-relaxed">{insight.description}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-4 text-xs text-stone-400">
+                  Insights serão gerados automaticamente conforme suas movimentações.
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Cash Flow History */}

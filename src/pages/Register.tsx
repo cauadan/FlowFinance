@@ -1,8 +1,24 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { motion } from 'framer-motion'
 import { CircleDollarSign, Mail, Lock, Eye, EyeOff, ArrowRight, User, Sparkles } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { translations } from '@/lib/translations'
+
+function useAuthTranslation() {
+  const lang = useMemo(() => {
+    try {
+      const stored = localStorage.getItem('flowfinance-language')
+      if (stored && translations[stored]) return stored
+    } catch {}
+    const browserLang = navigator.language?.slice(0, 2)
+    if (browserLang && translations[browserLang]) return browserLang
+    return 'en'
+  }, [])
+
+  const t = (key: string) => translations[lang]?.[key] || translations['en']?.[key] || key
+  return { t, lang }
+}
 
 export default function Register() {
   const [name, setName] = useState('')
@@ -14,17 +30,18 @@ export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { register } = useAuth()
   const navigate = useNavigate()
+  const { t } = useAuthTranslation()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t('register.password_min'))
       return
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('register.password_mismatch'))
       return
     }
 
@@ -33,7 +50,7 @@ export default function Register() {
       await register(name, email, password)
       navigate('/', { replace: true })
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create account')
+      setError(err.response?.data?.error || t('register.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -65,11 +82,11 @@ export default function Register() {
             FlowFinance
           </h1>
           <p className="max-w-sm text-lg text-white/70">
-            Start your financial journey. Track spending, set goals, and let AI guide your decisions.
+            {t('register.branding_desc')}
           </p>
           <div className="mt-8 flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
             <Sparkles className="h-4 w-4 text-yellow-300" />
-            <span className="text-sm text-white/80">Free to use • No credit card required</span>
+            <span className="text-sm text-white/80">{t('register.branding_badge')}</span>
           </div>
         </motion.div>
 
@@ -100,8 +117,8 @@ export default function Register() {
           className="w-full max-w-md"
         >
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#0c0a09]">Create your account</h2>
-            <p className="mt-1 text-sm text-[#78716c]">Get started with your personal finance dashboard</p>
+            <h2 className="text-2xl font-bold text-[#0c0a09]">{t('register.title')}</h2>
+            <p className="mt-1 text-sm text-[#78716c]">{t('register.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -116,7 +133,7 @@ export default function Register() {
             )}
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#44403c]">Full Name</label>
+              <label className="text-sm font-medium text-[#44403c]">{t('register.name')}</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
                 <input
@@ -124,14 +141,14 @@ export default function Register() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  placeholder="John Doe"
+                  placeholder={t('register.name_placeholder')}
                   className="w-full rounded-lg border border-[rgba(0,0,0,0.08)] bg-white py-2.5 pl-10 pr-4 text-sm text-[#0c0a09] placeholder:text-[#a8a29e] transition-all focus:border-[#84a98c] focus:outline-none focus:ring-2 focus:ring-[#84a98c]/20"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#44403c]">Email</label>
+              <label className="text-sm font-medium text-[#44403c]">{t('register.email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
                 <input
@@ -146,7 +163,7 @@ export default function Register() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#44403c]">Password</label>
+              <label className="text-sm font-medium text-[#44403c]">{t('register.password')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
                 <input
@@ -155,7 +172,7 @@ export default function Register() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  placeholder="Min. 6 characters"
+                  placeholder={t('register.password_placeholder')}
                   className="w-full rounded-lg border border-[rgba(0,0,0,0.08)] bg-white py-2.5 pl-10 pr-10 text-sm text-[#0c0a09] placeholder:text-[#a8a29e] transition-all focus:border-[#84a98c] focus:outline-none focus:ring-2 focus:ring-[#84a98c]/20"
                 />
                 <button
@@ -169,7 +186,7 @@ export default function Register() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#44403c]">Confirm Password</label>
+              <label className="text-sm font-medium text-[#44403c]">{t('register.confirm')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
                 <input
@@ -178,7 +195,7 @@ export default function Register() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   minLength={6}
-                  placeholder="Repeat your password"
+                  placeholder={t('register.confirm_placeholder')}
                   className="w-full rounded-lg border border-[rgba(0,0,0,0.08)] bg-white py-2.5 pl-10 pr-4 text-sm text-[#0c0a09] placeholder:text-[#a8a29e] transition-all focus:border-[#84a98c] focus:outline-none focus:ring-2 focus:ring-[#84a98c]/20"
                 />
               </div>
@@ -193,7 +210,7 @@ export default function Register() {
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 <>
-                  Create Account
+                  {t('register.submit')}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </>
               )}
@@ -201,9 +218,9 @@ export default function Register() {
           </form>
 
           <p className="mt-6 text-center text-sm text-[#78716c]">
-            Already have an account?{' '}
+            {t('register.has_account')}{' '}
             <Link to="/login" className="font-medium text-[#84a98c] hover:text-[#52796f] transition-colors">
-              Sign in
+              {t('register.signin')}
             </Link>
           </p>
         </motion.div>

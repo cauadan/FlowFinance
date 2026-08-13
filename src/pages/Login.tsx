@@ -1,8 +1,24 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { motion } from 'framer-motion'
 import { CircleDollarSign, Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { translations } from '@/lib/translations'
+
+function useAuthTranslation() {
+  const lang = useMemo(() => {
+    try {
+      const stored = localStorage.getItem('flowfinance-language')
+      if (stored && translations[stored]) return stored
+    } catch {}
+    const browserLang = navigator.language?.slice(0, 2)
+    if (browserLang && translations[browserLang]) return browserLang
+    return 'en'
+  }, [])
+
+  const t = (key: string) => translations[lang]?.[key] || translations['en']?.[key] || key
+  return { t, lang }
+}
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -12,6 +28,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+  const { t } = useAuthTranslation()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,7 +38,7 @@ export default function Login() {
       await login(email, password)
       navigate('/', { replace: true })
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to login')
+      setError(err.response?.data?.error || t('login.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -53,11 +70,11 @@ export default function Login() {
             FlowFinance
           </h1>
           <p className="max-w-sm text-lg text-white/70">
-            Your personal finance dashboard. Track, analyze, and grow your wealth with elegance.
+            {t('login.branding_desc')}
           </p>
           <div className="mt-8 flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
             <Sparkles className="h-4 w-4 text-yellow-300" />
-            <span className="text-sm text-white/80">Powered by AI financial insights</span>
+            <span className="text-sm text-white/80">{t('login.branding_badge')}</span>
           </div>
         </motion.div>
 
@@ -88,8 +105,8 @@ export default function Login() {
           className="w-full max-w-md"
         >
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#0c0a09]">Welcome back</h2>
-            <p className="mt-1 text-sm text-[#78716c]">Sign in to your account to continue</p>
+            <h2 className="text-2xl font-bold text-[#0c0a09]">{t('login.welcome')}</h2>
+            <p className="mt-1 text-sm text-[#78716c]">{t('login.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -104,7 +121,7 @@ export default function Login() {
             )}
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#44403c]">Email</label>
+              <label className="text-sm font-medium text-[#44403c]">{t('login.email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
                 <input
@@ -119,7 +136,7 @@ export default function Login() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#44403c]">Password</label>
+              <label className="text-sm font-medium text-[#44403c]">{t('login.password')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
                 <input
@@ -149,7 +166,7 @@ export default function Login() {
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 <>
-                  Sign In
+                  {t('login.submit')}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </>
               )}
@@ -157,9 +174,9 @@ export default function Login() {
           </form>
 
           <p className="mt-6 text-center text-sm text-[#78716c]">
-            Don't have an account?{' '}
+            {t('login.no_account')}{' '}
             <Link to="/register" className="font-medium text-[#84a98c] hover:text-[#52796f] transition-colors">
-              Create one
+              {t('login.create')}
             </Link>
           </p>
         </motion.div>

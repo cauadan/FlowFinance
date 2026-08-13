@@ -10,13 +10,13 @@ import {
   X,
   AlertTriangle,
 } from 'lucide-react'
+import { useSettings } from '@/contexts/SettingsContext'
 import {
   getBudgets,
   getCategories,
   createBudget,
   updateBudget,
   deleteBudget,
-  getSettings,
 } from '@/lib/api'
 import type { Budget } from '@/lib/api'
 import { formatCurrency, formatPercentage } from '@/lib/utils'
@@ -37,7 +37,14 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Budgets() {
   const queryClient = useQueryClient()
+  const { t, currency } = useSettings()
   const now = new Date()
+
+  const translateDbItem = (name: string, type: 'category' | 'payment') => {
+    const key = `${type}.${name.toLowerCase()}`
+    const translated = t(key)
+    return translated !== key ? translated : name
+  }
 
   // Select month / year state
   const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth() + 1)
@@ -48,14 +55,6 @@ export default function Budgets() {
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null)
   const [amount, setAmount] = useState('')
   const [selectedCategoryId, setSelectedCategoryId] = useState('')
-
-  // Queries
-  const { data: settings } = useQuery({
-    queryKey: ['settings'],
-    queryFn: getSettings,
-  })
-
-  const currency = settings?.currency || 'USD'
 
   const { data: budgets, isLoading: budgetsLoading } = useQuery({
     queryKey: ['budgets', selectedMonth, selectedYear],
@@ -73,10 +72,10 @@ export default function Budgets() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Budget created successfully')
+      toast.success(t('budgets.create_success'))
       closeModal()
     },
-    onError: () => toast.error('Failed to create budget. Category might already have a budget.'),
+    onError: () => toast.error(t('budgets.create_error')),
   })
 
   const updateMutation = useMutation({
@@ -84,10 +83,10 @@ export default function Budgets() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Budget updated successfully')
+      toast.success(t('budgets.update_success'))
       closeModal()
     },
-    onError: () => toast.error('Failed to update budget'),
+    onError: () => toast.error(t('budgets.update_error')),
   })
 
   const deleteMutation = useMutation({
@@ -95,9 +94,9 @@ export default function Budgets() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Budget deleted successfully')
+      toast.success(t('budgets.delete_success'))
     },
-    onError: () => toast.error('Failed to delete budget'),
+    onError: () => toast.error(t('budgets.delete_error')),
   })
 
   const openAddModal = () => {
@@ -124,11 +123,11 @@ export default function Budgets() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
-      toast.error('Please enter a valid amount')
+      toast.error(t('budgets.valid_amount'))
       return
     }
     if (!selectedCategoryId) {
-      toast.error('Please select a category')
+      toast.error(t('budgets.select_category'))
       return
     }
 
@@ -148,7 +147,7 @@ export default function Budgets() {
   }
 
   const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this budget?')) {
+    if (confirm(t('budgets.delete_confirm'))) {
       deleteMutation.mutate(id)
     }
   }
@@ -186,10 +185,10 @@ export default function Budgets() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Budgets
+            {t('budgets.title')}
           </h1>
           <p className="text-sm text-[#78716c]">
-            Set monthly limits per category and track your actual spending progress.
+            {t('budgets.subtitle')}
           </p>
         </div>
         <div className="flex gap-2 items-center">
@@ -227,7 +226,7 @@ export default function Budgets() {
             className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
-            Set Budget
+            {t('budgets.set')}
           </Button>
         </div>
       </div>
@@ -250,8 +249,8 @@ export default function Budgets() {
                 <div className="grid gap-6 md:grid-cols-4 items-center">
                   <div className="md:col-span-3 space-y-3">
                     <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-[#78716c]">
-                      <span>Monthly Progress</span>
-                      <span>{formatPercentage(overallPercentage)} Used</span>
+                      <span>{t('budgets.progress')}</span>
+                      <span>{formatPercentage(overallPercentage)} {t('budgets.used')}</span>
                     </div>
                     <Progress
                       value={Math.min(overallPercentage, 100)}
@@ -265,12 +264,12 @@ export default function Budgets() {
                       }
                     />
                     <div className="flex justify-between text-xs text-[#a8a29e]">
-                      <span>Spent: {formatCurrency(totalSpent, currency)}</span>
-                      <span>Total Limit: {formatCurrency(totalAllocated, currency)}</span>
+                      <span>{t('budgets.spent')}: {formatCurrency(totalSpent, currency)}</span>
+                      <span>{t('budgets.total_limit')}: {formatCurrency(totalAllocated, currency)}</span>
                     </div>
                   </div>
                   <div className="border-t md:border-t-0 md:border-l border-[rgba(0,0,0,0.05)] pt-4 md:pt-0 md:pl-6 text-center md:text-left">
-                    <span className="text-xs uppercase text-[#78716c] block">Remaining</span>
+                    <span className="text-xs uppercase text-[#78716c] block">{t('budgets.remaining')}</span>
                     <span className={`text-2xl font-semibold ${totalRemaining >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]'}`}>
                       {formatCurrency(totalRemaining, currency)}
                     </span>
@@ -301,7 +300,7 @@ export default function Budgets() {
                           style={{ backgroundColor: budget.category?.color || '#cad2c5' }}
                         />
                         <CardTitle className="text-sm font-semibold text-[#0c0a09]">
-                          {budget.category?.name || 'Uncategorized'}
+                          {budget.category ? translateDbItem(budget.category.name, 'category') : 'Uncategorized'}
                         </CardTitle>
                       </div>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -329,25 +328,25 @@ export default function Budgets() {
                           {formatCurrency(budget.spent, currency)}
                         </span>
                         <span className="text-xs text-[#a8a29e]">
-                          of {formatCurrency(budget.amount, currency)}
+                          {t('budgets.of')} {formatCurrency(budget.amount, currency)}
                         </span>
                       </div>
 
                       <Progress value={Math.min(budget.percentage, 100)} className="h-2" indicatorClassName={progressBarColor} />
 
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-stone-400">{formatPercentage(budget.percentage)} used</span>
+                        <span className="text-stone-400">{formatPercentage(budget.percentage)} {t('budgets.used')}</span>
                         <span className={`font-medium ${budget.remaining >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]'}`}>
                           {budget.remaining >= 0
-                            ? `${formatCurrency(budget.remaining, currency)} left`
-                            : `${formatCurrency(Math.abs(budget.remaining), currency)} over`}
+                            ? `${formatCurrency(budget.remaining, currency)} ${t('budgets.left')}`
+                            : `${formatCurrency(Math.abs(budget.remaining), currency)} ${t('budgets.over')}`}
                         </span>
                       </div>
 
                       {isOverBudget && (
                         <div className="flex items-center gap-1.5 mt-2 rounded bg-red-50 px-2 py-1 text-[10px] font-medium text-red-600">
                           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                          <span>Limit exceeded for this category</span>
+                          <span>{t('budgets.exceeded')}</span>
                         </div>
                       )}
                     </CardContent>
@@ -358,9 +357,9 @@ export default function Budgets() {
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-[rgba(0,0,0,0.08)] rounded-xl bg-white">
               <Wallet className="h-10 w-10 text-[#a8a29e] mb-2" />
-              <p className="text-sm font-medium text-[#78716c]">No budgets set for this month.</p>
+              <p className="text-sm font-medium text-[#78716c]">{t('budgets.no_data')}</p>
               <Button onClick={openAddModal} variant="link" className="text-[#84a98c] text-xs font-semibold mt-1">
-                Configure your first budget
+                {t('budgets.first')}
               </Button>
             </div>
           )}
@@ -378,7 +377,7 @@ export default function Budgets() {
           >
             <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
               <h3 className="text-lg font-medium text-[#0c0a09]">
-                {editingBudget ? 'Edit Budget' : 'New Budget'}
+                {editingBudget ? t('budgets.modal_edit') : t('budgets.modal_new')}
               </h3>
               <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8 rounded-full">
                 <X className="h-4 w-4" />
@@ -388,24 +387,24 @@ export default function Budgets() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Category Select */}
               <div className="space-y-1.5">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">Category</Label>
+                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('budgets.category')}</Label>
                 {editingBudget ? (
                   <div className="flex items-center gap-2 p-2 border border-stone-100 rounded-lg bg-stone-50 text-stone-600 text-sm font-medium">
                     <span
                       className="h-3 w-3 rounded-full shrink-0"
                       style={{ backgroundColor: editingBudget.category?.color || '#cad2c5' }}
                     />
-                    {editingBudget.category?.name}
+                    {editingBudget.category ? translateDbItem(editingBudget.category.name, 'category') : ''}
                   </div>
                 ) : (
                   <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
                     <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue placeholder={t('budgets.category_placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {availableCategories.map((cat) => (
                         <SelectItem key={cat.id} value={String(cat.id)}>
-                          {cat.name}
+                          {translateDbItem(cat.name, 'category')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -415,7 +414,7 @@ export default function Budgets() {
 
               {/* Amount */}
               <div className="space-y-1.5">
-                <Label htmlFor="budgetAmount" className="text-xs uppercase tracking-wider text-[#78716c]">Limit Amount</Label>
+                <Label htmlFor="budgetAmount" className="text-xs uppercase tracking-wider text-[#78716c]">{t('budgets.limit_amount')}</Label>
                 <Input
                   id="budgetAmount"
                   type="number"
@@ -430,7 +429,7 @@ export default function Budgets() {
 
               {/* Period Alert/Note */}
               <div className="p-3 bg-stone-50 rounded-lg text-stone-500 text-[10px]">
-                Note: Budgets are monthly. This budget applies specifically to **{months[selectedMonth - 1]} {selectedYear}**.
+                {t('budgets.note')} **{months[selectedMonth - 1]} {selectedYear}**.
               </div>
 
               {/* Actions */}
@@ -441,14 +440,14 @@ export default function Budgets() {
                   onClick={closeModal}
                   className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
                 >
-                  Cancel
+                  {t('budgets.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
                   className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
                 >
-                  {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save'}
+                  {createMutation.isPending || updateMutation.isPending ? t('budgets.saving') : t('budgets.save')}
                 </Button>
               </div>
             </form>

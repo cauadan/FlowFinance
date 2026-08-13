@@ -1,21 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bot, Send, User, Sparkles, TrendingUp, PiggyBank, Target, Loader2, AlertCircle } from 'lucide-react'
 import { chatWithAssistant } from '@/lib/api'
 import { useSettings } from '@/contexts/SettingsContext'
+import { toast } from 'sonner'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
 }
 
-const SUGGESTIONS = [
-  { icon: TrendingUp, text: 'How is my month going financially?' },
-  { icon: PiggyBank, text: 'Where am I spending the most?' },
-  { icon: Target, text: 'Tips to save more money' },
-]
-
 export default function Assistant() {
+  const queryClient = useQueryClient()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -23,6 +20,12 @@ export default function Assistant() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const { t } = useSettings()
+
+  const SUGGESTIONS = [
+    { icon: TrendingUp, text: t('assistant.sug_month') },
+    { icon: PiggyBank, text: t('assistant.sug_spending') },
+    { icon: Target, text: t('assistant.sug_tips') },
+  ]
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -46,6 +49,14 @@ export default function Assistant() {
       const data = await chatWithAssistant(text.trim(), history.slice(0, -1))
       const assistantMessage: Message = { role: 'assistant', content: data.response }
       setMessages((prev) => [...prev, assistantMessage])
+
+      if (data.transactionCreated) {
+        queryClient.invalidateQueries({ queryKey: ['transactions'] })
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+        queryClient.invalidateQueries({ queryKey: ['report'] })
+        queryClient.invalidateQueries({ queryKey: ['recurring-suggestions'] })
+        toast.success(t('tx.created'))
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to get response from assistant')
     } finally {

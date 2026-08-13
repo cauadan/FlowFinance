@@ -10,6 +10,7 @@ import {
   HardDrive,
   X,
 } from 'lucide-react'
+import { useSettings } from '@/contexts/SettingsContext'
 import { getBackups, createBackup, restoreBackup } from '@/lib/api'
 import type { Backup } from '@/lib/api'
 import { formatDate } from '@/lib/utils'
@@ -20,6 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Backups() {
   const queryClient = useQueryClient()
+  const { t } = useSettings()
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [selectedBackup, setSelectedBackup] = useState<Backup | null>(null)
 
@@ -34,9 +36,9 @@ export default function Backups() {
     mutationFn: createBackup,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['backups'] })
-      toast.success('Backup created successfully')
+      toast.success(t('backups.create_success'))
     },
-    onError: () => toast.error('Failed to create backup'),
+    onError: () => toast.error(t('backups.create_error')),
   })
 
   const restoreMutation = useMutation({
@@ -44,10 +46,10 @@ export default function Backups() {
     onSuccess: (data) => {
       // Invalidate ALL queries to refresh frontend with restored data
       queryClient.invalidateQueries()
-      toast.success(data.message || 'Database restored successfully!')
+      toast.success(data.message || t('backups.restore_success'))
       closeConfirmModal()
     },
-    onError: () => toast.error('Failed to restore backup'),
+    onError: () => toast.error(t('backups.restore_error')),
   })
 
   const handleCreate = () => {
@@ -88,10 +90,10 @@ export default function Backups() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Backups
+            {t('backups.title')}
           </h1>
           <p className="text-sm text-[#78716c]">
-            Create manual database snapshots or restore safety checkpoints.
+            {t('backups.subtitle')}
           </p>
         </div>
         <div>
@@ -101,7 +103,7 @@ export default function Backups() {
             className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
-            {createMutation.isPending ? 'Backing up...' : 'Create Backup'}
+            {createMutation.isPending ? t('backups.creating') : t('backups.create')}
           </Button>
         </div>
       </div>
@@ -165,7 +167,7 @@ export default function Backups() {
                       size="sm"
                     >
                       <RefreshCw className="h-3.5 w-3.5" />
-                      Restore
+                      {t('backups.restore')}
                     </Button>
                   </div>
                 </div>
@@ -174,7 +176,7 @@ export default function Backups() {
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Database className="h-8 w-8 text-[#a8a29e] mb-2" />
-              <p className="text-sm text-[#a8a29e]">No backups created yet. Click "Create Backup" to generate one.</p>
+              <p className="text-sm text-[#a8a29e]">{t('backups.no_data')}</p>
             </div>
           )}
         </CardContent>
@@ -190,7 +192,7 @@ export default function Backups() {
             className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-[rgba(0,0,0,0.05)]"
           >
             <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
-              <h3 className="text-lg font-medium text-[#0c0a09]">Confirm Restore</h3>
+              <h3 className="text-lg font-medium text-[#0c0a09]">{t('backups.restore')}</h3>
               <Button variant="ghost" size="icon" onClick={closeConfirmModal} className="h-8 w-8 rounded-full">
                 <X className="h-4 w-4" />
               </Button>
@@ -200,17 +202,12 @@ export default function Backups() {
               <div className="p-3 bg-red-50 text-red-700 rounded-lg flex items-start gap-2.5">
                 <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5 text-red-500" />
                 <div className="text-xs leading-relaxed font-medium">
-                  This action will replace your active database with the contents of:
+                  {t('backups.restore_confirm')}
                   <span className="block mt-1 font-mono text-[10px] font-semibold text-red-800 break-all">
                     {selectedBackup.filename}
                   </span>
                 </div>
               </div>
-
-              <p className="text-xs text-stone-500 leading-relaxed">
-                We will automatically create a fallback pre-restore backup of your current database state.
-                Do you wish to proceed?
-              </p>
 
               {/* Actions */}
               <div className="flex gap-3 pt-3 border-t border-[rgba(0,0,0,0.05)]">
@@ -220,14 +217,14 @@ export default function Backups() {
                   onClick={closeConfirmModal}
                   className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
                 >
-                  Cancel
+                  {t('budgets.cancel')}
                 </Button>
                 <Button
                   onClick={handleRestore}
                   disabled={restoreMutation.isPending}
                   className="flex-1 bg-red-500 text-white hover:bg-red-600 rounded-lg text-xs"
                 >
-                  {restoreMutation.isPending ? 'Restoring...' : 'Confirm Restore'}
+                  {restoreMutation.isPending ? '...' : t('backups.restore')}
                 </Button>
               </div>
             </div>
