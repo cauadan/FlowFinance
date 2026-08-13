@@ -24,6 +24,9 @@ export const translations: Record<string, Record<string, string>> = {
     'assistant.placeholder': 'Ask me about your finances...',
     'assistant.thinking': 'Thinking...',
     'assistant.disclaimer': 'AI-generated responses based on your financial data. Always verify important decisions.',
+    'assistant.sug_month': 'How is my month going financially?',
+    'assistant.sug_spending': 'Where am I spending the most?',
+    'assistant.sug_tips': 'Tips to save more money',
 
     // Settings Page
     'settings.title': 'Settings',
@@ -446,6 +449,8 @@ export const translations: Record<string, Record<string, string>> = {
     // Analytics Insights
     'analytics.insights_title': 'AI Financial Insights',
     'analytics.insights_desc': 'Get personalized recommendations based on your financial data',
+    'analytics.ai_insights_title': 'AI Financial Insights',
+    'analytics.ai_insights_desc': 'Smart personalized recommendations based on your financial data',
     'analytics.generate_insights': 'Generate Smart Analysis',
     'analytics.generating': 'Analyzing your finances...',
     'analytics.no_insights': 'Click the button above to get personalized financial insights from AI.',
@@ -456,11 +461,25 @@ export const translations: Record<string, Record<string, string>> = {
     'mobile.assistant': 'AI',
     'mobile.more': 'More',
 
+    // Transactions extra aliases
+    'transactions.export_csv': 'Export CSV',
+    'transactions.new_tx': 'Add Transaction',
+
+    // Transaction Form extra
+    'tx.title_field': 'Title / Description',
+
     // Recurring
     'recurring.badge': 'Recurring',
     'recurring.monthly': 'Monthly',
     'recurring.weekly': 'Weekly',
     'recurring.yearly': 'Yearly',
+    'recurring.ai_title': 'AI Pattern Recognition',
+    'recurring.ai_desc': 'We identified transactions that look like recurring bills or subscriptions.',
+    'recurring.confirm_mark': 'Mark as Recurring',
+    'recurring.marked_success': 'Marked as recurring successfully',
+    'recurring.toggle_label': 'Recurring Transaction',
+    'recurring.toggle_desc': 'Check to indicate that this expense or income repeats periodically',
+    'recurring.frequency': 'Frequency',
   },
   pt: {
     // Sidebar
@@ -487,6 +506,9 @@ export const translations: Record<string, Record<string, string>> = {
     'assistant.placeholder': 'Pergunte sobre suas finanças...',
     'assistant.thinking': 'Pensando...',
     'assistant.disclaimer': 'Respostas geradas por IA com base em seus dados financeiros. Sempre verifique decisões importantes.',
+    'assistant.sug_month': 'Como está meu mês financeiramente?',
+    'assistant.sug_spending': 'Onde estou gastando mais dinheiro?',
+    'assistant.sug_tips': 'Dicas práticas para economizar',
 
     // Settings Page
     'settings.title': 'Configurações',
@@ -909,6 +931,8 @@ export const translations: Record<string, Record<string, string>> = {
     // Insights de Análises
     'analytics.insights_title': 'Insights Financeiros com IA',
     'analytics.insights_desc': 'Receba recomendações personalizadas baseadas nos seus dados financeiros',
+    'analytics.ai_insights_title': 'Insights Financeiros com IA',
+    'analytics.ai_insights_desc': 'Recomendações inteligentes e personalizadas para melhorar suas finanças',
     'analytics.generate_insights': 'Gerar Análise Inteligente',
     'analytics.generating': 'Analisando suas finanças...',
     'analytics.no_insights': 'Clique no botão acima para receber insights financeiros personalizados da IA.',
@@ -919,11 +943,25 @@ export const translations: Record<string, Record<string, string>> = {
     'mobile.assistant': 'IA',
     'mobile.more': 'Mais',
 
+    // Transactions extra aliases
+    'transactions.export_csv': 'Exportar CSV',
+    'transactions.new_tx': 'Nova Transação',
+
+    // Transaction Form extra
+    'tx.title_field': 'Título / Descrição',
+
     // Recorrente
     'recurring.badge': 'Recorrente',
     'recurring.monthly': 'Mensal',
     'recurring.weekly': 'Semanal',
     'recurring.yearly': 'Anual',
+    'recurring.ai_title': 'Reconhecimento de Padrão (IA)',
+    'recurring.ai_desc': 'Identificamos transações que parecem ser contas ou assinaturas recorrentes.',
+    'recurring.confirm_mark': 'Tornar Recorrente',
+    'recurring.marked_success': 'Marcado como recorrente com sucesso',
+    'recurring.toggle_label': 'Conta Recorrente',
+    'recurring.toggle_desc': 'Marque para indicar que este gasto ou receita se repete periodicamente',
+    'recurring.frequency': 'Frequência',
   },
   es: {
     // Sidebar
@@ -950,6 +988,9 @@ export const translations: Record<string, Record<string, string>> = {
     'assistant.placeholder': 'Pregunta sobre tus finanzas...',
     'assistant.thinking': 'Pensando...',
     'assistant.disclaimer': 'Respuestas generadas por IA basadas en tus datos financieros. Siempre verifica decisiones importantes.',
+    'assistant.sug_month': '¿Cómo va mi mes financieramente?',
+    'assistant.sug_spending': '¿En qué estoy gastando más dinero?',
+    'assistant.sug_tips': 'Consejos prácticos para ahorrar',
 
     // Settings Page
     'settings.title': 'Configuración',
@@ -1372,6 +1413,8 @@ export const translations: Record<string, Record<string, string>> = {
     // Analytics Insights
     'analytics.insights_title': 'Insights Financieros con IA',
     'analytics.insights_desc': 'Recibe recomendaciones personalizadas basadas en tus datos financieros',
+    'analytics.ai_insights_title': 'Insights Financieros con IA',
+    'analytics.ai_insights_desc': 'Recomendaciones inteligentes y personalizadas para mejorar tus finanzas',
     'analytics.generate_insights': 'Generar Análisis Inteligente',
     'analytics.generating': 'Analizando tus finanzas...',
     'analytics.no_insights': 'Haz clic en el botón de arriba para recibir insights financieros personalizados de la IA.',
@@ -1382,10 +1425,24 @@ export const translations: Record<string, Record<string, string>> = {
     'mobile.assistant': 'IA',
     'mobile.more': 'Más',
 
+    // Transactions extra aliases
+    'transactions.export_csv': 'Exportar CSV',
+    'transactions.new_tx': 'Nueva Transacción',
+
+    // Transaction Form extra
+    'tx.title_field': 'Título / Descripción',
+
     // Recurrente
     'recurring.badge': 'Recurrente',
     'recurring.monthly': 'Mensual',
     'recurring.weekly': 'Semanal',
     'recurring.yearly': 'Anual',
+    'recurring.ai_title': 'Reconocimiento de Patrones (IA)',
+    'recurring.ai_desc': 'Identificamos transacciones que parecen facturas o suscripciones recurrentes.',
+    'recurring.confirm_mark': 'Marcar como Recurrente',
+    'recurring.marked_success': 'Marcado como recurrente con éxito',
+    'recurring.toggle_label': 'Cuenta Recurrente',
+    'recurring.toggle_desc': 'Marca para indicar que este gasto o ingreso se repite periódicamente',
+    'recurring.frequency': 'Frecuencia',
   }
 }
