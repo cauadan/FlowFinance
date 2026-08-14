@@ -30,22 +30,22 @@ export default function TopBar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-[rgba(0,0,0,0.05)] bg-[#fafaf5]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/80 dark:bg-[#12141a]/80 backdrop-blur-md">
         <div className="flex h-16 items-center justify-between px-4 lg:px-8">
           {/* Mobile Logo */}
           <Link to="/" className="flex items-center gap-2 lg:hidden">
             <CircleDollarSign className="h-5 w-5 text-[#84a98c]" />
-            <span className="font-serif text-lg tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <span className="font-serif text-lg tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
               FlowFinance
             </span>
           </Link>
 
           {/* Search */}
           <div className="relative hidden max-w-md flex-1 md:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder={t('topbar.search')}
-              className="border-[rgba(0,0,0,0.08)] bg-white pl-9 text-sm placeholder:text-[#a8a29e] focus-visible:ring-[#84a98c]"
+              className="border-border bg-card dark:bg-[#181b22] pl-9 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-[#84a98c]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearch}
@@ -54,12 +54,12 @@ export default function TopBar() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <span className="hidden text-xs text-[#78716c] lg:block">
+            <span className="hidden text-xs text-muted-foreground lg:block">
               {new Date().toLocaleDateString(dateLocale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </span>
             <Button
               onClick={() => setShowForm(true)}
-              className="rounded-full bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-sm shadow-sm"
+              className="rounded-full bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] gap-1.5 text-sm shadow-sm"
               size="sm"
             >
               <Plus className="h-4 w-4" />
@@ -67,7 +67,7 @@ export default function TopBar() {
             </Button>
             <button
               onClick={handleLogout}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-[#a8a29e] transition-colors hover:bg-red-50 hover:text-red-500 lg:hidden"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500 lg:hidden"
               title={t('nav.logout')}
             >
               <LogOut className="h-4 w-4" />

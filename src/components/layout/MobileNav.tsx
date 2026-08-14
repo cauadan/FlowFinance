@@ -55,7 +55,7 @@ export default function MobileNav() {
   return (
     <>
       {/* Bottom Floating/Fixed Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[rgba(0,0,0,0.06)] bg-white/95 backdrop-blur-md shadow-lg lg:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 dark:bg-[#12141a]/95 backdrop-blur-md shadow-lg lg:hidden">
         <div className="flex items-center justify-around px-2 py-1.5 safe-area-pb">
           {mainBarItems.map((item) => {
             const isActive = location.pathname === item.path
@@ -69,7 +69,7 @@ export default function MobileNav() {
                   'flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 text-[11px] font-medium transition-all',
                   isActive
                     ? 'text-[#84a98c]'
-                    : 'text-[#a8a29e] hover:text-[#0c0a09]'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <Icon className={cn('h-5 w-5', isActive ? 'stroke-[2.2]' : 'stroke-[1.8]')} />
@@ -85,7 +85,7 @@ export default function MobileNav() {
               'flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 text-[11px] font-medium transition-all',
               drawerOpen || !mainBarItems.some((i) => i.path === location.pathname)
                 ? 'text-[#84a98c]'
-                : 'text-[#a8a29e] hover:text-[#0c0a09]'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             {drawerOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -104,7 +104,7 @@ export default function MobileNav() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDrawerOpen(false)}
-              className="absolute inset-0 bg-black/50 backdrop-blur-xs"
+              className="absolute inset-0 bg-black/60 backdrop-blur-xs"
             />
 
             {/* Content Drawer */}
@@ -113,25 +113,25 @@ export default function MobileNav() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-              className="absolute bottom-16 left-0 right-0 max-h-[80vh] overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl border-t border-[rgba(0,0,0,0.08)]"
+              className="absolute bottom-16 left-0 right-0 max-h-[80vh] overflow-y-auto rounded-t-3xl bg-card dark:bg-[#181b22] p-5 shadow-2xl border-t border-border"
             >
               {/* Handle bar */}
-              <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-stone-200" />
+              <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-stone-300 dark:bg-stone-700" />
 
               {/* User Header */}
-              <div className="mb-5 flex items-center justify-between border-b border-[rgba(0,0,0,0.06)] pb-4">
+              <div className="mb-5 flex items-center justify-between border-b border-border pb-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#84a98c] text-sm font-semibold text-white">
                     {user?.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-[#0c0a09]">{user?.name || 'User'}</h3>
-                    <p className="text-xs text-[#a8a29e]">{user?.email || ''}</p>
+                    <h3 className="text-sm font-semibold text-foreground">{user?.name || 'User'}</h3>
+                    <p className="text-xs text-muted-foreground">{user?.email || ''}</p>
                   </div>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-500 hover:bg-red-500/10 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>{t('nav.logout')}</span>
@@ -151,8 +151,8 @@ export default function MobileNav() {
                       className={cn(
                         'flex flex-col items-center justify-center gap-2 rounded-2xl p-3 text-center transition-all',
                         isActive
-                          ? 'bg-[#84a98c]/15 text-[#0c0a09] font-semibold ring-1 ring-[#84a98c]'
-                          : 'bg-[#fafaf5] text-[#44403c] hover:bg-stone-100'
+                          ? 'bg-[#84a98c]/15 text-foreground font-semibold ring-1 ring-[#84a98c]'
+                          : 'bg-secondary/70 dark:bg-[#20242e] text-foreground hover:bg-secondary'
                       )}
                     >
                       <div className={cn('flex h-9 w-9 items-center justify-center rounded-xl', item.color)}>

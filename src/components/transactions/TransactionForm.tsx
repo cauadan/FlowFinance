@@ -150,12 +150,12 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative h-full w-full max-w-lg overflow-y-auto bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[rgba(0,0,0,0.05)] p-6">
-          <h2 className="font-serif text-xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+      <div className="relative h-full w-full max-w-lg overflow-y-auto bg-card dark:bg-[#161920] text-card-foreground shadow-2xl border-l border-border">
+        <div className="flex items-center justify-between border-b border-border p-6">
+          <h2 className="font-serif text-xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
             {isEditing ? t('tx.edit') : t('tx.new')}
           </h2>
           <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
@@ -165,14 +165,14 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
         <form onSubmit={handleSubmit} className="space-y-5 p-6">
           {/* Type Selector */}
-          <div className="grid grid-cols-2 gap-2 rounded-lg bg-[#fafaf5] p-1">
+          <div className="grid grid-cols-2 gap-2 rounded-lg bg-secondary/80 dark:bg-[#20242e] p-1 border border-border">
             <button
               type="button"
               onClick={() => setFormData({ ...formData, type: 'EXPENSE', categoryId: '' })}
               className={`rounded-md py-2 text-xs font-semibold uppercase tracking-wider transition-all ${
                 formData.type === 'EXPENSE'
-                  ? 'bg-white text-[#e76f51] shadow-sm'
-                  : 'text-[#78716c] hover:text-[#0c0a09]'
+                  ? 'bg-card text-[#e76f51] shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {t('tx.expense')}
@@ -182,8 +182,8 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               onClick={() => setFormData({ ...formData, type: 'INCOME', categoryId: '' })}
               className={`rounded-md py-2 text-xs font-semibold uppercase tracking-wider transition-all ${
                 formData.type === 'INCOME'
-                  ? 'bg-white text-[#84a98c] shadow-sm'
-                  : 'text-[#78716c] hover:text-[#0c0a09]'
+                  ? 'bg-card text-[#84a98c] shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {t('tx.income')}
@@ -192,7 +192,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
           {/* Amount */}
           <div className="space-y-1.5">
-            <Label htmlFor="amount" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.amount')}</Label>
+            <Label htmlFor="amount" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.amount')}</Label>
             <Input
               id="amount"
               type="number"
@@ -201,31 +201,31 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               onChange={e => setFormData({ ...formData, amount: e.target.value })}
               placeholder="0.00"
               required
-              className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c] text-lg font-semibold"
+              className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c] text-lg font-semibold"
             />
           </div>
 
           {/* Title */}
           <div className="space-y-1.5">
-            <Label htmlFor="title" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.title_field')}</Label>
+            <Label htmlFor="title" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.title_field')}</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder={t('tx.title_placeholder')}
               required
-              className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+              className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
             />
           </div>
 
           {/* Category */}
           <div className="space-y-1.5">
-            <Label htmlFor="category" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.category')}</Label>
+            <Label htmlFor="category" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.category')}</Label>
             <Select
               value={formData.categoryId}
               onValueChange={v => setFormData({ ...formData, categoryId: v })}
             >
-              <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
+              <SelectTrigger className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus:ring-[#84a98c]">
                 <SelectValue placeholder={t('tx.category_placeholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -246,12 +246,12 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
           {/* Payment Method */}
           <div className="space-y-1.5">
-            <Label htmlFor="paymentMethod" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.payment_method')}</Label>
+            <Label htmlFor="paymentMethod" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.payment_method')}</Label>
             <Select
               value={formData.paymentMethodId}
               onValueChange={v => setFormData({ ...formData, paymentMethodId: v })}
             >
-              <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
+              <SelectTrigger className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus:ring-[#84a98c]">
                 <SelectValue placeholder={t('tx.payment_placeholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -273,49 +273,49 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
           {/* Date & Time */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="date" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.date')}</Label>
+              <Label htmlFor="date" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.date')}</Label>
               <Input
                 id="date"
                 type="date"
                 value={formData.date}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
                 required
-                className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="time" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.time')}</Label>
+              <Label htmlFor="time" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.time')}</Label>
               <Input
                 id="time"
                 type="time"
                 value={formData.time}
                 onChange={e => setFormData({ ...formData, time: e.target.value })}
                 required
-                className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
               />
             </div>
           </div>
 
           {/* Merchant */}
           <div className="space-y-1.5">
-            <Label htmlFor="merchant" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.merchant')}</Label>
+            <Label htmlFor="merchant" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.merchant')}</Label>
             <Input
               id="merchant"
               value={formData.merchant}
               onChange={e => setFormData({ ...formData, merchant: e.target.value })}
               placeholder={t('tx.merchant_placeholder')}
-              className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+              className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
             />
           </div>
 
           {/* Recurring Transaction Toggle & Frequency */}
-          <div className="space-y-3 rounded-xl border border-[rgba(0,0,0,0.06)] bg-[#fafaf5] p-4">
+          <div className="space-y-3 rounded-xl border border-border bg-secondary/60 dark:bg-[#1b1f27] p-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-[#2f3e46]">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-foreground">
                   {t('recurring.toggle_label')}
                 </Label>
-                <p className="text-[11px] text-[#78716c]">
+                <p className="text-[11px] text-muted-foreground">
                   {t('recurring.toggle_desc')}
                 </p>
               </div>
@@ -326,7 +326,7 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
             </div>
             {formData.isRecurring && (
               <div className="pt-2">
-                <Label className="text-xs text-[#78716c]">{t('recurring.frequency')}</Label>
+                <Label className="text-xs text-muted-foreground">{t('recurring.frequency')}</Label>
                 <div className="mt-1.5 grid grid-cols-3 gap-2">
                   {[
                     { val: 'MONTHLY', label: t('recurring.monthly') },
@@ -339,8 +339,8 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
                       onClick={() => setFormData({ ...formData, recurringInterval: opt.val })}
                       className={`py-1.5 rounded-lg text-xs font-medium border transition-all ${
                         formData.recurringInterval === opt.val
-                          ? 'border-[#84a98c] bg-[#84a98c]/15 text-[#2f3e46] font-semibold'
-                          : 'border-[rgba(0,0,0,0.08)] bg-white text-stone-600'
+                          ? 'border-[#84a98c] bg-[#84a98c]/15 text-[#84a98c] font-semibold'
+                          : 'border-border bg-card text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       {opt.label}
@@ -352,9 +352,9 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
           </div>
 
           {/* Installments */}
-          <div className="space-y-3 rounded-lg bg-[#fafaf5] p-4">
+          <div className="space-y-3 rounded-lg bg-secondary/60 dark:bg-[#1b1f27] p-4 border border-border">
             <div className="flex items-center justify-between">
-              <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.installments')}</Label>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.installments')}</Label>
               <Switch
                 checked={formData.installments}
                 onCheckedChange={v => setFormData({ ...formData, installments: v })}
@@ -363,23 +363,23 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
             {formData.installments && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs text-[#a8a29e]">{t('tx.current')}</Label>
+                  <Label className="text-xs text-muted-foreground">{t('tx.current')}</Label>
                   <Input
                     type="number"
                     value={formData.currentInstallment}
                     onChange={e => setFormData({ ...formData, currentInstallment: e.target.value })}
                     placeholder="1"
-                    className="mt-1 border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                    className="mt-1 border-border bg-card dark:bg-[#20242e] text-foreground focus-visible:ring-[#84a98c]"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-[#a8a29e]">{t('tx.total')}</Label>
+                  <Label className="text-xs text-muted-foreground">{t('tx.total')}</Label>
                   <Input
                     type="number"
                     value={formData.totalInstallments}
                     onChange={e => setFormData({ ...formData, totalInstallments: e.target.value })}
                     placeholder="12"
-                    className="mt-1 border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                    className="mt-1 border-border bg-card dark:bg-[#20242e] text-foreground focus-visible:ring-[#84a98c]"
                   />
                 </div>
               </div>
@@ -388,36 +388,36 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
 
           {/* Tags */}
           <div className="space-y-1.5">
-            <Label htmlFor="tags" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.tags')}</Label>
+            <Label htmlFor="tags" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.tags')}</Label>
             <Input
               id="tags"
               value={formData.tags}
               onChange={e => setFormData({ ...formData, tags: e.target.value })}
               placeholder={t('tx.tags_placeholder')}
-              className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+              className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
             />
           </div>
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-[#78716c]">{t('tx.notes')}</Label>
+            <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-muted-foreground">{t('tx.notes')}</Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={e => setFormData({ ...formData, notes: e.target.value })}
               placeholder={t('tx.notes_placeholder')}
               rows={3}
-              className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+              className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
             />
           </div>
 
           {/* Favorite */}
-          <div className="flex items-center gap-3 rounded-lg bg-[#fafaf5] p-4">
+          <div className="flex items-center gap-3 rounded-lg bg-secondary/60 dark:bg-[#1b1f27] p-4 border border-border">
             <Switch
               checked={formData.isFavorite}
               onCheckedChange={v => setFormData({ ...formData, isFavorite: v })}
             />
-            <Label className="text-sm text-[#78716c]">{t('tx.favorite')}</Label>
+            <Label className="text-sm text-foreground">{t('tx.favorite')}</Label>
           </div>
 
           {/* Actions */}
@@ -426,14 +426,14 @@ export default function TransactionForm({ open, onClose, transaction }: Transact
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1 border-[rgba(0,0,0,0.1)]"
+              className="flex-1 border-border text-foreground hover:bg-secondary"
             >
               {t('tx.cancel')}
             </Button>
             <Button
               type="submit"
               disabled={createMutation.isPending || updateMutation.isPending}
-              className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46]"
+              className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473]"
             >
               {createMutation.isPending || updateMutation.isPending
                 ? t('tx.saving')

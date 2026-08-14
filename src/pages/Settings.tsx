@@ -111,29 +111,29 @@ export default function Settings() {
     >
       {/* Header */}
       <div>
-        <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
           {t('settings.title')}
         </h1>
-        <p className="text-sm text-[#78716c]">
+        <p className="text-sm text-muted-foreground">
           {t('settings.subtitle')}
         </p>
       </div>
 
       <div>
-        <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+        <Card className="border-border bg-card shadow-sm">
           <CardContent className="p-6 space-y-6">
             {/* Preferences Group */}
             <div className="space-y-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#78716c] flex items-center gap-1.5 border-b border-[rgba(0,0,0,0.04)] pb-2 mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 border-b border-border pb-2 mb-2">
                 <Globe className="h-4 w-4" /> {t('settings.preferences')}
               </h3>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Currency */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-stone-600 font-medium">{t('settings.currency')}</Label>
+                  <Label className="text-xs text-muted-foreground font-medium">{t('settings.currency')}</Label>
                   <Select value={currency} onValueChange={(val) => handleSettingChange('currency', val)}>
-                    <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
+                    <SelectTrigger className="border-border bg-card dark:bg-[#181b22] text-foreground focus:ring-[#84a98c]">
                       <SelectValue placeholder={t('settings.currency.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -148,9 +148,9 @@ export default function Settings() {
 
                 {/* Language */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-stone-600 font-medium">{t('settings.language')}</Label>
+                  <Label className="text-xs text-muted-foreground font-medium">{t('settings.language')}</Label>
                   <Select value={language} onValueChange={(val) => handleSettingChange('language', val)}>
-                    <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
+                    <SelectTrigger className="border-border bg-card dark:bg-[#181b22] text-foreground focus:ring-[#84a98c]">
                       <SelectValue placeholder={t('settings.language.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -165,9 +165,9 @@ export default function Settings() {
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Theme */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-stone-600 font-medium">{t('settings.theme')}</Label>
+                  <Label className="text-xs text-muted-foreground font-medium">{t('settings.theme')}</Label>
                   <Select value={theme} onValueChange={(val) => handleSettingChange('theme', val)}>
-                    <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
+                    <SelectTrigger className="border-border bg-card dark:bg-[#181b22] text-foreground focus:ring-[#84a98c]">
                       <SelectValue placeholder={t('settings.theme.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -180,9 +180,9 @@ export default function Settings() {
 
                 {/* Default View */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-stone-600 font-medium">{t('settings.startup')}</Label>
+                  <Label className="text-xs text-muted-foreground font-medium">{t('settings.startup')}</Label>
                   <Select value={defaultView} onValueChange={(val) => handleSettingChange('defaultView', val)}>
-                    <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
+                    <SelectTrigger className="border-border bg-card dark:bg-[#181b22] text-foreground focus:ring-[#84a98c]">
                       <SelectValue placeholder={t('settings.startup.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -196,16 +196,16 @@ export default function Settings() {
             </div>
 
             {/* Backups Settings Group */}
-            <div className="space-y-4 pt-4 border-t border-[rgba(0,0,0,0.05)]">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#78716c] flex items-center gap-1.5 border-b border-[rgba(0,0,0,0.04)] pb-2 mb-2">
+            <div className="space-y-4 pt-4 border-t border-border">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 border-b border-border pb-2 mb-2">
                 <Database className="h-4 w-4" /> {t('settings.backups')}
               </h3>
 
-              <div className="space-y-4 rounded-lg bg-[#fafaf5] p-4 border border-[rgba(0,0,0,0.04)]">
+              <div className="space-y-4 rounded-lg bg-background dark:bg-[#12141a] p-4 border border-border">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-sm font-medium text-[#0c0a09]">{t('settings.backups.enable')}</Label>
-                    <p className="text-xs text-[#a8a29e]">{t('settings.backups.desc')}</p>
+                    <Label className="text-sm font-medium text-foreground">{t('settings.backups.enable')}</Label>
+                    <p className="text-xs text-muted-foreground">{t('settings.backups.desc')}</p>
                   </div>
                   <Switch checked={autoBackup} onCheckedChange={(val) => handleSettingChange('autoBackup', val)} />
                 </div>
@@ -214,11 +214,11 @@ export default function Settings() {
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
-                    className="space-y-1.5 pt-3 border-t border-[rgba(0,0,0,0.05)]"
+                    className="space-y-1.5 pt-3 border-t border-border"
                   >
-                    <Label className="text-xs text-stone-600 font-medium">{t('settings.backups.interval')}</Label>
+                    <Label className="text-xs text-muted-foreground font-medium">{t('settings.backups.interval')}</Label>
                     <Select value={backupInterval} onValueChange={(val) => handleSettingChange('backupInterval', val)}>
-                      <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c] bg-white">
+                      <SelectTrigger className="border-border focus:ring-[#84a98c] bg-card dark:bg-[#181b22] text-foreground">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

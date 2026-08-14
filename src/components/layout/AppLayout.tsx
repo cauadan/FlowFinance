@@ -5,7 +5,7 @@ import TopBar from './TopBar'
 
 export default function AppLayout() {
   return (
-    <div className="min-h-screen bg-[#fafaf5]">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
       <Sidebar />
 
