@@ -360,7 +360,9 @@ export const translations: Record<string, Record<string, string>> = {
     // Investments
     'investments.title': 'Investments',
     'investments.subtitle': 'Monitor your investment portfolio, track returns, and evaluate your asset allocation.',
+    'investments.new': 'New Investment',
     'investments.add': 'Add Investment',
+    'investments.edit': 'Edit Investment',
     'investments.total_invested': 'Total Invested',
     'investments.current_value': 'Current Value',
     'investments.total_return': 'Total Return',
@@ -849,7 +851,9 @@ export const translations: Record<string, Record<string, string>> = {
     // Investments (Investimentos)
     'investments.title': 'Investimentos',
     'investments.subtitle': 'Monitore sua carteira de investimentos, acompanhe retornos e avalie sua alocação.',
+    'investments.new': 'Novo Investimento',
     'investments.add': 'Adicionar Investimento',
+    'investments.edit': 'Editar Investimento',
     'investments.total_invested': 'Total Investido',
     'investments.current_value': 'Valor Atual',
     'investments.total_return': 'Retorno Total',
@@ -1338,7 +1342,9 @@ export const translations: Record<string, Record<string, string>> = {
     // Investments
     'investments.title': 'Inversiones',
     'investments.subtitle': 'Monitorea tu portafolio, rastrea rendimientos y evalúa tu asignación de activos.',
+    'investments.new': 'Nueva Inversión',
     'investments.add': 'Agregar Inversión',
+    'investments.edit': 'Editar Inversión',
     'investments.total_invested': 'Total Invertido',
     'investments.current_value': 'Valor Actual',
     'investments.total_return': 'Retorno Total',

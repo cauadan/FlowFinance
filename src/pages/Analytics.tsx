@@ -247,63 +247,79 @@ export default function Analytics() {
           </div>
 
           {/* AI Insights & Financial Tips Section */}
-          <div className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-linear-to-br from-emerald-500/5 via-card to-teal-500/5 p-6 shadow-sm dark:border-emerald-500/20 dark:from-[#171b24] dark:to-[#12151c] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#84a98c]/15 text-[#84a98c] ring-1 ring-[#84a98c]/30 shadow-xs">
+          <div className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-6 sm:p-8 shadow-md dark:border-emerald-500/25 dark:from-[#151922] dark:via-[#13161e] dark:to-[#0f1218]">
+            {/* Ambient background blur circles */}
+            <div className="pointer-events-none absolute -top-12 -right-12 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-teal-500/10 blur-3xl" />
+
+            <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/30 shadow-xs backdrop-blur-md">
                   <Sparkles className="h-5 w-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#84a98c]">✦ FlowFinance Intelligence</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">✦ FlowFinance Intelligence</span>
                   </div>
-                  <h3 className="text-base font-semibold text-foreground">{t('analytics.ai_insights_title')}</h3>
+                  <h3 className="text-lg font-bold text-foreground tracking-tight">{t('analytics.ai_insights_title')}</h3>
                   <p className="text-xs text-muted-foreground">{t('analytics.ai_insights_desc')}</p>
                 </div>
               </div>
+
+              <div className="flex items-center gap-1.5 self-start sm:self-auto rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                <span>Análise em Tempo Real</span>
+              </div>
             </div>
 
-            <div className="grid gap-3.5 sm:grid-cols-3">
+            <div className="relative z-10 grid gap-4 sm:grid-cols-3">
               {aiLoading ? (
                 [1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-28 rounded-2xl bg-card" />
+                  <Skeleton key={i} className="h-36 rounded-2xl bg-card/60" />
                 ))
               ) : aiInsightsData?.insights && aiInsightsData.insights.length > 0 ? (
                 aiInsightsData.insights.map((insight, idx) => {
                   const isPositive = insight.type === 'positive'
                   const isWarning = insight.type === 'warning'
                   return (
-                    <div
+                    <motion.div
                       key={idx}
-                      className={`group relative flex flex-col justify-between rounded-2xl p-4.5 transition-all duration-200 hover:scale-[1.01] hover:shadow-md border ${
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.08 }}
+                      className={`group relative flex flex-col justify-between rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg border backdrop-blur-md ${
                         isPositive
-                          ? 'bg-card border-emerald-500/20 dark:bg-[#181c25] dark:border-emerald-500/25 hover:border-emerald-500/40'
+                          ? 'bg-gradient-to-b from-emerald-500/[0.08] to-card/90 border-emerald-500/25 dark:from-emerald-500/[0.12] dark:to-[#161a24] hover:border-emerald-500/50 hover:shadow-emerald-500/5'
                           : isWarning
-                          ? 'bg-card border-amber-500/20 dark:bg-[#181c25] dark:border-amber-500/25 hover:border-amber-500/40'
-                          : 'bg-card border-blue-500/20 dark:bg-[#181c25] dark:border-blue-500/25 hover:border-blue-500/40'
+                          ? 'bg-gradient-to-b from-amber-500/[0.08] to-card/90 border-amber-500/25 dark:from-amber-500/[0.12] dark:to-[#161a24] hover:border-amber-500/50 hover:shadow-amber-500/5'
+                          : 'bg-gradient-to-b from-blue-500/[0.08] to-card/90 border-blue-500/25 dark:from-blue-500/[0.12] dark:to-[#161a24] hover:border-blue-500/50 hover:shadow-blue-500/5'
                       }`}
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-wide border ${
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide border shadow-2xs ${
                             isPositive
-                              ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20'
+                              ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
                               : isWarning
-                              ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20'
-                              : 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20'
+                              ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30'
+                              : 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30'
                           }`}>
-                            <Lightbulb className="h-3 w-3" />
+                            <Lightbulb className="h-3.5 w-3.5" />
                             {insight.tag || 'Dica'}
                           </span>
                         </div>
-                        <h4 className="text-xs font-bold text-foreground tracking-tight">{insight.title}</h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{insight.description}</p>
+                        <h4 className="text-sm font-bold text-foreground tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                          {insight.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground/90 leading-relaxed">
+                          {insight.description}
+                        </p>
                       </div>
-                    </div>
+                    </motion.div>
                   )
                 })
               ) : (
-                <div className="col-span-3 text-center py-6 text-xs text-muted-foreground">
+                <div className="col-span-3 text-center py-8 text-xs text-muted-foreground">
                   Insights serão gerados automaticamente conforme suas movimentações.
                 </div>
               )}
