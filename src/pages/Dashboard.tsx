@@ -121,10 +121,10 @@ export default function Dashboard() {
     >
       {/* Header */}
       <div>
-        <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
           {t('dashboard.title')}
         </h1>
-        <p className="text-sm text-[#78716c]">
+        <p className="text-sm text-muted-foreground">
           {t('dashboard.subtitle')}
         </p>
       </div>
@@ -134,9 +134,9 @@ export default function Dashboard() {
         {cards.map((card, idx) => {
           const Icon = card.icon
           return (
-            <Card key={idx} className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm transition-all duration-200 hover:shadow-md">
+            <Card key={idx} className="border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-[#84a98c]/30">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#78716c]">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {card.title}
                 </span>
                 <div className={`flex h-8 w-8 items-center justify-center rounded-full ${card.bgColor} ${card.color}`}>
@@ -144,8 +144,8 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-semibold text-[#0c0a09]">{card.value}</div>
-                <p className="mt-1 text-xs text-[#a8a29e]">{card.description}</p>
+                <div className="text-2xl font-bold text-foreground">{card.value}</div>
+                <p className="mt-1 text-xs text-muted-foreground">{card.description}</p>
               </CardContent>
             </Card>
           )
@@ -155,20 +155,40 @@ export default function Dashboard() {
       {/* Main Charts */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Cash Flow Chart */}
-        <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+        <Card className="border-border bg-card shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('dashboard.cash_flow')}</CardTitle>
-            <CardDescription className="text-xs text-[#a8a29e]">{t('dashboard.compare_income_expense')}</CardDescription>
+            <CardTitle className="text-base font-semibold text-foreground">{t('dashboard.cash_flow')}</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">{t('dashboard.compare_income_expense')}</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] pl-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={charts?.cashFlow}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.04)" />
-                <XAxis dataKey="month" stroke="#a8a29e" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#a8a29e" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => formatCurrency(val, currency)} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.6} />
+                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => formatCurrency(val, currency)} />
                 <Tooltip
-                  formatter={(val: number) => [formatCurrency(val, currency), '']}
-                  contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
+                  cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-md text-xs space-y-1.5">
+                          <p className="font-semibold text-foreground">{label}</p>
+                          {payload.map((entry, idx) => (
+                            <div key={idx} className="flex items-center justify-between gap-4">
+                              <span className="flex items-center gap-1.5 text-muted-foreground">
+                                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                                {entry.name}
+                              </span>
+                              <span className="font-semibold text-foreground">
+                                {formatCurrency(Number(entry.value), currency)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    }
+                    return null
+                  }}
                 />
                 <Bar dataKey="income" name={t('dashboard.income')} fill="#84a98c" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="expense" name={t('dashboard.expense')} fill="#e76f51" radius={[4, 4, 0, 0]} />
@@ -178,30 +198,49 @@ export default function Dashboard() {
         </Card>
 
         {/* Weekly Trend */}
-        <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+        <Card className="border-border bg-card shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('dashboard.weekly_trend')}</CardTitle>
-            <CardDescription className="text-xs text-[#a8a29e]">{t('dashboard.trend_desc')}</CardDescription>
+            <CardTitle className="text-base font-semibold text-foreground">{t('dashboard.weekly_trend')}</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">{t('dashboard.trend_desc')}</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] pl-2">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={charts?.weeklyTrend}>
                 <defs>
                   <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#84a98c" stopOpacity={0.2} />
+                    <stop offset="5%" stopColor="#84a98c" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#84a98c" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#e76f51" stopOpacity={0.2} />
+                    <stop offset="5%" stopColor="#e76f51" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#e76f51" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.04)" />
-                <XAxis dataKey="date" stroke="#a8a29e" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => val.slice(5)} />
-                <YAxis stroke="#a8a29e" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => formatCurrency(val, currency)} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.6} />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => val.slice(5)} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => formatCurrency(val, currency)} />
                 <Tooltip
-                  formatter={(val: number) => [formatCurrency(val, currency), '']}
-                  contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-md text-xs space-y-1.5">
+                          <p className="font-semibold text-foreground">{label}</p>
+                          {payload.map((entry, idx) => (
+                            <div key={idx} className="flex items-center justify-between gap-4">
+                              <span className="flex items-center gap-1.5 text-muted-foreground">
+                                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                                {entry.name}
+                              </span>
+                              <span className="font-semibold text-foreground">
+                                {formatCurrency(Number(entry.value), currency)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    }
+                    return null
+                  }}
                 />
                 <Area type="monotone" dataKey="income" name={t('dashboard.income')} stroke="#84a98c" strokeWidth={2} fillOpacity={1} fill="url(#incomeGrad)" />
                 <Area type="monotone" dataKey="expense" name={t('dashboard.expense')} stroke="#e76f51" strokeWidth={2} fillOpacity={1} fill="url(#expenseGrad)" />
@@ -213,11 +252,11 @@ export default function Dashboard() {
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Recent Transactions */}
-        <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm md:col-span-2">
+        <Card className="border-border bg-card shadow-sm md:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('dashboard.recent_transactions')}</CardTitle>
-              <CardDescription className="text-xs text-[#a8a29e]">{t('dashboard.recent_desc')}</CardDescription>
+              <CardTitle className="text-base font-semibold text-foreground">{t('dashboard.recent_transactions')}</CardTitle>
+              <CardDescription className="text-xs text-muted-foreground">{t('dashboard.recent_desc')}</CardDescription>
             </div>
             <Link to="/transactions" className="flex items-center gap-1 text-xs font-semibold text-[#84a98c] hover:underline">
               {t('dashboard.view_all')}
@@ -226,7 +265,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="px-0">
             {recent && recent.length > 0 ? (
-              <div className="divide-y divide-[rgba(0,0,0,0.04)] px-6">
+              <div className="divide-y divide-border px-6">
                 {recent.map((tx) => (
                   <div key={tx.id} className="flex items-center justify-between py-3">
                     <div className="flex items-center gap-3">
@@ -237,8 +276,8 @@ export default function Dashboard() {
                         <Receipt className="h-4 w-4" />
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-[#0c0a09]">{tx.title}</h4>
-                        <div className="flex items-center gap-2 text-xs text-[#a8a29e]">
+                        <h4 className="text-sm font-medium text-foreground">{tx.title}</h4>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>{tx.category?.name ? translateDbItem(tx.category.name, 'category') : t('transactions.uncategorized')}</span>
                           <span>•</span>
                           <span>{formatDate(tx.date)}</span>
@@ -253,61 +292,97 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Receipt className="h-8 w-8 text-[#a8a29e] mb-2" />
-                <p className="text-sm text-[#a8a29e]">{t('dashboard.no_transactions')}</p>
+                <Receipt className="h-8 w-8 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">{t('dashboard.no_transactions')}</p>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* Category Breakdown Donut */}
-        <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+        <Card className="border-border bg-card shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-[#0c0a09]">{t('dashboard.top_categories')}</CardTitle>
-            <CardDescription className="text-xs text-[#a8a29e]">{t('dashboard.categories_desc')}</CardDescription>
+            <CardTitle className="text-base font-semibold text-foreground">{t('dashboard.top_categories')}</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">{t('dashboard.categories_desc')}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col justify-center h-[300px]">
             {charts && charts.categoryBreakdown && charts.categoryBreakdown.length > 0 ? (
-              <div className="relative h-full">
-                <ResponsiveContainer width="100%" height="80%">
-                  <PieChart>
-                    <Pie
-                      data={charts.categoryBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={3}
-                      dataKey="total"
-                    >
-                      {charts.categoryBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color || '#a8a29e'} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(val: number, _name: any, item: any) => [
-                        formatCurrency(val, currency),
-                        item?.payload?.name ? translateDbItem(item.payload.name, 'category') : ''
-                      ]}
-                      contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', fontSize: '12px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+              <div className="relative h-full flex flex-col justify-between">
+                <div className="relative h-[65%] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={charts.categoryBreakdown}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={75}
+                        paddingAngle={3}
+                        dataKey="total"
+                        stroke="hsl(var(--card))"
+                        strokeWidth={2}
+                      >
+                        {charts.categoryBreakdown.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color || '#a8a29e'} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload
+                            const total = charts.categoryBreakdown.reduce((acc, c) => acc + c.total, 0)
+                            const percent = total > 0 ? ((data.total / total) * 100).toFixed(1) : '0'
+                            return (
+                              <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-md text-xs space-y-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: data.color || '#84a98c' }} />
+                                  <span className="font-semibold text-foreground">{translateDbItem(data.name, 'category')}</span>
+                                </div>
+                                <div className="flex items-center justify-between gap-4 font-bold text-foreground">
+                                  <span>{formatCurrency(data.total, currency)}</span>
+                                  <span className="text-muted-foreground text-[11px]">({percent}%)</span>
+                                </div>
+                              </div>
+                            )
+                          }
+                          return null
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  {/* Center Total Stat */}
+                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Total</span>
+                    <span className="text-xs font-bold text-foreground">
+                      {formatCurrency(charts.categoryBreakdown.reduce((acc, c) => acc + c.total, 0), currency)}
+                    </span>
+                  </div>
+                </div>
+
                 {/* Custom Legend */}
-                <div className="grid grid-cols-2 gap-2 text-[10px] px-2">
-                  {charts.categoryBreakdown.slice(0, 4).map((entry) => (
-                    <div key={entry.name} className="flex items-center gap-1.5 truncate">
-                      <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color || '#a8a29e' }} />
-                      <span className="truncate text-stone-600">{translateDbItem(entry.name, 'category')}</span>
-                      <span className="font-semibold text-stone-800 ml-auto">{formatCurrency(entry.total, currency)}</span>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-2 gap-2 text-[10px] px-2 pb-1">
+                  {charts.categoryBreakdown.slice(0, 4).map((entry) => {
+                    const total = charts.categoryBreakdown.reduce((acc, c) => acc + c.total, 0)
+                    const pct = total > 0 ? Math.round((entry.total / total) * 100) : 0
+                    return (
+                      <div key={entry.name} className="flex items-center justify-between rounded-lg bg-secondary/40 px-2 py-1 gap-1.5 border border-border/50">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color || '#a8a29e' }} />
+                          <span className="truncate text-muted-foreground font-medium">{translateDbItem(entry.name, 'category')}</span>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span className="font-semibold text-foreground">{formatCurrency(entry.total, currency)}</span>
+                          <span className="text-[9px] text-muted-foreground">({pct}%)</span>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Receipt className="h-8 w-8 text-[#a8a29e] mb-2" />
-                <p className="text-sm text-[#a8a29e]">{t('dashboard.no_data')}</p>
+                <Receipt className="h-8 w-8 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">{t('dashboard.no_data')}</p>
               </div>
             )}
           </CardContent>

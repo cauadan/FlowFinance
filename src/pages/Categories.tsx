@@ -194,30 +194,31 @@ export default function Categories() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('categories.title')}
           </h1>
-          <p className="text-sm text-[#78716c]">
+          <p className="text-sm text-muted-foreground">
             {t('categories.subtitle')}
           </p>
         </div>
         <div>
           <Button
             onClick={openAddModal}
-            className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
+            className="rounded-full bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] gap-1.5 shadow-sm text-sm"
+            size="sm"
           >
-            <Plus className="h-3.5 w-3.5" />
-            {t('categories.new')}
+            <Plus className="h-4 w-4" />
+            <span>{t('categories.new')}</span>
           </Button>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'EXPENSE' | 'INCOME')} className="w-full">
-        <TabsList className="bg-[#f5f5f0] border border-[rgba(0,0,0,0.05)] rounded-lg p-1">
-          <TabsTrigger value="EXPENSE" className="text-xs px-4 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+        <TabsList className="bg-secondary/70 dark:bg-[#1b1f27] border border-border rounded-xl p-1">
+          <TabsTrigger value="EXPENSE" className="text-xs px-4 py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs text-muted-foreground">
             {t('categories.tab_expense')}
           </TabsTrigger>
-          <TabsTrigger value="INCOME" className="text-xs px-4 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+          <TabsTrigger value="INCOME" className="text-xs px-4 py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs text-muted-foreground">
             {t('categories.tab_income')}
           </TabsTrigger>
         </TabsList>
@@ -262,14 +263,14 @@ export default function Categories() {
       {/* Category Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={closeModal} />
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-[rgba(0,0,0,0.05)]"
+            className="relative w-full max-w-md rounded-2xl bg-card dark:bg-[#161922] p-6 shadow-2xl border border-border text-card-foreground"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
-              <h3 className="text-lg font-medium text-[#0c0a09]">
+            <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
+              <h3 className="text-lg font-bold text-foreground">
                 {editingCategory ? t('categories.modal_edit') : t('categories.modal_new')}
               </h3>
               <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8 rounded-full">
@@ -280,27 +281,27 @@ export default function Categories() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Category Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="catName" className="text-xs uppercase tracking-wider text-[#78716c]">{t('categories.name')}</Label>
+                <Label htmlFor="catName" className="text-xs uppercase tracking-wider text-muted-foreground">{t('categories.name')}</Label>
                 <Input
                   id="catName"
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   placeholder={t('categories.name_placeholder')}
                   required
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
               {/* Color Picker */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('categories.color')}</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('categories.color')}</Label>
                 <div className="flex flex-wrap gap-2">
                   {colorPalette.map((color) => (
                     <button
                       key={color}
                       type="button"
                       onClick={() => setSelectedColor(color)}
-                      className="h-8 w-8 rounded-full border border-[rgba(0,0,0,0.08)] flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+                      className="h-8 w-8 rounded-full border border-border flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-xs"
                       style={{ backgroundColor: color }}
                     >
                       {selectedColor === color && (
@@ -313,8 +314,8 @@ export default function Categories() {
 
               {/* Icon Picker */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('categories.icon')}</Label>
-                <div className="grid grid-cols-7 gap-2 max-h-[150px] overflow-y-auto p-1 border rounded-lg bg-[#fafaf5]/40 border-[rgba(0,0,0,0.08)]">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('categories.icon')}</Label>
+                <div className="grid grid-cols-7 gap-2 max-h-[150px] overflow-y-auto p-1.5 border rounded-xl bg-secondary/50 dark:bg-[#1b1f27] border-border">
                   {Object.entries(iconMap).map(([iconName, IconComponent]) => (
                     <button
                       key={iconName}
@@ -322,8 +323,8 @@ export default function Categories() {
                       onClick={() => setSelectedIcon(iconName)}
                       className={`h-9 w-9 rounded-md flex items-center justify-center transition-all ${
                         selectedIcon === iconName
-                          ? 'bg-[#84a98c] text-white'
-                          : 'bg-white border border-[rgba(0,0,0,0.08)] text-stone-500 hover:bg-[#fafaf5]'
+                          ? 'bg-[#84a98c] text-white shadow-xs'
+                          : 'bg-card border border-border text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <IconComponent className="h-4 w-4" />
@@ -333,19 +334,19 @@ export default function Categories() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-3 border-t border-[rgba(0,0,0,0.05)]">
+              <div className="flex gap-3 pt-3 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={closeModal}
-                  className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
+                  className="flex-1 border-border text-foreground hover:bg-secondary rounded-lg text-xs"
                 >
                   {t('categories.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
-                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
+                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] rounded-lg text-xs"
                 >
                   {createMutation.isPending || updateMutation.isPending ? t('categories.saving') : t('categories.save')}
                 </Button>
@@ -369,9 +370,9 @@ interface CategoryGridProps {
 function CategoryGrid({ categories, onEdit, onDelete, t, translateDbItem }: CategoryGridProps) {
   if (categories.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-[rgba(0,0,0,0.08)] rounded-xl bg-white">
-        <Tags className="h-8 w-8 text-[#a8a29e] mb-2" />
-        <p className="text-sm font-medium text-[#78716c]">{t('categories.no_data')}</p>
+      <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-border rounded-xl bg-card">
+        <Tags className="h-8 w-8 text-muted-foreground mb-2" />
+        <p className="text-sm font-medium text-muted-foreground">{t('categories.no_data')}</p>
       </div>
     )
   }
@@ -381,20 +382,20 @@ function CategoryGrid({ categories, onEdit, onDelete, t, translateDbItem }: Cate
       {categories.map((cat) => {
         const IconComponent = iconMap[cat.icon] || Circle
         return (
-          <Card key={cat.id} className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm overflow-hidden group">
+          <Card key={cat.id} className="border-border bg-card shadow-sm overflow-hidden group hover:border-[#84a98c]/30 transition-all">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className="h-10 w-10 rounded-lg flex items-center justify-center text-white shadow-sm"
+                  className="h-10 w-10 rounded-xl flex items-center justify-center text-white shadow-xs"
                   style={{ backgroundColor: cat.color }}
                 >
                   <IconComponent className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-sm text-[#0c0a09]">
+                  <h4 className="font-semibold text-sm text-foreground">
                     {cat.isDefault ? translateDbItem(cat.name, 'category') : cat.name}
                   </h4>
-                  <span className="text-[10px] text-stone-400">
+                  <span className="text-[10px] text-muted-foreground">
                     {cat.isDefault ? t('categories.default') : t('categories.custom')}
                   </span>
                 </div>
@@ -405,7 +406,7 @@ function CategoryGrid({ categories, onEdit, onDelete, t, translateDbItem }: Cate
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 rounded-full text-stone-500"
+                    className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
                     onClick={() => onEdit(cat)}
                   >
                     <Edit2 className="h-3 w-3" />
@@ -413,7 +414,7 @@ function CategoryGrid({ categories, onEdit, onDelete, t, translateDbItem }: Cate
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 rounded-full text-red-500 hover:text-red-600"
+                    className="h-7 w-7 rounded-full text-red-500 hover:text-red-600 hover:bg-red-500/10"
                     onClick={() => onDelete(cat.id)}
                   >
                     <Trash2 className="h-3 w-3" />

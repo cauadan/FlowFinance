@@ -178,22 +178,21 @@ export default function Investments() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('investments.title')}
           </h1>
-          <p className="text-sm text-[#78716c]">
+          <p className="text-sm text-muted-foreground">
             {t('investments.subtitle')}
           </p>
         </div>
-        <div>
-          <Button
-            onClick={openAddModal}
-            className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {t('investments.add')}
-          </Button>
-        </div>
+        <Button
+          onClick={openAddModal}
+          className="rounded-full bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] gap-1.5 shadow-sm text-sm"
+          size="sm"
+        >
+          <Plus className="h-4 w-4" />
+          <span>{t('investments.new')}</span>
+        </Button>
       </div>
 
       {isLoading ? (
@@ -205,35 +204,35 @@ export default function Investments() {
         <>
           {/* Summary metrics */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+            <Card className="border-border bg-card shadow-sm">
               <CardHeader className="pb-2">
-                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
+                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
                   {t('investments.total_invested')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-[#0c0a09]">
+                <div className="text-2xl font-bold text-foreground">
                   {formatCurrency(totalInvested, currency)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+            <Card className="border-border bg-card shadow-sm">
               <CardHeader className="pb-2">
-                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
+                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
                   {t('investments.current_value')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-[#0c0a09]">
+                <div className="text-2xl font-bold text-foreground">
                   {formatCurrency(currentTotal, currency)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+            <Card className="border-border bg-card shadow-sm">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
+                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
                   {t('investments.total_return')}
                 </CardDescription>
                 <div className={`p-1.5 rounded-full ${profitLoss >= 0 ? 'bg-[#84a98c]/10 text-[#84a98c]' : 'bg-[#e76f51]/10 text-[#e76f51]'}`}>
@@ -253,13 +252,13 @@ export default function Investments() {
           </div>
 
           {/* Investments List */}
-          <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm overflow-hidden">
+          <Card className="border-border bg-card shadow-sm overflow-hidden">
             <CardContent className="p-0">
               {investments && investments.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-[rgba(0,0,0,0.05)] bg-[#fafaf5]/60 text-[10px] uppercase tracking-wider text-[#78716c]">
+                      <tr className="border-b border-border bg-secondary/40 text-[10px] uppercase tracking-wider text-muted-foreground">
                         <th className="py-3 px-6 font-semibold">{t('investments.name')}</th>
                         <th className="py-3 px-6 font-semibold">{t('investments.category')}</th>
                         <th className="py-3 px-6 font-semibold">{t('investments.broker')}</th>
@@ -341,14 +340,14 @@ export default function Investments() {
       {/* Investment Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={closeModal} />
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-[rgba(0,0,0,0.05)]"
+            className="relative w-full max-w-md rounded-2xl bg-card dark:bg-[#161922] p-6 shadow-2xl border border-border text-card-foreground"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
-              <h3 className="text-lg font-medium text-[#0c0a09]">
+            <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
+              <h3 className="text-lg font-bold text-foreground">
                 {editingInvestment ? t('investments.modal_edit') : t('investments.modal_new')}
               </h3>
               <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8 rounded-full">
@@ -359,22 +358,22 @@ export default function Investments() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Asset Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="assetName" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.name')}</Label>
+                <Label htmlFor="assetName" className="text-xs uppercase tracking-wider text-muted-foreground">{t('investments.name')}</Label>
                 <Input
                   id="assetName"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('investments.name_placeholder')}
                   required
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
               {/* Category Select */}
               <div className="space-y-1.5">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.category')}</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('investments.category')}</Label>
                 <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
+                  <SelectTrigger className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus:ring-[#84a98c]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -390,24 +389,24 @@ export default function Investments() {
               <div className="grid grid-cols-2 gap-3">
                 {/* Broker */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="broker" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.broker_label')}</Label>
+                  <Label htmlFor="broker" className="text-xs uppercase tracking-wider text-muted-foreground">{t('investments.broker_label')}</Label>
                   <Input
                     id="broker"
                     value={broker}
                     onChange={(e) => setBroker(e.target.value)}
                     placeholder={t('investments.broker_placeholder')}
-                    className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                    className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                   />
                 </div>
                 {/* Purchase Date */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="purchaseD" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.purchase_date')}</Label>
+                  <Label htmlFor="purchaseD" className="text-xs uppercase tracking-wider text-muted-foreground">{t('investments.purchase_date')}</Label>
                   <Input
                     id="purchaseD"
                     type="date"
                     value={purchaseDate}
                     onChange={(e) => setPurchaseDate(e.target.value)}
-                    className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                    className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                   />
                 </div>
               </div>
@@ -415,7 +414,7 @@ export default function Investments() {
               <div className="grid grid-cols-2 gap-3">
                 {/* Invested */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="amtInvested" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.amount_invested')}</Label>
+                  <Label htmlFor="amtInvested" className="text-xs uppercase tracking-wider text-muted-foreground">{t('investments.amount_invested')}</Label>
                   <Input
                     id="amtInvested"
                     type="number"
@@ -424,12 +423,12 @@ export default function Investments() {
                     onChange={(e) => setAmountInvested(e.target.value)}
                     placeholder="0.00"
                     required
-                    className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                    className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                   />
                 </div>
                 {/* Current Value */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="currVal" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.current_val')}</Label>
+                  <Label htmlFor="currVal" className="text-xs uppercase tracking-wider text-muted-foreground">{t('investments.current_val')}</Label>
                   <Input
                     id="currVal"
                     type="number"
@@ -438,37 +437,37 @@ export default function Investments() {
                     onChange={(e) => setCurrentValue(e.target.value)}
                     placeholder="0.00"
                     required
-                    className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                    className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                   />
                 </div>
               </div>
 
               {/* Notes */}
               <div className="space-y-1.5">
-                <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-[#78716c]">{t('investments.notes')}</Label>
+                <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-muted-foreground">{t('investments.notes')}</Label>
                 <Input
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder={t('investments.notes_placeholder')}
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-3 border-t border-[rgba(0,0,0,0.05)]">
+              <div className="flex gap-3 pt-3 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={closeModal}
-                  className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
+                  className="flex-1 border-border text-foreground hover:bg-secondary rounded-lg text-xs"
                 >
                   {t('investments.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
-                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
+                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] rounded-lg text-xs"
                 >
                   {createMutation.isPending || updateMutation.isPending ? t('investments.saving') : t('investments.save')}
                 </Button>

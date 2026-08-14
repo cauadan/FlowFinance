@@ -1219,14 +1219,18 @@ app.post('/api/assistant/insights', async (req, res) => {
       'Other Income': 'Outras Receitas',
     }
 
-    const topCats = topCategoriesRaw.map(c => `${categoryPtMap[c.name] || c.name}: $${Number(c.total).toFixed(2)}`).join(', ')
+    const userSetting = await prisma.settings.findFirst({ where: { userId } })
+    const currency = userSetting?.currency || 'USD'
+    const currSymbol = currency === 'BRL' ? 'R$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'JPY' ? '¥' : '$'
+
+    const topCats = topCategoriesRaw.map(c => `${categoryPtMap[c.name] || c.name}: ${currSymbol} ${Number(c.total).toFixed(2)}`).join(', ')
 
     // Fallback algorithmic insights in case Gemini is offline or rate limited
     const defaultInsights = [
       {
         title: 'Taxa de Poupança Mensal',
         description: income > 0 
-          ? `Você está economizando ${savingsRate}% da sua renda este mês. ${parseFloat(savingsRate) >= 20 ? 'Excelente ritmo!' : 'Tente alcançar pelo menos 20%.'}`
+          ? `Você está economizando ${savingsRate}% da sua renda este mês (${currSymbol} ${savings.toFixed(2)}). ${parseFloat(savingsRate) >= 20 ? 'Excelente ritmo!' : 'Tente alcançar pelo menos 20%.'}`
           : 'Registre suas entradas para acompanhar sua taxa de poupança mensal.',
         tag: 'Economia',
         type: parseFloat(savingsRate) >= 20 ? 'positive' : 'warning',
@@ -1240,7 +1244,7 @@ app.post('/api/assistant/insights', async (req, res) => {
       {
         title: 'Reserva de Emergência',
         description: emergencyFund && emergencyFund.targetAmount > 0
-          ? `Sua reserva está em ${Math.round((emergencyFund.currentAmount / emergencyFund.targetAmount) * 100)}% da meta de ${emergencyFund.targetMonths} meses.`
+          ? `Sua reserva está em ${Math.round((emergencyFund.currentAmount / emergencyFund.targetAmount) * 100)}% da meta (${currSymbol} ${emergencyFund.currentAmount.toFixed(2)} de ${currSymbol} ${emergencyFund.targetAmount.toFixed(2)}).`
           : 'Configure sua meta de reserva de emergência para se proteger contra imprevistos.',
         tag: 'Segurança',
         type: emergencyFund && emergencyFund.currentAmount >= emergencyFund.targetAmount ? 'positive' : 'warning',
@@ -1254,14 +1258,14 @@ app.post('/api/assistant/insights', async (req, res) => {
     try {
       const genAI = new GoogleGenerativeAI(apiKey)
       const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
-      const prompt = `Analise estes dados financeiros do usuário:
-Renda mensal: $${income.toFixed(2)}, Despesas: $${expense.toFixed(2)}, Economia: $${savings.toFixed(2)} (${savingsRate}%).
+      const prompt = `Analise estes dados financeiros do usuário (Moeda: ${currency} / Símbolo: ${currSymbol}):
+Renda mensal: ${currSymbol} ${income.toFixed(2)}, Despesas: ${currSymbol} ${expense.toFixed(2)}, Economia: ${currSymbol} ${savings.toFixed(2)} (${savingsRate}%).
 Principais despesas: ${topCats || 'Sem dados'}.
-Reserva de emergência: ${emergencyFund ? `$${emergencyFund.currentAmount}/$${emergencyFund.targetAmount}` : 'Não configurada'}.
+Reserva de emergência: ${emergencyFund ? `${currSymbol} ${emergencyFund.currentAmount}/${currSymbol} ${emergencyFund.targetAmount}` : 'Não configurada'}.
 
-Gere exatamente 3 insights financeiros curtos, práticos e motivadores em Português no formato JSON:
+Gere exatamente 3 insights financeiros curtos, práticos, elegantes e motivadores em Português no formato JSON, utilizando a moeda ${currSymbol}:
 [
-  {"title": "Título curto", "description": "Explicação e conselho prático com números reais", "tag": "Economia|Orçamento|Investimento|Segurança", "type": "positive|warning|info"}
+  {"title": "Título curto e impactante", "description": "Explicação e conselho prático com números reais usando o símbolo ${currSymbol}", "tag": "Economia|Orçamento|Investimento|Segurança", "type": "positive|warning|info"}
 ]
 Retorne APENAS o JSON puro, sem blocos de markdown ou texto adicional.`
 

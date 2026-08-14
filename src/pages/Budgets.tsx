@@ -184,18 +184,18 @@ export default function Budgets() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('budgets.title')}
           </h1>
-          <p className="text-sm text-[#78716c]">
+          <p className="text-sm text-muted-foreground">
             {t('budgets.subtitle')}
           </p>
         </div>
         <div className="flex gap-2 items-center">
           {/* Month Select */}
           <Select value={String(selectedMonth)} onValueChange={(v) => setSelectedMonth(parseInt(v))}>
-            <SelectTrigger className="w-[120px] text-xs border-[rgba(0,0,0,0.08)] bg-white">
-              <Calendar className="h-3 w-3 text-stone-400 mr-1.5" />
+            <SelectTrigger className="w-[120px] text-xs border-border bg-card text-foreground">
+              <Calendar className="h-3 w-3 text-muted-foreground mr-1.5" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -209,7 +209,7 @@ export default function Budgets() {
 
           {/* Year Select */}
           <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(parseInt(v))}>
-            <SelectTrigger className="w-[100px] text-xs border-[rgba(0,0,0,0.08)] bg-white">
+            <SelectTrigger className="w-[100px] text-xs border-border bg-card text-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -223,10 +223,11 @@ export default function Budgets() {
 
           <Button
             onClick={openAddModal}
-            className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
+            className="rounded-full bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] gap-1.5 shadow-sm text-sm"
+            size="sm"
           >
-            <Plus className="h-3.5 w-3.5" />
-            {t('budgets.set')}
+            <Plus className="h-4 w-4" />
+            <span>{t('budgets.set')}</span>
           </Button>
         </div>
       </div>
@@ -244,13 +245,13 @@ export default function Budgets() {
         <>
           {/* Summary Card */}
           {budgets && budgets.length > 0 && (
-            <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm overflow-hidden">
+            <Card className="border-border bg-card shadow-sm overflow-hidden">
               <CardContent className="p-6">
                 <div className="grid gap-6 md:grid-cols-4 items-center">
                   <div className="md:col-span-3 space-y-3">
-                    <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-[#78716c]">
+                    <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       <span>{t('budgets.progress')}</span>
-                      <span>{formatPercentage(overallPercentage)} {t('budgets.used')}</span>
+                      <span className="text-foreground font-bold">{formatPercentage(overallPercentage)} {t('budgets.used')}</span>
                     </div>
                     <Progress
                       value={Math.min(overallPercentage, 100)}
@@ -263,14 +264,14 @@ export default function Budgets() {
                           : 'bg-[#84a98c]'
                       }
                     />
-                    <div className="flex justify-between text-xs text-[#a8a29e]">
-                      <span>{t('budgets.spent')}: {formatCurrency(totalSpent, currency)}</span>
-                      <span>{t('budgets.total_limit')}: {formatCurrency(totalAllocated, currency)}</span>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{t('budgets.spent')}: <strong className="text-foreground">{formatCurrency(totalSpent, currency)}</strong></span>
+                      <span>{t('budgets.total_limit')}: <strong className="text-foreground">{formatCurrency(totalAllocated, currency)}</strong></span>
                     </div>
                   </div>
-                  <div className="border-t md:border-t-0 md:border-l border-[rgba(0,0,0,0.05)] pt-4 md:pt-0 md:pl-6 text-center md:text-left">
-                    <span className="text-xs uppercase text-[#78716c] block">{t('budgets.remaining')}</span>
-                    <span className={`text-2xl font-semibold ${totalRemaining >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]'}`}>
+                  <div className="border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6 text-center md:text-left">
+                    <span className="text-xs uppercase text-muted-foreground block">{t('budgets.remaining')}</span>
+                    <span className={`text-2xl font-bold ${totalRemaining >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]'}`}>
                       {formatCurrency(totalRemaining, currency)}
                     </span>
                   </div>
@@ -292,14 +293,14 @@ export default function Budgets() {
                   : 'bg-[#84a98c]'
 
                 return (
-                  <Card key={budget.id} className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm relative overflow-hidden group">
+                  <Card key={budget.id} className="border-border bg-card shadow-sm relative overflow-hidden group hover:border-[#84a98c]/30 transition-all">
                     <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                       <div className="flex items-center gap-2">
                         <span
-                          className="h-3 w-3 rounded-full shrink-0"
+                          className="h-3 w-3 rounded-full shrink-0 shadow-xs"
                           style={{ backgroundColor: budget.category?.color || '#cad2c5' }}
                         />
-                        <CardTitle className="text-sm font-semibold text-[#0c0a09]">
+                        <CardTitle className="text-sm font-semibold text-foreground">
                           {budget.category ? translateDbItem(budget.category.name, 'category') : 'Uncategorized'}
                         </CardTitle>
                       </div>
@@ -307,7 +308,7 @@ export default function Budgets() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 rounded-full text-stone-500"
+                          className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
                           onClick={() => openEditModal(budget)}
                         >
                           <Edit2 className="h-3 w-3" />
@@ -315,7 +316,7 @@ export default function Budgets() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 rounded-full text-red-500 hover:text-red-600"
+                          className="h-7 w-7 rounded-full text-red-500 hover:text-red-600 hover:bg-red-500/10"
                           onClick={() => handleDelete(budget.id)}
                         >
                           <Trash2 className="h-3 w-3" />
@@ -324,10 +325,10 @@ export default function Budgets() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-baseline justify-between">
-                        <span className="text-2xl font-bold text-[#0c0a09]">
+                        <span className="text-2xl font-bold text-foreground">
                           {formatCurrency(budget.spent, currency)}
                         </span>
-                        <span className="text-xs text-[#a8a29e]">
+                        <span className="text-xs text-muted-foreground">
                           {t('budgets.of')} {formatCurrency(budget.amount, currency)}
                         </span>
                       </div>
@@ -335,8 +336,8 @@ export default function Budgets() {
                       <Progress value={Math.min(budget.percentage, 100)} className="h-2" indicatorClassName={progressBarColor} />
 
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-stone-400">{formatPercentage(budget.percentage)} {t('budgets.used')}</span>
-                        <span className={`font-medium ${budget.remaining >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]'}`}>
+                        <span className="text-muted-foreground">{formatPercentage(budget.percentage)} {t('budgets.used')}</span>
+                        <span className={`font-semibold ${budget.remaining >= 0 ? 'text-[#84a98c]' : 'text-[#e76f51]'}`}>
                           {budget.remaining >= 0
                             ? `${formatCurrency(budget.remaining, currency)} ${t('budgets.left')}`
                             : `${formatCurrency(Math.abs(budget.remaining), currency)} ${t('budgets.over')}`}
@@ -344,7 +345,7 @@ export default function Budgets() {
                       </div>
 
                       {isOverBudget && (
-                        <div className="flex items-center gap-1.5 mt-2 rounded bg-red-50 px-2 py-1 text-[10px] font-medium text-red-600">
+                        <div className="flex items-center gap-1.5 mt-2 rounded-lg bg-red-500/10 border border-red-500/20 px-2 py-1 text-[11px] font-semibold text-red-600 dark:text-red-400">
                           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                           <span>{t('budgets.exceeded')}</span>
                         </div>
@@ -355,9 +356,9 @@ export default function Budgets() {
               })}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-[rgba(0,0,0,0.08)] rounded-xl bg-white">
-              <Wallet className="h-10 w-10 text-[#a8a29e] mb-2" />
-              <p className="text-sm font-medium text-[#78716c]">{t('budgets.no_data')}</p>
+            <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-border rounded-xl bg-card">
+              <Wallet className="h-10 w-10 text-muted-foreground mb-2" />
+              <p className="text-sm font-medium text-muted-foreground">{t('budgets.no_data')}</p>
               <Button onClick={openAddModal} variant="link" className="text-[#84a98c] text-xs font-semibold mt-1">
                 {t('budgets.first')}
               </Button>
@@ -369,14 +370,14 @@ export default function Budgets() {
       {/* Budget Set Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={closeModal} />
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-[rgba(0,0,0,0.05)]"
+            className="relative w-full max-w-md rounded-2xl bg-card dark:bg-[#161922] p-6 shadow-2xl border border-border text-card-foreground"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
-              <h3 className="text-lg font-medium text-[#0c0a09]">
+            <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
+              <h3 className="text-lg font-bold text-foreground">
                 {editingBudget ? t('budgets.modal_edit') : t('budgets.modal_new')}
               </h3>
               <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8 rounded-full">
@@ -387,9 +388,9 @@ export default function Budgets() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Category Select */}
               <div className="space-y-1.5">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('budgets.category')}</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('budgets.category')}</Label>
                 {editingBudget ? (
-                  <div className="flex items-center gap-2 p-2 border border-stone-100 rounded-lg bg-stone-50 text-stone-600 text-sm font-medium">
+                  <div className="flex items-center gap-2 p-2.5 border border-border rounded-lg bg-secondary/50 text-foreground text-sm font-medium">
                     <span
                       className="h-3 w-3 rounded-full shrink-0"
                       style={{ backgroundColor: editingBudget.category?.color || '#cad2c5' }}
@@ -398,7 +399,7 @@ export default function Budgets() {
                   </div>
                 ) : (
                   <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
-                    <SelectTrigger className="border-[rgba(0,0,0,0.1)] focus:ring-[#84a98c]">
+                    <SelectTrigger className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus:ring-[#84a98c]">
                       <SelectValue placeholder={t('budgets.category_placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -414,7 +415,7 @@ export default function Budgets() {
 
               {/* Amount */}
               <div className="space-y-1.5">
-                <Label htmlFor="budgetAmount" className="text-xs uppercase tracking-wider text-[#78716c]">{t('budgets.limit_amount')}</Label>
+                <Label htmlFor="budgetAmount" className="text-xs uppercase tracking-wider text-muted-foreground">{t('budgets.limit_amount')}</Label>
                 <Input
                   id="budgetAmount"
                   type="number"
@@ -423,29 +424,29 @@ export default function Budgets() {
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
                   required
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
               {/* Period Alert/Note */}
-              <div className="p-3 bg-stone-50 rounded-lg text-stone-500 text-[10px]">
-                {t('budgets.note')} **{months[selectedMonth - 1]} {selectedYear}**.
+              <div className="p-3 bg-secondary/50 border border-border rounded-lg text-muted-foreground text-[11px]">
+                {t('budgets.note')} <strong className="text-foreground">{months[selectedMonth - 1]} {selectedYear}</strong>.
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-3 border-t border-[rgba(0,0,0,0.05)]">
+              <div className="flex gap-3 pt-3 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={closeModal}
-                  className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
+                  className="flex-1 border-border text-foreground hover:bg-secondary rounded-lg text-xs"
                 >
                   {t('budgets.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
-                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
+                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] rounded-lg text-xs"
                 >
                   {createMutation.isPending || updateMutation.isPending ? t('budgets.saving') : t('budgets.save')}
                 </Button>

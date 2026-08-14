@@ -125,39 +125,41 @@ export default function EmergencyFundPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
               {t('emergency.title')}
             </h1>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100/70 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
               <Lock className="h-3 w-3" />
               Blindagem Financeira
             </span>
           </div>
-          <p className="text-sm text-[#78716c]">
+          <p className="text-sm text-muted-foreground">
             {t('emergency.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             onClick={() => openAction('DEPOSIT')}
-            className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
+            className="rounded-full bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] gap-1.5 shadow-sm text-xs"
+            size="sm"
           >
             <Plus className="h-3.5 w-3.5" />
-            {t('emergency.deposit')}
+            <span>{t('emergency.deposit')}</span>
           </Button>
           <Button
             onClick={() => openAction('WITHDRAW')}
             variant="outline"
-            className="border-[rgba(0,0,0,0.1)] text-[#e76f51] hover:bg-red-50 gap-1.5 text-xs rounded-lg"
+            className="rounded-full border-border text-[#e76f51] hover:bg-red-500/10 gap-1.5 text-xs shadow-sm"
+            size="sm"
           >
             <Minus className="h-3.5 w-3.5" />
-            {t('emergency.withdraw')}
+            <span>{t('emergency.withdraw')}</span>
           </Button>
           <Button
             onClick={openConfig}
             variant="ghost"
             size="icon"
-            className="rounded-lg text-stone-500 hover:text-stone-800"
+            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
             title={t('emergency.edit')}
           >
             <Sliders className="h-4 w-4" />
@@ -234,41 +236,41 @@ export default function EmergencyFundPage() {
 
           {/* 3 Metric Cards */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+            <Card className="border-border bg-card shadow-sm">
               <CardHeader className="pb-2">
-                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
+                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
                   {t('emergency.target')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-[#0c0a09]">
+                <div className="text-2xl font-bold text-foreground">
                   {formatCurrency(targetAmount, currency)}
                 </div>
-                <p className="mt-1 text-xs text-[#a8a29e]">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {fund?.targetMonths || 6} {t('emergency.months_expenses')}
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+            <Card className="border-border bg-card shadow-sm">
               <CardHeader className="pb-2">
-                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
+                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
                   Média Mensal de Gastos
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-[#0c0a09]">
+                <div className="text-2xl font-bold text-foreground">
                   {formatCurrency(fund?.avgMonthlyExpense || 0, currency)}
                 </div>
-                <p className="mt-1 text-xs text-[#a8a29e]">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Baseado nos últimos meses
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+            <Card className="border-border bg-card shadow-sm">
               <CardHeader className="pb-2">
-                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">
+                <CardDescription className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
                   Meta Recomendada
                 </CardDescription>
               </CardHeader>
@@ -276,7 +278,7 @@ export default function EmergencyFundPage() {
                 <div className="text-2xl font-bold text-[#84a98c]">
                   {formatCurrency(fund?.suggestedTarget || 0, currency)}
                 </div>
-                <p className="mt-1 text-xs text-[#a8a29e]">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Cálculo automático inteligente
                 </p>
               </CardContent>
@@ -284,15 +286,15 @@ export default function EmergencyFundPage() {
           </div>
 
           {/* Guidelines Box */}
-          <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+          <Card className="border-border bg-card shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-start gap-3.5">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#84a98c]/15 text-[#84a98c]">
                   <Sparkles className="h-5 w-5" />
                 </div>
                 <div className="space-y-1.5">
-                  <h4 className="text-sm font-semibold text-[#0c0a09]">Como funciona a sua Reserva de Emergência</h4>
-                  <p className="text-xs text-[#78716c] leading-relaxed">
+                  <h4 className="text-sm font-semibold text-foreground">Como funciona a sua Reserva de Emergência</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     A reserva de emergência deve ser mantida em investimentos de alta liquidez e baixíssimo risco (como Tesouro Selic ou CDBs 100% CDI com resgate diário). Ela garante sua tranquilidade em caso de imprevistos médicos, manutenções urgentes ou perda temporária de renda.
                   </p>
                 </div>
@@ -305,14 +307,14 @@ export default function EmergencyFundPage() {
       {/* Action Modal (Deposit / Withdraw) */}
       {showActionModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowActionModal(false)} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={() => setShowActionModal(false)} />
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-[rgba(0,0,0,0.05)]"
+            className="relative w-full max-w-sm rounded-2xl bg-card dark:bg-[#161922] p-6 shadow-2xl border border-border text-card-foreground"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
-              <h3 className="text-base font-semibold text-[#0c0a09]">
+            <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
+              <h3 className="text-base font-bold text-foreground">
                 {actionType === 'DEPOSIT' ? t('emergency.deposit') : t('emergency.withdraw')}
               </h3>
               <Button variant="ghost" size="icon" onClick={() => setShowActionModal(false)} className="h-8 w-8 rounded-full">
@@ -322,7 +324,7 @@ export default function EmergencyFundPage() {
 
             <form onSubmit={handleActionSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="actAmt" className="text-xs uppercase tracking-wider text-[#78716c]">{t('emergency.amount')}</Label>
+                <Label htmlFor="actAmt" className="text-xs uppercase tracking-wider text-muted-foreground">{t('emergency.amount')}</Label>
                 <Input
                   id="actAmt"
                   type="number"
@@ -332,16 +334,16 @@ export default function EmergencyFundPage() {
                   placeholder="0.00"
                   required
                   autoFocus
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c] text-lg font-semibold"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c] text-lg font-semibold"
                 />
               </div>
 
-              <div className="flex gap-3 pt-3 border-t border-[rgba(0,0,0,0.05)]">
+              <div className="flex gap-3 pt-3 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowActionModal(false)}
-                  className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
+                  className="flex-1 border-border text-foreground hover:bg-secondary rounded-lg text-xs"
                 >
                   {t('emergency.cancel')}
                 </Button>
@@ -361,14 +363,14 @@ export default function EmergencyFundPage() {
       {/* Config Modal */}
       {showConfigModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowConfigModal(false)} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={() => setShowConfigModal(false)} />
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-[rgba(0,0,0,0.05)]"
+            className="relative w-full max-w-md rounded-2xl bg-card dark:bg-[#161922] p-6 shadow-2xl border border-border text-card-foreground"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
-              <h3 className="text-lg font-medium text-[#0c0a09]">
+            <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
+              <h3 className="text-lg font-bold text-foreground">
                 {t('emergency.edit')}
               </h3>
               <Button variant="ghost" size="icon" onClick={() => setShowConfigModal(false)} className="h-8 w-8 rounded-full">
@@ -378,7 +380,7 @@ export default function EmergencyFundPage() {
 
             <form onSubmit={handleConfigSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">
                   {t('emergency.months_label')}
                 </Label>
                 <div className="grid grid-cols-4 gap-2">
@@ -394,60 +396,56 @@ export default function EmergencyFundPage() {
                       }}
                       className={`py-2 rounded-xl text-xs font-semibold border transition-all ${
                         targetMonths === m
-                          ? 'border-[#84a98c] bg-[#84a98c]/15 text-[#2f3e46]'
-                          : 'border-[rgba(0,0,0,0.08)] bg-[#fafaf5] text-stone-600 hover:bg-stone-100'
+                          ? 'border-[#84a98c] bg-[#84a98c]/15 text-[#84a98c]'
+                          : 'border-border bg-secondary/50 text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      {m} meses
+                      {m} {t('emergency.months')}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="custTarget" className="text-xs uppercase tracking-wider text-[#78716c]">
-                  {t('emergency.target')}
-                </Label>
+                <Label htmlFor="cfgTarget" className="text-xs uppercase tracking-wider text-muted-foreground">{t('emergency.target_amount')}</Label>
                 <Input
-                  id="custTarget"
+                  id="cfgTarget"
                   type="number"
                   step="0.01"
                   value={customTargetAmount}
                   onChange={(e) => setCustomTargetAmount(e.target.value)}
                   placeholder="0.00"
                   required
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-[#78716c]">
-                  Observações
-                </Label>
+                <Label htmlFor="notes" className="text-xs uppercase tracking-wider text-muted-foreground">{t('investments.notes')}</Label>
                 <Input
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Ex: Alocada no CDB do Banco X"
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  placeholder="Ex: Alocada no Tesouro Selic / CDB"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
-              <div className="flex gap-3 pt-3 border-t border-[rgba(0,0,0,0.05)]">
+              <div className="flex gap-3 pt-3 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowConfigModal(false)}
-                  className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
+                  className="flex-1 border-border text-foreground hover:bg-secondary rounded-lg text-xs"
                 >
                   {t('emergency.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={updateMutation.isPending}
-                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
+                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] rounded-lg text-xs"
                 >
-                  {updateMutation.isPending ? '...' : t('emergency.confirm')}
+                  {updateMutation.isPending ? '...' : t('emergency.save')}
                 </Button>
               </div>
             </form>

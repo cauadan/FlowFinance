@@ -216,22 +216,21 @@ export default function Goals() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('goals.title')}
           </h1>
-          <p className="text-sm text-[#78716c]">
+          <p className="text-sm text-muted-foreground">
             {t('goals.subtitle')}
           </p>
         </div>
-        <div>
-          <Button
-            onClick={openAddModal}
-            className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {t('goals.new')}
-          </Button>
-        </div>
+        <Button
+          onClick={openAddModal}
+          className="rounded-full bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] gap-1.5 shadow-sm text-sm"
+          size="sm"
+        >
+          <Plus className="h-4 w-4" />
+          <span>{t('goals.new')}</span>
+        </Button>
       </div>
 
       {isLoading ? (
@@ -247,23 +246,23 @@ export default function Goals() {
         <>
           {/* Summary Card */}
           {goals && goals.length > 0 && (
-            <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm overflow-hidden">
+            <Card className="border-border bg-card shadow-sm overflow-hidden">
               <CardContent className="p-6">
                 <div className="grid gap-6 md:grid-cols-4 items-center">
                   <div className="md:col-span-3 space-y-3">
-                    <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-[#78716c]">
+                    <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       <span>{t('goals.progress')}</span>
-                      <span>{formatPercentage(overallPercentage)} {t('goals.completed')}</span>
+                      <span className="text-foreground font-bold">{formatPercentage(overallPercentage)} {t('goals.completed')}</span>
                     </div>
                     <Progress value={Math.min(overallPercentage, 100)} className="h-3" indicatorClassName="bg-[#84a98c]" />
-                    <div className="flex justify-between text-xs text-[#a8a29e]">
-                      <span>{t('goals.saved')}: {formatCurrency(totalSaved, currency)}</span>
-                      <span>{t('goals.target')}: {formatCurrency(totalTarget, currency)}</span>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{t('goals.saved')}: <strong className="text-foreground">{formatCurrency(totalSaved, currency)}</strong></span>
+                      <span>{t('goals.target')}: <strong className="text-foreground">{formatCurrency(totalTarget, currency)}</strong></span>
                     </div>
                   </div>
-                  <div className="border-t md:border-t-0 md:border-l border-[rgba(0,0,0,0.05)] pt-4 md:pt-0 md:pl-6 text-center md:text-left">
-                    <span className="text-xs uppercase text-[#78716c] block">{t('goals.to_save')}</span>
-                    <span className="text-2xl font-semibold text-[#84a98c]">
+                  <div className="border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6 text-center md:text-left">
+                    <span className="text-xs uppercase text-muted-foreground block">{t('goals.to_save')}</span>
+                    <span className="text-2xl font-bold text-[#84a98c]">
                       {formatCurrency(totalRemaining, currency)}
                     </span>
                   </div>
@@ -280,21 +279,21 @@ export default function Goals() {
                 const isCompleted = goal.currentAmount >= goal.targetAmount
 
                 return (
-                  <Card key={goal.id} className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm relative overflow-hidden group">
+                  <Card key={goal.id} className="border-border bg-card shadow-sm relative overflow-hidden group hover:border-[#84a98c]/30 transition-all">
                     <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                       <div className="flex items-center gap-3">
                         <div
-                          className="h-9 w-9 rounded-lg flex items-center justify-center text-white"
+                          className="h-9 w-9 rounded-lg flex items-center justify-center text-white shadow-xs"
                           style={{ backgroundColor: goal.color }}
                         >
                           <IconComponent className="h-4 w-4" />
                         </div>
                         <div>
-                          <CardTitle className="text-sm font-semibold text-[#0c0a09]">
+                          <CardTitle className="text-sm font-semibold text-foreground">
                             {goal.name}
                           </CardTitle>
                           {goal.targetDate && (
-                            <span className="text-[10px] text-stone-400">
+                            <span className="text-[10px] text-muted-foreground">
                               {t('goals.by')} {formatDate(goal.targetDate)}
                             </span>
                           )}
@@ -304,7 +303,7 @@ export default function Goals() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 rounded-full text-stone-500"
+                          className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
                           onClick={() => openEditModal(goal)}
                         >
                           <Edit2 className="h-3 w-3" />
@@ -312,7 +311,7 @@ export default function Goals() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 rounded-full text-red-500 hover:text-red-600"
+                          className="h-7 w-7 rounded-full text-red-500 hover:text-red-600 hover:bg-red-500/10"
                           onClick={() => handleDelete(goal.id)}
                         >
                           <Trash2 className="h-3 w-3" />
@@ -368,14 +367,14 @@ export default function Goals() {
       {/* Goal Add/Edit Modal */}
       {showGoalModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={closeGoalModal} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={closeGoalModal} />
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-[rgba(0,0,0,0.05)]"
+            className="relative w-full max-w-md rounded-2xl bg-card dark:bg-[#161922] p-6 shadow-2xl border border-border text-card-foreground"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
-              <h3 className="text-lg font-medium text-[#0c0a09]">
+            <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
+              <h3 className="text-lg font-bold text-foreground">
                 {activeGoal ? t('goals.modal_edit') : t('goals.modal_new')}
               </h3>
               <Button variant="ghost" size="icon" onClick={closeGoalModal} className="h-8 w-8 rounded-full">
@@ -385,20 +384,20 @@ export default function Goals() {
 
             <form onSubmit={handleGoalSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="goalName" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.name')}</Label>
+                <Label htmlFor="goalName" className="text-xs uppercase tracking-wider text-muted-foreground">{t('goals.name')}</Label>
                 <Input
                   id="goalName"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('goals.name_placeholder')}
                   required
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="targetAmt" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.target_amount')}</Label>
+                  <Label htmlFor="targetAmt" className="text-xs uppercase tracking-wider text-muted-foreground">{t('goals.target_amount')}</Label>
                   <Input
                     id="targetAmt"
                     type="number"
@@ -407,11 +406,11 @@ export default function Goals() {
                     onChange={(e) => setTargetAmount(e.target.value)}
                     placeholder="0.00"
                     required
-                    className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                    className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="currentAmt" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.current_savings')}</Label>
+                  <Label htmlFor="currentAmt" className="text-xs uppercase tracking-wider text-muted-foreground">{t('goals.current_savings')}</Label>
                   <Input
                     id="currentAmt"
                     type="number"
@@ -419,32 +418,32 @@ export default function Goals() {
                     value={currentAmount}
                     onChange={(e) => setCurrentAmount(e.target.value)}
                     placeholder="0.00"
-                    className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                    className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="goalDate" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.target_date')}</Label>
+                <Label htmlFor="goalDate" className="text-xs uppercase tracking-wider text-muted-foreground">{t('goals.target_date')}</Label>
                 <Input
                   id="goalDate"
                   type="date"
                   value={targetDate}
                   onChange={(e) => setTargetDate(e.target.value)}
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
               {/* Color Picker */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.theme_color')}</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('goals.theme_color')}</Label>
                 <div className="flex flex-wrap gap-2">
                   {colorPalette.map((color) => (
                     <button
                       key={color}
                       type="button"
                       onClick={() => setSelectedColor(color)}
-                      className="h-7 w-7 rounded-full border border-[rgba(0,0,0,0.08)] flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+                      className="h-7 w-7 rounded-full border border-border flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-xs"
                       style={{ backgroundColor: color }}
                     >
                       {selectedColor === color && (
@@ -457,17 +456,17 @@ export default function Goals() {
 
               {/* Icon Picker */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.icon')}</Label>
-                <div className="flex flex-wrap gap-2 p-1 border rounded-lg bg-[#fafaf5]/40 border-[rgba(0,0,0,0.08)]">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('goals.icon')}</Label>
+                <div className="flex flex-wrap gap-2 p-1.5 border rounded-lg bg-secondary/50 dark:bg-[#1b1f27] border-border">
                   {Object.entries(iconMap).map(([iconName, IconComponent]) => (
                     <button
                       key={iconName}
                       type="button"
                       onClick={() => setSelectedIcon(iconName)}
-                      className={`h-8 w-8 rounded flex items-center justify-center transition-all ${
+                      className={`h-8 w-8 rounded-md flex items-center justify-center transition-all ${
                         selectedIcon === iconName
-                          ? 'bg-[#84a98c] text-white'
-                          : 'bg-white border border-[rgba(0,0,0,0.08)] text-stone-500 hover:bg-[#fafaf5]'
+                          ? 'bg-[#84a98c] text-white shadow-xs'
+                          : 'bg-card border border-border text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <IconComponent className="h-4 w-4" />
@@ -477,19 +476,19 @@ export default function Goals() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-3 border-t border-[rgba(0,0,0,0.05)]">
+              <div className="flex gap-3 pt-3 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={closeGoalModal}
-                  className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
+                  className="flex-1 border-border text-foreground hover:bg-secondary rounded-lg text-xs"
                 >
                   {t('goals.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
-                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
+                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] rounded-lg text-xs"
                 >
                   {createMutation.isPending || updateMutation.isPending ? t('goals.saving') : t('goals.save')}
                 </Button>
@@ -502,16 +501,16 @@ export default function Goals() {
       {/* Contribution Dialog */}
       {showContribModal && activeGoal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={closeContribModal} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={closeContribModal} />
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full max-w-sm rounded-xl bg-white p-6 shadow-xl border border-[rgba(0,0,0,0.05)]"
+            className="relative w-full max-w-sm rounded-2xl bg-card dark:bg-[#161922] p-6 shadow-2xl border border-border text-card-foreground"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[rgba(0,0,0,0.05)] mb-4">
+            <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
               <div>
-                <h3 className="text-base font-semibold text-[#0c0a09]">{t('goals.manage_funds')}</h3>
-                <span className="text-xs text-stone-400">{activeGoal.name}</span>
+                <h3 className="text-base font-bold text-foreground">{t('goals.manage_funds')}</h3>
+                <span className="text-xs text-muted-foreground">{activeGoal.name}</span>
               </div>
               <Button variant="ghost" size="icon" onClick={closeContribModal} className="h-8 w-8 rounded-full">
                 <X className="h-4 w-4" />
@@ -520,14 +519,14 @@ export default function Goals() {
 
             <form onSubmit={handleContribSubmit} className="space-y-4">
               {/* Type Switcher */}
-              <div className="flex gap-2 p-1 bg-[#f5f5f0] rounded-lg border border-[rgba(0,0,0,0.05)]">
+              <div className="flex gap-2 p-1 bg-secondary/70 dark:bg-[#1b1f27] rounded-lg border border-border">
                 <button
                   type="button"
                   onClick={() => setContribType('ADD')}
-                  className={`flex-1 text-xs py-1.5 font-medium rounded-md transition-all ${
+                  className={`flex-1 text-xs py-1.5 font-semibold rounded-md transition-all ${
                     contribType === 'ADD'
-                      ? 'bg-white shadow-sm text-[#84a98c]'
-                      : 'text-stone-500 hover:text-stone-800'
+                      ? 'bg-card shadow-xs text-[#84a98c]'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {t('goals.add_savings')}
@@ -535,10 +534,10 @@ export default function Goals() {
                 <button
                   type="button"
                   onClick={() => setContribType('WITHDRAW')}
-                  className={`flex-1 text-xs py-1.5 font-medium rounded-md transition-all ${
+                  className={`flex-1 text-xs py-1.5 font-semibold rounded-md transition-all ${
                     contribType === 'WITHDRAW'
-                      ? 'bg-white shadow-sm text-[#e76f51]'
-                      : 'text-stone-500 hover:text-stone-800'
+                      ? 'bg-card shadow-xs text-[#e76f51]'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {t('goals.withdraw')}
@@ -547,7 +546,7 @@ export default function Goals() {
 
               {/* Amount */}
               <div className="space-y-1.5">
-                <Label htmlFor="contribAmt" className="text-xs uppercase tracking-wider text-[#78716c]">{t('goals.amount')}</Label>
+                <Label htmlFor="contribAmt" className="text-xs uppercase tracking-wider text-muted-foreground">{t('goals.amount')}</Label>
                 <Input
                   id="contribAmt"
                   type="number"
@@ -556,28 +555,28 @@ export default function Goals() {
                   onChange={(e) => setContribAmount(e.target.value)}
                   placeholder="0.00"
                   required
-                  className="border-[rgba(0,0,0,0.1)] focus-visible:ring-[#84a98c]"
+                  className="border-border bg-card dark:bg-[#1b1f27] text-foreground focus-visible:ring-[#84a98c]"
                 />
               </div>
 
-              <div className="text-[10px] text-stone-400">
-                {t('goals.current_state')}: <strong>{formatCurrency(activeGoal.currentAmount, currency)}</strong> {t('goals.of')} <strong>{formatCurrency(activeGoal.targetAmount, currency)}</strong>.
+              <div className="text-[11px] text-muted-foreground">
+                {t('goals.current_state')}: <strong className="text-foreground">{formatCurrency(activeGoal.currentAmount, currency)}</strong> {t('goals.of')} <strong className="text-foreground">{formatCurrency(activeGoal.targetAmount, currency)}</strong>.
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-3 border-t border-[rgba(0,0,0,0.05)]">
+              <div className="flex gap-3 pt-3 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={closeContribModal}
-                  className="flex-1 border-[rgba(0,0,0,0.1)] rounded-lg text-xs"
+                  className="flex-1 border-border text-foreground hover:bg-secondary rounded-lg text-xs"
                 >
                   {t('goals.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={updateMutation.isPending}
-                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] rounded-lg text-xs"
+                  className="flex-1 bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] rounded-lg text-xs"
                 >
                   {updateMutation.isPending ? t('goals.saving') : t('goals.confirm')}
                 </Button>

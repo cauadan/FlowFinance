@@ -216,19 +216,19 @@ export default function Transactions() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0c0a09]" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('transactions.title')}
           </h1>
-          <p className="text-sm text-[#78716c]">
+          <p className="text-sm text-muted-foreground">
             {t('transactions.subtitle')}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2">
           <Button
             onClick={handleExportCsv}
             disabled={isExporting}
             variant="outline"
-            className="border-[rgba(0,0,0,0.1)] gap-1.5 text-xs rounded-lg"
+            className="border-border text-foreground hover:bg-secondary gap-1.5 text-xs rounded-lg"
           >
             <Download className="h-3.5 w-3.5" />
             {isExporting ? 'Exportando...' : t('transactions.export_csv')}
@@ -238,10 +238,11 @@ export default function Transactions() {
               setEditingTransaction(null)
               setShowForm(true)
             }}
-            className="bg-[#84a98c] text-white hover:bg-[#2f3e46] gap-1.5 text-xs rounded-lg shadow-sm"
+            className="rounded-full bg-[#84a98c] text-white hover:bg-[#2f3e46] dark:hover:bg-[#6b9473] gap-1.5 shadow-sm text-sm"
+            size="sm"
           >
-            <Plus className="h-3.5 w-3.5" />
-            {t('transactions.new_tx')}
+            <Plus className="h-4 w-4" />
+            <span>{t('transactions.new_tx')}</span>
           </Button>
         </div>
       </div>
@@ -251,22 +252,22 @@ export default function Transactions() {
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50/70 via-purple-50/40 to-emerald-50/40 p-4 shadow-sm"
+          className="rounded-2xl border border-indigo-500/20 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-emerald-500/10 p-4 shadow-sm backdrop-blur-xs"
         >
           <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-sm">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-xs">
               <Sparkles className="h-4.5 w-4.5" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-indigo-900">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
                   {t('recurring.ai_title')}
                 </h4>
-                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
+                <span className="rounded-full bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300">
                   {recurringSuggestions.length} {recurringSuggestions.length === 1 ? 'sugestão' : 'sugestões'}
                 </span>
               </div>
-              <p className="mt-0.5 text-xs text-indigo-700/90 leading-relaxed">
+              <p className="mt-0.5 text-xs text-indigo-900/80 dark:text-indigo-200/80 leading-relaxed">
                 {t('recurring.ai_desc')}
               </p>
 
@@ -274,10 +275,10 @@ export default function Transactions() {
                 {recurringSuggestions.map((sug) => (
                   <div
                     key={sug.transactionId}
-                    className="flex items-center gap-2 rounded-xl bg-white/90 px-3 py-1.5 text-xs shadow-xs border border-indigo-100/80"
+                    className="flex items-center gap-2 rounded-xl bg-card px-3 py-1.5 text-xs shadow-xs border border-indigo-500/20"
                   >
-                    <span className="font-medium text-stone-900">{sug.title}</span>
-                    <span className="text-stone-500 font-mono text-[11px]">({formatCurrency(sug.amount, currency)})</span>
+                    <span className="font-semibold text-foreground">{sug.title}</span>
+                    <span className="text-muted-foreground font-mono text-[11px]">({formatCurrency(sug.amount, currency)})</span>
                     <Button
                       size="sm"
                       onClick={() => markRecurringMutation.mutate(sug.transactionId)}
@@ -296,22 +297,22 @@ export default function Transactions() {
       )}
 
       {/* Search & Filters */}
-      <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm">
+      <Card className="border-border bg-card shadow-sm">
         <CardContent className="p-4 space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a8a29e]" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder={t('transactions.search')}
                 value={searchQuery}
                 onChange={(e) => updateFilters({ query: e.target.value })}
-                className="border-[rgba(0,0,0,0.08)] bg-white pl-9 text-sm focus-visible:ring-[#84a98c]"
+                className="border-border bg-card dark:bg-[#1b1f27] text-foreground pl-9 text-sm focus-visible:ring-[#84a98c]"
               />
             </div>
             <div className="flex flex-wrap gap-2">
               {/* Type Filter */}
               <Select value={typeFilter} onValueChange={(v) => updateFilters({ type: v })}>
-                <SelectTrigger className="w-[120px] text-xs border-[rgba(0,0,0,0.08)]">
+                <SelectTrigger className="w-[120px] text-xs border-border bg-card text-foreground">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -323,7 +324,7 @@ export default function Transactions() {
 
               {/* Category Filter */}
               <Select value={categoryFilter} onValueChange={(v) => updateFilters({ categoryId: v })}>
-                <SelectTrigger className="w-[150px] text-xs border-[rgba(0,0,0,0.08)]">
+                <SelectTrigger className="w-[150px] text-xs border-border bg-card text-foreground">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -338,7 +339,7 @@ export default function Transactions() {
 
               {/* Method Filter */}
               <Select value={methodFilter} onValueChange={(v) => updateFilters({ paymentMethodId: v })}>
-                <SelectTrigger className="w-[150px] text-xs border-[rgba(0,0,0,0.08)]">
+                <SelectTrigger className="w-[150px] text-xs border-border bg-card text-foreground">
                   <SelectValue placeholder="Payment Method" />
                 </SelectTrigger>
                 <SelectContent>
@@ -353,28 +354,28 @@ export default function Transactions() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-[rgba(0,0,0,0.04)] text-xs text-[#78716c]">
+          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <span>{t('transactions.date_range')}</span>
               <Input
                 type="date"
                 value={fromFilter}
                 onChange={(e) => updateFilters({ from: e.target.value })}
-                className="h-8 w-[130px] py-1 px-2 border-[rgba(0,0,0,0.08)] text-[11px]"
+                className="h-8 w-[130px] py-1 px-2 border-border bg-card dark:bg-[#1b1f27] text-foreground text-[11px]"
               />
               <span>{t('transactions.to')}</span>
               <Input
                 type="date"
                 value={toFilter}
                 onChange={(e) => updateFilters({ to: e.target.value })}
-                className="h-8 w-[130px] py-1 px-2 border-[rgba(0,0,0,0.08)] text-[11px]"
+                className="h-8 w-[130px] py-1 px-2 border-border bg-card dark:bg-[#1b1f27] text-foreground text-[11px]"
               />
             </div>
 
             <div className="flex items-center gap-2 sm:ml-auto">
               <span>{t('transactions.sort_by')}</span>
               <Select value={sortBy} onValueChange={(v) => updateFilters({ sort: v })}>
-                <SelectTrigger className="h-8 w-[100px] text-[11px] border-[rgba(0,0,0,0.08)]">
+                <SelectTrigger className="h-8 w-[100px] text-[11px] border-border bg-card text-foreground">
                   <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent>
@@ -386,7 +387,7 @@ export default function Transactions() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-[#a8a29e]"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
                 onClick={() => updateFilters({ order: sortOrder === 'asc' ? 'desc' : 'asc' })}
               >
                 <ArrowUpDown className="h-3.5 w-3.5" />
@@ -397,10 +398,10 @@ export default function Transactions() {
       </Card>
 
       {/* Transactions List */}
-      <Card className="border-[rgba(0,0,0,0.05)] bg-white shadow-sm overflow-hidden">
+      <Card className="border-border bg-card shadow-sm overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="divide-y divide-[rgba(0,0,0,0.04)] p-6 space-y-4">
+            <div className="divide-y divide-border p-6 space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <Skeleton key={i} className="h-12 w-full rounded-md" />
               ))}
@@ -409,7 +410,7 @@ export default function Transactions() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[rgba(0,0,0,0.05)] bg-[#fafaf5]/60 text-[10px] uppercase tracking-wider text-[#78716c]">
+                  <tr className="border-b border-border bg-secondary/40 text-[10px] uppercase tracking-wider text-muted-foreground">
                     <th className="py-3 px-6 font-semibold">{t('transactions.th_fav')}</th>
                     <th className="py-3 px-6 font-semibold">{t('transactions.th_date')}</th>
                     <th className="py-3 px-6 font-semibold">{t('transactions.th_transaction')}</th>
@@ -419,42 +420,42 @@ export default function Transactions() {
                     <th className="py-3 px-6 font-semibold text-right">{t('transactions.th_actions')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[rgba(0,0,0,0.04)] text-sm text-[#0c0a09]">
+                <tbody className="divide-y divide-border text-sm text-foreground">
                   {data.transactions.map((tx) => {
                     const tags = JSON.parse(tx.tags || '[]') as string[]
                     return (
-                      <tr key={tx.id} className="hover:bg-[#fafaf5]/50 transition-colors">
+                      <tr key={tx.id} className="hover:bg-secondary/30 transition-colors">
                         <td className="py-4 px-6">
                           <button
                             onClick={() =>
                               toggleFavoriteMutation.mutate({ id: tx.id, isFavorite: !tx.isFavorite })
                             }
-                            className={`transition-colors ${tx.isFavorite ? 'text-amber-400 hover:text-amber-500' : 'text-stone-300 hover:text-amber-400'}`}
+                            className={`transition-colors ${tx.isFavorite ? 'text-amber-400 hover:text-amber-500' : 'text-muted-foreground/40 hover:text-amber-400'}`}
                           >
                             {tx.isFavorite ? <Star className="h-4 w-4 fill-amber-400" /> : <StarOff className="h-4 w-4" />}
                           </button>
                         </td>
-                        <td className="py-4 px-6 text-xs text-[#78716c] whitespace-nowrap">
+                        <td className="py-4 px-6 text-xs text-muted-foreground whitespace-nowrap">
                           {new Date(tx.date).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}
-                          <span className="block text-[10px] text-stone-400">{tx.time}</span>
+                          <span className="block text-[10px] text-muted-foreground/70">{tx.time}</span>
                         </td>
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 font-medium text-[#0c0a09]">
+                          <div className="flex items-center gap-1.5 font-medium text-foreground">
                             <span>{tx.title}</span>
                             {tx.isRecurring && (
-                              <span className="inline-flex items-center gap-0.5 rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 border border-indigo-100/60" title={t('recurring.toggle_label')}>
+                              <span className="inline-flex items-center gap-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 text-[10px] font-semibold border border-indigo-500/20" title={t('recurring.toggle_label')}>
                                 <Repeat className="h-2.5 w-2.5" />
                                 {t('recurring.toggle_label')}
                               </span>
                             )}
                           </div>
                           {tx.merchant && (
-                            <span className="text-xs text-stone-400">{tx.merchant}</span>
+                            <span className="text-xs text-muted-foreground">{tx.merchant}</span>
                           )}
                           {tags.length > 0 && (
                             <div className="flex gap-1 mt-1">
                               {tags.map((tag) => (
-                                <span key={tag} className="text-[9px] bg-stone-100 px-1.5 py-0.5 rounded text-stone-500 font-mono">
+                                <span key={tag} className="text-[9px] bg-secondary px-1.5 py-0.5 rounded text-muted-foreground font-mono">
                                   #{tag}
                                 </span>
                               ))}
@@ -469,7 +470,7 @@ export default function Transactions() {
                             {tx.category ? translateDbItem(tx.category.name, 'category') : t('transactions.uncategorized')}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-xs text-[#78716c] whitespace-nowrap">
+                        <td className="py-4 px-6 text-xs text-muted-foreground whitespace-nowrap">
                           {tx.paymentMethod ? translateDbItem(tx.paymentMethod.name, 'payment') : translateDbItem('Cash', 'payment')}
                           {tx.installments && (
                             <span className="block text-[10px] text-[#84a98c]">
@@ -485,7 +486,7 @@ export default function Transactions() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-stone-500 rounded-full"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full"
                               onClick={() => {
                                 setEditingTransaction(tx)
                                 setShowForm(true)
@@ -496,7 +497,7 @@ export default function Transactions() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-stone-500 rounded-full"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full"
                               onClick={() => duplicateMutation.mutate(tx.id)}
                             >
                               <Copy className="h-3.5 w-3.5" />
@@ -504,7 +505,7 @@ export default function Transactions() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-red-500 hover:text-red-600 rounded-full"
+                              className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-500/10 rounded-full"
                               onClick={() => handleDelete(tx.id)}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -519,22 +520,22 @@ export default function Transactions() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Star className="h-8 w-8 text-[#a8a29e] mb-2" />
-              <p className="text-sm font-medium text-[#78716c]">{t('transactions.no_data')}</p>
+              <Star className="h-8 w-8 text-muted-foreground mb-2" />
+              <p className="text-sm font-medium text-muted-foreground">{t('transactions.no_data')}</p>
             </div>
           )}
 
           {/* Pagination */}
           {data && data.totalPages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-[rgba(0,0,0,0.05)] bg-[#fafaf5]/40 text-xs">
-              <span className="text-[#a8a29e]">
+            <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/30 text-xs">
+              <span className="text-muted-foreground">
                 {t('transactions.page_of').replace('{page}', String(data.page)).replace('{totalPages}', String(data.totalPages)).replace('{total}', String(data.total))}
               </span>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 border-[rgba(0,0,0,0.1)]"
+                  className="h-8 w-8 border-border"
                   disabled={page <= 1}
                   onClick={() => updateFilters({ page: page - 1 })}
                 >
@@ -543,7 +544,7 @@ export default function Transactions() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 border-[rgba(0,0,0,0.1)]"
+                  className="h-8 w-8 border-border"
                   disabled={page >= data.totalPages}
                   onClick={() => updateFilters({ page: page + 1 })}
                 >

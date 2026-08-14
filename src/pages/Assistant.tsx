@@ -92,12 +92,12 @@ export default function Assistant() {
             <Bot className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-[#0c0a09]">{t('assistant.title')}</h1>
-            <p className="text-xs text-[#78716c]">{t('assistant.subtitle')}</p>
+            <h1 className="text-lg font-bold text-foreground">{t('assistant.title')}</h1>
+            <p className="text-xs text-muted-foreground">{t('assistant.subtitle')}</p>
           </div>
-          <div className="ml-auto flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1">
+          <div className="ml-auto flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1">
             <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            <span className="text-xs font-medium text-emerald-700">Gemini AI</span>
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Gemini AI</span>
           </div>
         </div>
       </div>
@@ -110,12 +110,12 @@ export default function Assistant() {
             animate={{ opacity: 1, y: 0 }}
             className="flex h-full flex-col items-center justify-center gap-6"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#84a98c]/20 to-[#52796f]/10">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#84a98c]/20 to-[#52796f]/10 shadow-inner">
               <Sparkles className="h-8 w-8 text-[#84a98c]" />
             </div>
             <div className="text-center">
-              <h2 className="text-lg font-semibold text-[#0c0a09]">{t('assistant.welcome')}</h2>
-              <p className="mt-1 max-w-md text-sm text-[#78716c]">
+              <h2 className="text-lg font-bold text-foreground">{t('assistant.welcome')}</h2>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
                 {t('assistant.welcome_desc')}
               </p>
             </div>
@@ -127,7 +127,7 @@ export default function Assistant() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * (i + 1) }}
                   onClick={() => handleSuggestion(s.text)}
-                  className="group flex items-center gap-3 rounded-xl border border-[rgba(0,0,0,0.06)] bg-white px-4 py-3 text-left text-sm text-[#44403c] shadow-sm transition-all hover:border-[#84a98c]/30 hover:bg-[#84a98c]/5 hover:shadow-md"
+                  className="group flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left text-sm text-foreground shadow-xs transition-all hover:border-[#84a98c]/40 hover:bg-[#84a98c]/5 hover:shadow-sm"
                 >
                   <s.icon className="h-4 w-4 flex-shrink-0 text-[#84a98c]" />
                   <span>{s.text}</span>
@@ -148,8 +148,8 @@ export default function Assistant() {
                 >
                   <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${
                     msg.role === 'user'
-                      ? 'bg-[#2f3e46]'
-                      : 'bg-gradient-to-br from-[#84a98c] to-[#52796f]'
+                      ? 'bg-[#2f3e46] text-white'
+                      : 'bg-gradient-to-br from-[#84a98c] to-[#52796f] text-white shadow-xs'
                   }`}>
                     {msg.role === 'user'
                       ? <User className="h-4 w-4 text-white" />
@@ -158,8 +158,8 @@ export default function Assistant() {
                   </div>
                   <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-[#2f3e46] text-white rounded-tr-md'
-                      : 'bg-white text-[#0c0a09] shadow-sm border border-[rgba(0,0,0,0.05)] rounded-tl-md'
+                      ? 'bg-[#2f3e46] text-white rounded-tr-md dark:bg-[#354f52]'
+                      : 'bg-card text-foreground shadow-xs border border-border rounded-tl-md dark:bg-[#161922]'
                   }`}>
                     <div dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }} />
                   </div>
@@ -176,9 +176,9 @@ export default function Assistant() {
                 <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#84a98c] to-[#52796f]">
                   <Bot className="h-4 w-4 text-white" />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-[rgba(0,0,0,0.05)] bg-white px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border bg-card dark:bg-[#161922] px-4 py-3 shadow-xs">
                   <Loader2 className="h-4 w-4 animate-spin text-[#84a98c]" />
-                  <span className="text-sm text-[#78716c]">{t('assistant.thinking')}</span>
+                  <span className="text-sm text-muted-foreground">{t('assistant.thinking')}</span>
                 </div>
               </motion.div>
             )}
@@ -187,7 +187,7 @@ export default function Assistant() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+                className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400"
               >
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 {error}
@@ -200,7 +200,7 @@ export default function Assistant() {
       </div>
 
       {/* Input Area */}
-      <div className="flex-shrink-0 border-t border-[rgba(0,0,0,0.05)] bg-white/80 px-4 py-4 backdrop-blur-sm lg:px-0">
+      <div className="flex-shrink-0 border-t border-border bg-card/80 px-4 py-4 backdrop-blur-md lg:px-0">
         <form onSubmit={handleSubmit} className="mx-auto flex max-w-2xl items-center gap-2">
           <input
             ref={inputRef}
@@ -209,7 +209,7 @@ export default function Assistant() {
             onChange={(e) => setInput(e.target.value)}
             placeholder={t('assistant.placeholder')}
             disabled={isLoading}
-            className="flex-1 rounded-xl border border-[rgba(0,0,0,0.08)] bg-white px-4 py-2.5 text-sm text-[#0c0a09] placeholder:text-[#a8a29e] transition-all focus:border-[#84a98c] focus:outline-none focus:ring-2 focus:ring-[#84a98c]/20 disabled:opacity-50"
+            className="flex-1 rounded-xl border border-border bg-card dark:bg-[#1b1f27] px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-all focus:border-[#84a98c] focus:outline-none focus:ring-2 focus:ring-[#84a98c]/20 disabled:opacity-50"
           />
           <button
             type="submit"
@@ -219,7 +219,7 @@ export default function Assistant() {
             <Send className="h-4 w-4" />
           </button>
         </form>
-        <p className="mx-auto mt-2 max-w-2xl text-center text-[10px] text-[#a8a29e]">
+        <p className="mx-auto mt-2 max-w-2xl text-center text-[10px] text-muted-foreground">
           {t('assistant.disclaimer')}
         </p>
       </div>
