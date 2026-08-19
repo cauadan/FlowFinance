@@ -498,13 +498,12 @@ app.get('/api/transactions/recurring-suggestions', async (req, res) => {
       where: { 
         userId, 
         isRecurring: false,
-        NOT: { recurringInterval: 'DISMISSED' }
       },
       orderBy: { date: 'desc' },
       include: { category: true },
     })
 
-    // Also get all dismissed titles
+    // Get all dismissed titles
     const dismissedTxns = await prisma.transaction.findMany({
       where: { userId, recurringInterval: 'DISMISSED' },
       select: { title: true },
@@ -516,12 +515,14 @@ app.get('/api/transactions/recurring-suggestions', async (req, res) => {
       'aluguel', 'rent', 'condominio', 'condomínio', 'internet', 'vivo', 'claro', 'tim', 'oi',
       'energia', 'luz', 'água', 'agua', 'water', 'gym', 'academia', 'smartfit', 'smart fit',
       'salario', 'salário', 'salary', 'plano', 'saúde', 'saude', 'unimed', 'seguro',
-      'insurance', 'mensalidade', 'faculdade', 'escola', 'iptu', 'ipva', 'assinatura', 'subscription'
+      'insurance', 'mensalidade', 'faculdade', 'escola', 'iptu', 'ipva', 'assinatura', 'subscription',
+      'lanche', 'cafe', 'café', 'uber', 'ifood', 'mercado'
     ]
 
     // Group transactions by normalized title
     const grouped = new Map<string, typeof nonRecurring>()
     for (const t of nonRecurring) {
+      if (t.recurringInterval === 'DISMISSED') continue
       const key = t.title.trim().toLowerCase()
       if (dismissedTitles.has(key)) continue
       if (!grouped.has(key)) grouped.set(key, [])
