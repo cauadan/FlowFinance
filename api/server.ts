@@ -1301,7 +1301,7 @@ app.post('/api/assistant/chat', async (req, res) => {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
 
-    const [incomeAgg, expenseAgg, recentTxns, budgets, goals, investments, categories, paymentMethods] = await Promise.all([
+    const [incomeAgg, expenseAgg, userTxns, budgets, goals, investments, categories, paymentMethods, userSetting] = await Promise.all([
       prisma.transaction.aggregate({
         where: { userId, type: 'INCOME', date: { gte: monthStart, lte: monthEnd } },
         _sum: { amount: true },
@@ -1312,57 +1312,120 @@ app.post('/api/assistant/chat', async (req, res) => {
       }),
       prisma.transaction.findMany({
         where: { userId },
-        take: 20,
-        orderBy: { date: 'desc' },
-        include: { category: true },
+        take: 200,
+        orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+        include: { category: true, paymentMethod: true },
       }),
       prisma.budget.findMany({ where: { userId }, include: { category: true } }),
       prisma.goal.findMany({ where: { userId } }),
       prisma.investment.findMany({ where: { userId } }),
       prisma.category.findMany({ where: { userId } }),
       prisma.paymentMethod.findMany({ where: { userId } }),
+      prisma.settings.findFirst({ where: { userId } }),
     ])
+
+    const currency = userSetting?.currency || 'BRL'
+    const currSymbol = currency === 'BRL' ? 'R$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'JPY' ? '¥' : '$'
 
     const monthlyIncome = incomeAgg._sum?.amount || 0
     const monthlyExpense = expenseAgg._sum?.amount || 0
     const totalInvested = investments.reduce((s, i) => s + i.amountInvested, 0)
     const totalInvestValue = investments.reduce((s, i) => s + i.currentValue, 0)
 
-    const txnSummary = recentTxns.map(t => `${t.date} | ${t.type} | ${t.category?.name || 'N/A'} | ${t.title} | $${t.amount}`).join('\n')
-    const budgetSummary = budgets.map(b => `${b.category?.name}: $${b.amount}/month`).join(', ')
-    const goalSummary = goals.map(g => `${g.name}: $${g.currentAmount}/$${g.targetAmount}`).join(', ')
+    // Tag analysis & aggregations across all user transactions
+    const tagSummaryMap: Record<string, { count: number; totalExpense: number; totalIncome: number; items: string[] }> = {}
+    
+    const formattedTxns = userTxns.map(t => {
+      let parsedTags: string[] = []
+      try {
+        if (Array.isArray(t.tags)) {
+          parsedTags = t.tags
+        } else if (typeof t.tags === 'string' && t.tags.trim()) {
+          parsedTags = JSON.parse(t.tags)
+        }
+      } catch {
+        parsedTags = []
+      }
+
+      parsedTags.forEach(rawTag => {
+        const tag = String(rawTag).trim().toLowerCase()
+        if (!tag) return
+        if (!tagSummaryMap[tag]) {
+          tagSummaryMap[tag] = { count: 0, totalExpense: 0, totalIncome: 0, items: [] }
+        }
+        tagSummaryMap[tag].count += 1
+        if (t.type === 'EXPENSE') tagSummaryMap[tag].totalExpense += t.amount
+        else if (t.type === 'INCOME') tagSummaryMap[tag].totalIncome += t.amount
+        tagSummaryMap[tag].items.push(`${t.date} "${t.title}" (${currSymbol} ${t.amount.toFixed(2)})`)
+      })
+
+      const tagDisplay = parsedTags.length > 0 ? `[${parsedTags.join(', ')}]` : 'nenhuma'
+      const paymentDisplay = t.paymentMethod?.name ? ` | Pagamento: ${t.paymentMethod.name}` : ''
+      const notesDisplay = t.notes ? ` | Obs: ${t.notes}` : ''
+      return `${t.date} | Tipo: ${t.type} | Cat: ${t.category?.name || 'N/A'} | Título: ${t.title} | Valor: ${currSymbol} ${t.amount.toFixed(2)} | Tags: ${tagDisplay}${paymentDisplay}${notesDisplay}`
+    })
+
+    const tagSummaryLines = Object.entries(tagSummaryMap).map(([tag, data]) => {
+      const parts = [`Tag: "${tag}" -> ${data.count} transação(ões)`]
+      if (data.totalExpense > 0) parts.push(`Total Gasto: ${currSymbol} ${data.totalExpense.toFixed(2)}`)
+      if (data.totalIncome > 0) parts.push(`Total Recebido: ${currSymbol} ${data.totalIncome.toFixed(2)}`)
+      parts.push(`Itens: ${data.items.slice(0, 6).join(', ')}`)
+      return parts.join(' | ')
+    })
+
+    const txnSummary = formattedTxns.join('\n')
+    const tagSummary = tagSummaryLines.join('\n')
+    const budgetSummary = budgets.map(b => `${b.category?.name}: ${currSymbol} ${b.amount.toFixed(2)}/mês`).join(', ')
+    const goalSummary = goals.map(g => `${g.name}: ${currSymbol} ${g.currentAmount.toFixed(2)}/${currSymbol} ${g.targetAmount.toFixed(2)}`).join(', ')
     const availableCategories = categories.map(c => `${c.name} (${c.type})`).join(', ')
+    const availablePaymentMethods = paymentMethods.map(p => p.name).join(', ')
 
-    const systemPrompt = `You are a helpful, intelligent personal financial assistant for FlowFinance.
-You have direct access to the user's real financial database and can also CREATE transactions when asked.
-Always respond in the same language the user writes to you (Portuguese, English, Spanish, etc.).
+    const systemPrompt = `Você é um assistente financeiro pessoal inteligente e altamente preciso para o FlowFinance.
+Você tem acesso direto e completo ao banco de dados financeiro do usuário em tempo real, incluindo todas as transações, categorias, orçamentos, metas e especialmente TAGS (etiquetas).
+Você também pode CRIAR transações quando solicitado pelo usuário.
+Sempre responda no mesmo idioma que o usuário usar (Português, Inglês, Espanhol, etc.). Use a moeda ${currSymbol} (${currency}).
 
-=== USER'S FINANCIAL CONTEXT (current month: ${now.toLocaleString('default', { month: 'long', year: 'numeric' })}) ===
-Monthly Income: $${monthlyIncome.toFixed(2)}
-Monthly Expenses: $${monthlyExpense.toFixed(2)}
-Monthly Savings: $${(monthlyIncome - monthlyExpense).toFixed(2)}
-Savings Rate: ${monthlyIncome > 0 ? ((monthlyIncome - monthlyExpense) / monthlyIncome * 100).toFixed(1) : '0'}%
+=== CONTEXTO FINANCEIRO DO USUÁRIO (Mês atual: ${now.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}) ===
+Renda Mensal: ${currSymbol} ${monthlyIncome.toFixed(2)}
+Despesas Mensais: ${currSymbol} ${monthlyExpense.toFixed(2)}
+Economia do Mês: ${currSymbol} ${(monthlyIncome - monthlyExpense).toFixed(2)}
+Taxa de Poupança: ${monthlyIncome > 0 ? ((monthlyIncome - monthlyExpense) / monthlyIncome * 100).toFixed(1) : '0'}%
 
-Investments: $${totalInvestValue.toFixed(2)} (invested: $${totalInvested.toFixed(2)}, return: ${totalInvested > 0 ? ((totalInvestValue - totalInvested) / totalInvested * 100).toFixed(1) : '0'}%)
+Investimentos: ${currSymbol} ${totalInvestValue.toFixed(2)} (Investido: ${currSymbol} ${totalInvested.toFixed(2)}, Retorno: ${totalInvested > 0 ? ((totalInvestValue - totalInvested) / totalInvested * 100).toFixed(1) : '0'}%)
 
-Budgets: ${budgetSummary || 'None set'}
-Goals: ${goalSummary || 'None set'}
-Available Categories: ${availableCategories}
+Orçamentos: ${budgetSummary || 'Nenhum definido'}
+Metas: ${goalSummary || 'Nenhuma definida'}
+Categorias Disponíveis: ${availableCategories}
+Formas de Pagamento Disponíveis: ${availablePaymentMethods}
 
-Recent Transactions (last 20):
-${txnSummary || 'No transactions yet'}
-=== END CONTEXT ===
+=== RESUMO E AGREGAÇÃO DE TAGS (ETIQUETAS) ===
+${tagSummary || 'Nenhuma tag utilizada ainda nas transações'}
 
-TRANSACTION CREATION CAPABILITY:
-If the user asks to add, record, register or save a transaction (e.g., "gastei 50 no almoço", "registre um gasto de 120 em mercado", "recebi 500 de freelance", "paguei a conta de luz 80"), confirm politely and at the VERY END of your response output a structured JSON tag exactly in this format:
-<!--ACTION_CREATE_TRANSACTION:{"title":"Nome da transação","amount":50.0,"type":"EXPENSE","categoryName":"Food","isRecurring":false}-->
-(use "type": "EXPENSE" for spending/purchases or "INCOME" for earnings/salary/freelance).
+=== HISTÓRICO DE TRANSAÇÕES DO USUÁRIO (Mais recentes até 200) ===
+${txnSummary || 'Nenhuma transação registrada ainda'}
+=== FIM DO CONTEXTO ===
 
-Guidelines:
-- Be concise, helpful, and polite
-- Use real numbers from user's data
-- Suggest concrete actions
-- Format currency values properly`
+INSTRUÇÕES ESPECÍFICAS SOBRE TAGS (ETIQUETAS):
+1. Cada transação possui um campo "Tags: [tag1, tag2]".
+2. Quando o usuário perguntar sobre transações com uma tag específica (ex: "quanto gastei com a tag lanche?", "qual a soma de todas as transações da tag lanche?", "liste o que comprei com a tag viagem"):
+   - Analise com precisão o campo "Tags:" de cada transação e o "RESUMO E AGREGAÇÃO DE TAGS".
+   - Diferencie a busca por TAG da busca por palavras no TÍTULO:
+     * Transações que possuem a TAG explicitamente associada (ex: Tags: [lanche])
+     * Se houver outras transações com a palavra no título mas sem a tag (ou com a tag e título diferente), mencione isso com clareza caso enriqueça a resposta.
+   - Forneça a soma exata dos valores das transações com a tag solicitada.
+   - Liste as transações encontradas com suas datas, títulos e valores correspondentes.
+
+CAPACIDADE DE CRIAÇÃO DE TRANSAÇÃO (COM OU SEM TAGS):
+Se o usuário pedir para adicionar, registrar, salvar ou criar uma transação (ex: "gastei 50 no almoço", "registre um gasto de 25 no lanche com a tag lanche", "recebi 500 de freelance com tags extra, freelance"):
+- Confirme educadamente a ação e os dados.
+- No FINAL ABSOLUTO da sua resposta, adicione uma tag JSON estruturada exatamente neste formato:
+<!--ACTION_CREATE_TRANSACTION:{"title":"Nome da transação","amount":50.0,"type":"EXPENSE","categoryName":"Food","tags":["lanche"],"isRecurring":false}-->
+(use "type": "EXPENSE" para compras/gastos ou "INCOME" para rendas/salário/freelance; inclua o array "tags" se o usuário especificou tags ou se fizer sentido para a transação).
+
+DIRETRIZES GERAIS:
+- Seja conciso, claro, amigável e preciso nos cálculos matemáticos.
+- Sempre utilize os números reais do contexto fornecido.
+- Formate valores monetários com o símbolo de moeda correto (${currSymbol}).`
 
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({ 
@@ -1394,6 +1457,13 @@ Guidelines:
           c => c.name.toLowerCase() === (txData.categoryName || '').toLowerCase()
         ) || categories.find(c => c.type === (txData.type || 'EXPENSE')) || categories[0]
 
+        let tagsJson = '[]'
+        if (Array.isArray(txData.tags)) {
+          tagsJson = JSON.stringify(txData.tags.map((t: any) => String(t).trim()).filter(Boolean))
+        } else if (typeof txData.tags === 'string' && txData.tags.trim()) {
+          tagsJson = JSON.stringify(txData.tags.split(',').map((t: string) => t.trim()).filter(Boolean))
+        }
+
         const created = await prisma.transaction.create({
           data: {
             userId,
@@ -1402,11 +1472,12 @@ Guidelines:
             type: txData.type || 'EXPENSE',
             categoryId: matchedCategory?.id || categories[0]?.id || 1,
             paymentMethodId: defaultPM,
-            date: new Date().toISOString().split('T')[0],
+            date: txData.date || new Date().toISOString().split('T')[0],
             time: new Date().toTimeString().slice(0, 5),
+            tags: tagsJson,
             isRecurring: Boolean(txData.isRecurring),
             recurringInterval: txData.isRecurring ? 'MONTHLY' : null,
-            notes: 'Criado via Assistente IA',
+            notes: txData.notes || 'Criado via Assistente IA',
           },
           include: { category: true, paymentMethod: true },
         })
