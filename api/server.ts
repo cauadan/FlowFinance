@@ -495,10 +495,21 @@ app.get('/api/transactions/recurring-suggestions', async (req, res) => {
   try {
     const userId = req.userId!
     const nonRecurring = await prisma.transaction.findMany({
-      where: { userId, isRecurring: false },
+      where: { 
+        userId, 
+        isRecurring: false,
+        NOT: { recurringInterval: 'DISMISSED' }
+      },
       orderBy: { date: 'desc' },
       include: { category: true },
     })
+
+    // Also get all dismissed titles
+    const dismissedTxns = await prisma.transaction.findMany({
+      where: { userId, recurringInterval: 'DISMISSED' },
+      select: { title: true },
+    })
+    const dismissedTitles = new Set(dismissedTxns.map(t => t.title.trim().toLowerCase()))
 
     const RECURRING_KEYWORDS = [
       'netflix', 'spotify', 'prime', 'amazon', 'disney', 'hbo', 'max', 'youtube',
@@ -512,6 +523,7 @@ app.get('/api/transactions/recurring-suggestions', async (req, res) => {
     const grouped = new Map<string, typeof nonRecurring>()
     for (const t of nonRecurring) {
       const key = t.title.trim().toLowerCase()
+      if (dismissedTitles.has(key)) continue
       if (!grouped.has(key)) grouped.set(key, [])
       grouped.get(key)!.push(t)
     }
@@ -568,6 +580,35 @@ app.post('/api/transactions/mark-recurring', async (req, res) => {
   } catch (err) {
     console.error('Mark recurring error:', err)
     res.status(500).json({ error: 'Failed to mark transaction as recurring' })
+  }
+})
+
+app.post('/api/transactions/dismiss-recurring', async (req, res) => {
+  try {
+    const userId = req.userId!
+    const { transactionId, title } = req.body
+
+    if (transactionId) {
+      const tx = await prisma.transaction.findFirst({
+        where: { id: parseInt(transactionId), userId },
+      })
+      if (tx) {
+        await prisma.transaction.updateMany({
+          where: { userId, title: tx.title },
+          data: { isRecurring: false, recurringInterval: 'DISMISSED' },
+        })
+      }
+    } else if (title) {
+      await prisma.transaction.updateMany({
+        where: { userId, title: String(title) },
+        data: { isRecurring: false, recurringInterval: 'DISMISSED' },
+      })
+    }
+
+    res.json({ success: true })
+  } catch (err) {
+    console.error('Dismiss recurring error:', err)
+    res.status(500).json({ error: 'Failed to dismiss recurring suggestion' })
   }
 })
 

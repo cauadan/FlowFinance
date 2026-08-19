@@ -478,3 +478,9 @@ export const markTransactionRecurring = async (transactionId: number, isRecurrin
   const { data } = await api.post<Transaction>('/transactions/mark-recurring', { transactionId, isRecurring, recurringInterval })
   return data
 }
+
+export const dismissRecurringSuggestion = async (transactionId: number, title?: string): Promise<{ success: boolean }> => {
+  const { data } = await api.post<{ success: boolean }>('/transactions/dismiss-recurring', { transactionId, title })
+  return data
+}
+

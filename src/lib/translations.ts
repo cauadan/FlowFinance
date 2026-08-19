@@ -489,6 +489,9 @@ export const translations: Record<string, Record<string, string>> = {
     'recurring.toggle_label': 'Recurring Transaction',
     'recurring.toggle_desc': 'Check to indicate that this expense or income repeats periodically',
     'recurring.frequency': 'Frequency',
+    'recurring.dismiss': 'Decline',
+    'recurring.dismiss_all': 'Decline all',
+    'recurring.dismissed_success': 'Suggestion declined successfully',
   },
   pt: {
     // Sidebar
@@ -980,6 +983,9 @@ export const translations: Record<string, Record<string, string>> = {
     'recurring.toggle_label': 'Conta Recorrente',
     'recurring.toggle_desc': 'Marque para indicar que este gasto ou receita se repete periodicamente',
     'recurring.frequency': 'Frequência',
+    'recurring.dismiss': 'Recusar',
+    'recurring.dismiss_all': 'Recusar todas',
+    'recurring.dismissed_success': 'Sugestão recusada com sucesso',
   },
   es: {
     // Sidebar
@@ -1471,5 +1477,8 @@ export const translations: Record<string, Record<string, string>> = {
     'recurring.toggle_label': 'Cuenta Recurrente',
     'recurring.toggle_desc': 'Marca para indicar que este gasto o ingreso se repite periódicamente',
     'recurring.frequency': 'Frecuencia',
+    'recurring.dismiss': 'Rechazar',
+    'recurring.dismiss_all': 'Rechazar todas',
+    'recurring.dismissed_success': 'Sugerencia rechazada con éxito',
   }
 }

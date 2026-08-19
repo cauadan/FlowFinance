@@ -17,6 +17,7 @@ import {
   Repeat,
   Sparkles,
   Check,
+  X,
 } from 'lucide-react'
 import {
   getTransactions,
@@ -28,6 +29,7 @@ import {
   exportTransactionsCsv,
   getRecurringSuggestions,
   markTransactionRecurring,
+  dismissRecurringSuggestion,
 } from '@/lib/api'
 import { useSettings } from '@/contexts/SettingsContext'
 import type { Transaction } from '@/lib/api'
@@ -136,6 +138,16 @@ export default function Transactions() {
       toast.success(t('recurring.marked_success'))
     },
     onError: () => toast.error('Falha ao marcar como recorrente'),
+  })
+
+  const dismissRecurringMutation = useMutation({
+    mutationFn: ({ transactionId, title }: { transactionId: number; title: string }) =>
+      dismissRecurringSuggestion(transactionId, title),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recurring-suggestions'] })
+      toast.success(t('recurring.dismissed_success'))
+    },
+    onError: () => toast.error('Falha ao recusar sugestão'),
   })
 
   // Mutations
@@ -259,35 +271,63 @@ export default function Transactions() {
               <Sparkles className="h-4.5 w-4.5" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
-                  {t('recurring.ai_title')}
-                </h4>
-                <span className="rounded-full bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300">
-                  {recurringSuggestions.length} {recurringSuggestions.length === 1 ? 'sugestão' : 'sugestões'}
-                </span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                    {t('recurring.ai_title')}
+                  </h4>
+                  <span className="rounded-full bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300">
+                    {recurringSuggestions.length} {recurringSuggestions.length === 1 ? 'sugestão' : 'sugestões'}
+                  </span>
+                </div>
+                {recurringSuggestions.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      recurringSuggestions.forEach(s => {
+                        dismissRecurringMutation.mutate({ transactionId: s.transactionId, title: s.title })
+                      })
+                    }}
+                    className="text-[11px] font-medium text-muted-foreground hover:text-foreground underline transition-colors"
+                  >
+                    {t('recurring.dismiss_all')}
+                  </button>
+                )}
               </div>
               <p className="mt-0.5 text-xs text-indigo-900/80 dark:text-indigo-200/80 leading-relaxed">
                 {t('recurring.ai_desc')}
               </p>
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2.5">
                 {recurringSuggestions.map((sug) => (
                   <div
                     key={sug.transactionId}
-                    className="flex items-center gap-2 rounded-xl bg-card px-3 py-1.5 text-xs shadow-xs border border-indigo-500/20"
+                    className="flex items-center gap-2 rounded-xl bg-card dark:bg-[#181c24] px-3 py-1.5 text-xs shadow-xs border border-indigo-500/20"
                   >
                     <span className="font-semibold text-foreground">{sug.title}</span>
                     <span className="text-muted-foreground font-mono text-[11px]">({formatCurrency(sug.amount, currency)})</span>
-                    <Button
-                      size="sm"
-                      onClick={() => markRecurringMutation.mutate(sug.transactionId)}
-                      disabled={markRecurringMutation.isPending}
-                      className="h-6 px-2 text-[10px] bg-indigo-600 hover:bg-indigo-700 text-white rounded-md gap-1"
-                    >
-                      <Check className="h-3 w-3" />
-                      {t('recurring.confirm_mark')}
-                    </Button>
+                    <div className="flex items-center gap-1 ml-1">
+                      <Button
+                        size="sm"
+                        onClick={() => markRecurringMutation.mutate(sug.transactionId)}
+                        disabled={markRecurringMutation.isPending || dismissRecurringMutation.isPending}
+                        className="h-6 px-2 text-[10px] bg-indigo-600 hover:bg-indigo-700 text-white rounded-md gap-1 shadow-2xs font-medium"
+                      >
+                        <Check className="h-3 w-3" />
+                        {t('recurring.confirm_mark')}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => dismissRecurringMutation.mutate({ transactionId: sug.transactionId, title: sug.title })}
+                        disabled={markRecurringMutation.isPending || dismissRecurringMutation.isPending}
+                        className="h-6 px-2 text-[10px] text-muted-foreground hover:text-red-600 hover:bg-red-500/10 rounded-md gap-1 transition-colors"
+                        title={t('recurring.dismiss')}
+                      >
+                        <X className="h-3 w-3" />
+                        {t('recurring.dismiss')}
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
