@@ -2,6 +2,7 @@ name: Supabase Keep Alive
 
 on:
   schedule:
+    # Executa toda terça e sexta-feira às 06:00 UTC
     - cron: '0 6 * * 2,5'
   workflow_dispatch:
 
@@ -11,6 +12,6 @@ jobs:
     steps:
       - name: Ping Supabase REST API
         run: |
-          curl -i -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+          curl -f -s -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/User?select=*&limit=1" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
