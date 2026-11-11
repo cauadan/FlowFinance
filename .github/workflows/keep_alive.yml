@@ -2,9 +2,8 @@ name: Supabase Keep Alive
 
 on:
   schedule:
-    # Executa toda terça e sexta-feira às 06:00 UTC
     - cron: '0 6 * * 2,5'
-  workflow_dispatch: # Permite disparar manualmente para testar
+  workflow_dispatch:
 
 jobs:
   ping-supabase:
@@ -12,6 +11,6 @@ jobs:
     steps:
       - name: Ping Supabase REST API
         run: |
-          curl -s -f -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+          curl -i -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" > /dev/null
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
